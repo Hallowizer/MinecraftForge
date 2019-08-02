@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,25 +25,24 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemMultiTexture;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
 
-@Mod(modid = StickyBlockTest.MODID, name = "ForgeDebugCustomSlimeBlock", version = StickyBlockTest.VERSION, acceptableRemoteVersions = "*")
+//@Mod(modid = StickyBlockTest.MODID, name = "ForgeDebugCustomSlimeBlock", version = StickyBlockTest.VERSION, acceptableRemoteVersions = "*")
 public class StickyBlockTest
 {
     public static final String MODID = "forgedebugcustomslimeblock";
@@ -59,10 +58,10 @@ public class StickyBlockTest
         ForgeRegistries.ITEMS.register(new ItemMultiTexture(CUSTOM_SLIME_BLOCK, CUSTOM_SLIME_BLOCK, stack -> CustomSlime.BlockType.values[stack.getMetadata()].toString()).setRegistryName(CUSTOM_SLIME_BLOCK.getRegistryName()));
     }
 
-    @EventBusSubscriber(value = Side.CLIENT, modid = MODID)
+    //@EventBusSubscriber(value = Side.CLIENT, modid = MODID)
     public static class BakeEventHandler
     {
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void registerModels(ModelRegistryEvent event)
         {
             Item item = Item.getItemFromBlock(CUSTOM_SLIME_BLOCK);
@@ -86,7 +85,7 @@ public class StickyBlockTest
         }
 
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public void getSubBlocks(CreativeTabs creativeTabs, NonNullList<ItemStack> list)
         {
             for (int i = 0; i < BlockType.values.length; ++i)

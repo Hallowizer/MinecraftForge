@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,14 +23,15 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Called when a block's texture is going to be overlaid on the player's HUD. Cancel this event to prevent the overlay.
  */
-@Cancelable
-public class RenderBlockOverlayEvent extends Event {
+@net.minecraftforge.eventbus.api.Cancelable
+public class RenderBlockOverlayEvent extends net.minecraftforge.eventbus.api.Event
+{
 
     public static enum OverlayType {
         FIRE, BLOCK, WATER
@@ -41,12 +42,6 @@ public class RenderBlockOverlayEvent extends Event {
     private final OverlayType overlayType;
     private final IBlockState blockForOverlay;
     private final BlockPos blockPos;
-    
-    @Deprecated
-    public RenderBlockOverlayEvent(EntityPlayer player, float renderPartialTicks, OverlayType type, Block block, int x, int y, int z)
-    {
-        this(player, renderPartialTicks, type, block.getDefaultState(), new BlockPos(x, y, z));
-    }
     
     public RenderBlockOverlayEvent(EntityPlayer player, float renderPartialTicks, OverlayType type, IBlockState block, BlockPos blockPos)
     {

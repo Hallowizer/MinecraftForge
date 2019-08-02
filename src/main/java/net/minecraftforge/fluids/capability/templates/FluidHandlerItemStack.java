@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.*;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.FluidTankProperties;
@@ -45,6 +46,8 @@ import net.minecraftforge.fluids.capability.IFluidTankProperties;
 public class FluidHandlerItemStack implements IFluidHandlerItem, ICapabilityProvider
 {
     public static final String FLUID_NBT_KEY = "Fluid";
+    
+    private final LazyOptional<IFluidHandlerItem> holder = LazyOptional.of(() -> this);
 
     @Nonnull
     protected ItemStack container;
@@ -70,24 +73,24 @@ public class FluidHandlerItemStack implements IFluidHandlerItem, ICapabilityProv
     @Nullable
     public FluidStack getFluid()
     {
-        NBTTagCompound tagCompound = container.getTagCompound();
+        NBTTagCompound tagCompound = container.getTag();
         if (tagCompound == null || !tagCompound.hasKey(FLUID_NBT_KEY))
         {
             return null;
         }
-        return FluidStack.loadFluidStackFromNBT(tagCompound.getCompoundTag(FLUID_NBT_KEY));
+        return FluidStack.loadFluidStackFromNBT(tagCompound.getCompound(FLUID_NBT_KEY));
     }
 
     protected void setFluid(FluidStack fluid)
     {
-        if (!container.hasTagCompound())
+        if (!container.hasTag())
         {
-            container.setTagCompound(new NBTTagCompound());
+            container.setTag(new NBTTagCompound());
         }
 
         NBTTagCompound fluidTag = new NBTTagCompound();
         fluid.writeToNBT(fluidTag);
-        container.getTagCompound().setTag(FLUID_NBT_KEY, fluidTag);
+        container.getTag().setTag(FLUID_NBT_KEY, fluidTag);
     }
 
     @Override
@@ -197,21 +200,14 @@ public class FluidHandlerItemStack implements IFluidHandlerItem, ICapabilityProv
      */
     protected void setContainerToEmpty()
     {
-        container.getTagCompound().removeTag(FLUID_NBT_KEY);
+        container.getTag().removeTag(FLUID_NBT_KEY);
     }
 
     @Override
-    public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing)
+    @Nonnull
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
     {
-        return capability == CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    @Nullable
-    public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
-    {
-        return capability == CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY ? (T) this : null;
+        return CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY.orEmpty(capability, holder);
     }
 
     /**

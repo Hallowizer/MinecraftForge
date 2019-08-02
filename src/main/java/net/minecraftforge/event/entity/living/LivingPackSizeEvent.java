@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.event.entity.living;
 
-import net.minecraftforge.fml.common.eventhandler.Event.HasResult;
+import net.minecraftforge.eventbus.api.Event.HasResult;
 import net.minecraft.entity.EntityLiving;
 
 @HasResult

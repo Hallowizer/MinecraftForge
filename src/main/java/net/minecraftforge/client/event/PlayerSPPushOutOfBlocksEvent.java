@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@ package net.minecraftforge.client.event;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.eventbus.api.Cancelable;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  *
  * Cancelling the event will prevent pushOutOfBlocks from being called.
  */
-@Cancelable
+@net.minecraftforge.eventbus.api.Cancelable
 public class PlayerSPPushOutOfBlocksEvent extends PlayerEvent
 {
     private AxisAlignedBB entityBoundingBox;

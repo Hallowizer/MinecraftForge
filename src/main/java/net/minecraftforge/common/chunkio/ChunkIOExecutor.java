@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,16 +27,21 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.collect.Maps;
 
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.ChunkProviderServer;
-import net.minecraftforge.fml.common.FMLLog;
 
 public class ChunkIOExecutor
 {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private static final int BASE_THREADS = 1;
     private static final int PLAYERS_PER_THREAD = 50;
 
@@ -120,7 +125,7 @@ public class ChunkIOExecutor
         ChunkIOProvider task = tasks.get(key);
         if (task == null)
         {
-            FMLLog.log.warn("Attempted to dequeue chunk that wasn't queued? {} @ ({}, {})", world.provider.getDimension(), x, z);
+            LOGGER.warn("Attempted to dequeue chunk that wasn't queued? {} @ ({}, {})", DimensionType.func_212678_a(world.dimension.getType()).toString(), x, z);
             return;
         }
 

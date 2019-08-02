@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -38,22 +38,23 @@ public class GuiCheckBox extends GuiButton
         this.isChecked = isChecked;
         this.boxWidth = 11;
         this.height = 11;
-        this.width = this.boxWidth + 2 + Minecraft.getMinecraft().fontRenderer.getStringWidth(displayString);
+        this.width = this.boxWidth + 2 + Minecraft.getInstance().fontRenderer.getStringWidth(displayString);
     }
 
     @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
+    public void render(int mouseX, int mouseY, float partial)
     {
         if (this.visible)
         {
+            Minecraft mc = Minecraft.getInstance();
             this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.boxWidth && mouseY < this.y + this.height;
             GuiUtils.drawContinuousTexturedBox(BUTTON_TEXTURES, this.x, this.y, 0, 46, this.boxWidth, this.height, 200, 20, 2, 3, 2, 2, this.zLevel);
-            this.mouseDragged(mc, mouseX, mouseY);
+            this.renderBg(mc, mouseX, mouseY);
             int color = 14737632;
 
-            if (packedFGColour != 0)
+            if (packedFGColor != 0)
             {
-                color = packedFGColour;
+                color = packedFGColor;
             }
             else if (!this.enabled)
             {
@@ -68,15 +69,9 @@ public class GuiCheckBox extends GuiButton
     }
 
     @Override
-    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
+    public void onClick(double mouseX, double mouseY)
     {
-        if (this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height)
-        {
-            this.isChecked = !this.isChecked;
-            return true;
-        }
-
-        return false;
+        this.isChecked = !this.isChecked;
     }
 
     public boolean isChecked()

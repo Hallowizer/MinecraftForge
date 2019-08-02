@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,7 +18,7 @@
  */
 
 package net.minecraftforge.common.network;
-
+/* TODO handshake
 import net.minecraftforge.fml.common.network.NetworkHandshakeEstablished;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -36,3 +36,4 @@ public class ServerToClientConnectionEstablishedHandler extends ChannelInboundHa
         ctx.fireUserEventTriggered(evt);
     }
 }
+*/

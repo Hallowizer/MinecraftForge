@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,8 +24,8 @@ import net.minecraftforge.event.entity.living.AnimalTameEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@Mod(modid = AnimalTameEventTest.MOD_ID, name = "AnimalTameEvent test mod", version = "1.0", acceptableRemoteVersions = "*")
-@Mod.EventBusSubscriber
+//@Mod(modid = AnimalTameEventTest.MOD_ID, name = "AnimalTameEvent test mod", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
 public class AnimalTameEventTest
 {
     static final String MOD_ID = "animal_tame_event_test";

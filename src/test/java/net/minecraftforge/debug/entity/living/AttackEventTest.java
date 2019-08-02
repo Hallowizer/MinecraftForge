@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = AttackEventTest.MODID, name = AttackEventTest.NAME, version = "1.0.0", acceptableRemoteVersions = "*")
+//@Mod(modid = AttackEventTest.MODID, name = AttackEventTest.NAME, version = "1.0.0", acceptableRemoteVersions = "*")
 public class AttackEventTest
 {
 
@@ -36,7 +36,7 @@ public class AttackEventTest
     public static final String NAME = "LivingAttackEventTest";
     private static final Logger LOGGER = LogManager.getLogger(NAME);
 
-    @EventBusSubscriber
+    //@EventBusSubscriber
     public static class LivingAttackEventHandler
     {
 

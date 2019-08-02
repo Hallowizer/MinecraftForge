@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -54,10 +54,10 @@ public class ItemHandlerHelper
 
     public static boolean canItemStacksStack(@Nonnull ItemStack a, @Nonnull ItemStack b)
     {
-        if (a.isEmpty() || !a.isItemEqual(b) || a.hasTagCompound() != b.hasTagCompound())
+        if (a.isEmpty() || !a.isItemEqual(b) || a.hasTag() != b.hasTag())
             return false;
 
-        return (!a.hasTagCompound() || a.getTagCompound().equals(b.getTagCompound())) && a.areCapsCompatible(b);
+        return (!a.hasTag() || a.getTag().equals(b.getTag())) && a.areCapsCompatible(b);
     }
 
     /**
@@ -74,14 +74,15 @@ public class ItemHandlerHelper
 
         // Metadata value only matters when the item has subtypes
         // Vanilla stacks non-subtype items with different metadata together
-        // e.g. a stick with metadata 0 and a stick with metadata 1 stack
+        // TODO Item subtypes, is this still necessary?
+        /* e.g. a stick with metadata 0 and a stick with metadata 1 stack
         if (a.getHasSubtypes() && a.getMetadata() != b.getMetadata())
             return false;
-
-        if (a.hasTagCompound() != b.hasTagCompound())
+*/
+        if (a.hasTag() != b.hasTag())
             return false;
 
-        return (!a.hasTagCompound() || a.getTagCompound().equals(b.getTagCompound())) && a.areCapsCompatible(b);
+        return (!a.hasTag() || a.getTag().equals(b.getTag())) && a.areCapsCompatible(b);
     }
 
     @Nonnull

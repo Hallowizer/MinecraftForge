@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod(modid = TooltipColorEventTest.MODID, name = "Tooltip Color Test", version = "0.1", clientSideOnly = true)
+//@Mod(modid = TooltipColorEventTest.MODID, name = "Tooltip Color Test", version = "0.1", clientSideOnly = true)
 public class TooltipColorEventTest
 {
     public static final String MODID = "tooltipcolortest";

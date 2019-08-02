@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.debug.item;
 
-import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
@@ -28,12 +28,12 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionType;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +46,7 @@ import java.util.List;
  * 3. Drink incurable_potion from Brewing creative tab
  * 4. Relog to test that changes to curative items persist, then try drinking milk and eating medicine: they should have no effect
  */
-@Mod(modid = PotionCurabilityTest.MODID, name = "Potion Curative Item Debug", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = PotionCurabilityTest.MODID, name = "Potion Curative Item Debug", version = "1.0", acceptableRemoteVersions = "*")
 public class PotionCurabilityTest
 {
     public static final boolean ENABLED = false;
@@ -56,7 +56,7 @@ public class PotionCurabilityTest
     public static final Item MEDICINE = null;
     private static Potion INCURABLE_POTION;
 
-    @Mod.EventBusSubscriber(modid = MODID)
+    //@Mod.EventBusSubscriber(modid = MODID)
     public static class Registration
     {
         @SubscribeEvent
@@ -66,7 +66,7 @@ public class PotionCurabilityTest
             event.getRegistry().register(new Medicine().setRegistryName(MODID, "medicine"));
         }
 
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void registerPotions(RegistryEvent.Register<Potion> event)
         {
             if (!ENABLED) return;
@@ -88,7 +88,7 @@ public class PotionCurabilityTest
         }
     }
 
-    @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
+    //@Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
     public static class ClientEventHandler
     {
         @SubscribeEvent

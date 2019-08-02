@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,7 @@ package net.minecraftforge.fluids.capability;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.INBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -49,7 +49,7 @@ public class CapabilityFluidHandler
 
     private static class DefaultFluidHandlerStorage<T extends IFluidHandler> implements Capability.IStorage<T> {
         @Override
-		public NBTBase writeNBT(Capability<T> capability, T instance, EnumFacing side)
+		public INBTBase writeNBT(Capability<T> capability, T instance, EnumFacing side)
 		{
 			if (!(instance instanceof IFluidTank))
 				throw new RuntimeException("IFluidHandler instance does not implement IFluidTank");
@@ -64,18 +64,18 @@ public class CapabilityFluidHandler
 			{
 				nbt.setString("Empty", "");
 			}
-			nbt.setInteger("Capacity", tank.getCapacity());
+			nbt.setInt("Capacity", tank.getCapacity());
 			return nbt;
 		}
 
         @Override
-		public void readNBT(Capability<T> capability, T instance, EnumFacing side, NBTBase nbt)
+		public void readNBT(Capability<T> capability, T instance, EnumFacing side, INBTBase nbt)
 		{
 			if (!(instance instanceof FluidTank))
 				throw new RuntimeException("IFluidHandler instance is not instance of FluidTank");
 			NBTTagCompound tags = (NBTTagCompound) nbt;
 			FluidTank tank = (FluidTank) instance;
-			tank.setCapacity(tags.getInteger("Capacity"));
+			tank.setCapacity(tags.getInt("Capacity"));
 			tank.readFromNBT(tags);
 		}
     }

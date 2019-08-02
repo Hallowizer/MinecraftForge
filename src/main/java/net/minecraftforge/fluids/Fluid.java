@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,21 +21,21 @@ package net.minecraftforge.fluids;
 
 import javax.annotation.Nullable;
 
-import java.awt.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.Locale;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Particles;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldProvider;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraft.item.EnumRarity;
 
 /**
@@ -56,6 +56,8 @@ import net.minecraft.item.EnumRarity;
  */
 public class Fluid
 {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     public static final int BUCKET_VOLUME = 1000;
 
     /** The unique identification name for this fluid. */
@@ -66,6 +68,9 @@ public class Fluid
 
     protected final ResourceLocation still;
     protected final ResourceLocation flowing;
+
+    @Nullable
+    protected final ResourceLocation overlay;
 
     private SoundEvent fillSound;
     private SoundEvent emptySound;
@@ -108,8 +113,6 @@ public class Fluid
     /**
      * This indicates if the fluid is gaseous.
      *
-     * Useful for rendering the fluid in containers and the world.
-     *
      * Generally this is associated with negative density fluids.
      */
     protected boolean isGaseous;
@@ -127,7 +130,7 @@ public class Fluid
      * The default value of null should remain for any Fluid without a Block implementation.
      */
     protected Block block = null;
-    
+
     /**
      * Color used by universal bucket and the ModelFluid baked model.
      * Note that this int includes the alpha so converting this to RGB with alpha would be
@@ -138,24 +141,29 @@ public class Fluid
      */
     protected int color = 0xFFFFFFFF;
 
-    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, Color color)
+    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, int color)
     {
-        this(fluidName, still, flowing);
+        this(fluidName, still, flowing, null, color);
+    }
+
+    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, @Nullable ResourceLocation overlay, int color)
+    {
+        this(fluidName, still, flowing, overlay);
         this.setColor(color);
     }
 
-    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, int color)
-    {
-        this(fluidName, still, flowing);
-        this.setColor(color);
-    }
-    
     public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing)
+    {
+        this(fluidName, still, flowing, (ResourceLocation) null);
+    }
+
+    public Fluid(String fluidName, ResourceLocation still, ResourceLocation flowing, @Nullable ResourceLocation overlay)
     {
         this.fluidName = fluidName.toLowerCase(Locale.ENGLISH);
         this.unlocalizedName = fluidName;
         this.still = still;
         this.flowing = flowing;
+        this.overlay = overlay;
     }
 
     public Fluid setUnlocalizedName(String unlocalizedName)
@@ -172,7 +180,7 @@ public class Fluid
         }
         else
         {
-            FMLLog.log.warn("A mod has attempted to assign Block {} to the Fluid '{}' but this Fluid has already been linked to the Block {}. "
+            LOGGER.warn("A mod has attempted to assign Block {} to the Fluid '{}' but this Fluid has already been linked to the Block {}. "
                     + "You may have duplicate Fluid Blocks as a result. It *may* be possible to configure your mods to avoid this.", block, fluidName, this.block);
         }
         return this;
@@ -225,13 +233,7 @@ public class Fluid
         this.emptySound = emptySound;
         return this;
     }
-    
-    public Fluid setColor(Color color)
-    {
-        this.color = color.getRGB();
-        return this;
-    }
-    
+
     public Fluid setColor(int color)
     {
         this.color = color;
@@ -253,7 +255,12 @@ public class Fluid
         return block != null;
     }
 
-	/**
+    public final boolean isLighterThanAir()
+    {
+        return this.density <= 0;
+    }
+
+    /**
      * Determines if this fluid should vaporize in dimensions where water vaporizes when placed.
      * To preserve the intentions of vanilla, fluids that can turn lava into obsidian should vaporize.
      * This prevents players from making the nether safe with a single bucket.
@@ -269,7 +276,7 @@ public class Fluid
         return block.getDefaultState().getMaterial() == Material.WATER;
     }
 
-	/**
+    /**
      * Called instead of placing the fluid block if {@link WorldProvider#doesWaterVaporize()} and {@link #doesVaporize(FluidStack)} are true.
      * Override this to make your explosive liquid blow up instead of the default smoke, etc.
      * Based on {@link net.minecraft.item.ItemBucket#tryPlaceContainedLiquid(EntityPlayer, World, BlockPos)}
@@ -285,7 +292,7 @@ public class Fluid
 
         for (int l = 0; l < 8; ++l)
         {
-            worldIn.spawnParticle(EnumParticleTypes.SMOKE_LARGE, (double) pos.getX() + Math.random(), (double) pos.getY() + Math.random(), (double) pos.getZ() + Math.random(), 0.0D, 0.0D, 0.0D);
+            worldIn.addOptionalParticle(Particles.LARGE_SMOKE, (double) pos.getX() + Math.random(), (double) pos.getY() + Math.random(), (double) pos.getZ() + Math.random(), 0.0D, 0.0D, 0.0D);
         }
     }
 
@@ -295,7 +302,7 @@ public class Fluid
     public String getLocalizedName(FluidStack stack)
     {
         String s = this.getUnlocalizedName();
-        return s == null ? "" : I18n.translateToLocal(s);
+        return s == null ? "" : LanguageMap.getInstance().translateKey(s); // TODO Server translation
     }
 
     /**
@@ -358,6 +365,12 @@ public class Fluid
     public ResourceLocation getFlowing()
     {
         return flowing;
+    }
+
+    @Nullable
+    public ResourceLocation getOverlay()
+    {
+        return overlay;
     }
 
     public SoundEvent getFillSound()

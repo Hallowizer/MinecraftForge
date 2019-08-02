@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,11 +22,11 @@ package net.minecraftforge.debug.entity.living;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = "equipment_change_test", name = "Equipment Change Test", version = "1.0.0", acceptableRemoteVersions = "*")
+//@Mod(modid = "equipment_change_test", name = "Equipment Change Test", version = "1.0.0", acceptableRemoteVersions = "*")
 public class EquipmentChangeEventTest
 {
     private static final boolean ENABLED = false;

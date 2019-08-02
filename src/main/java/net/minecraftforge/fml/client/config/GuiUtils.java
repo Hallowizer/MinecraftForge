@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@ package net.minecraftforge.fml.client.config;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -125,7 +126,7 @@ public class GuiUtils
     public static void drawContinuousTexturedBox(ResourceLocation res, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight,
             int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel)
     {
-        Minecraft.getMinecraft().getTextureManager().bindTexture(res);
+        Minecraft.getInstance().getTextureManager().bindTexture(res);
         drawContinuousTexturedBox(x, y, u, v, width, height, textureWidth, textureHeight, topBorder, bottomBorder, leftBorder, rightBorder, zLevel);
     }
 
@@ -151,9 +152,9 @@ public class GuiUtils
     public static void drawContinuousTexturedBox(int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight,
             int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel)
     {
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 
         int fillerWidth = textureWidth - leftBorder - rightBorder;
         int fillerHeight = textureHeight - topBorder - bottomBorder;
@@ -275,7 +276,7 @@ public class GuiUtils
             GlStateManager.disableRescaleNormal();
             RenderHelper.disableStandardItemLighting();
             GlStateManager.disableLighting();
-            GlStateManager.disableDepth();
+            GlStateManager.disableDepthTest();
             int tooltipTextWidth = 0;
 
             for (String textLine : textLines)
@@ -409,7 +410,7 @@ public class GuiUtils
             MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(stack, textLines, tooltipX, tooltipTop, font, tooltipTextWidth, tooltipHeight));
 
             GlStateManager.enableLighting();
-            GlStateManager.enableDepth();
+            GlStateManager.enableDepthTest();
             RenderHelper.enableStandardItemLighting();
             GlStateManager.enableRescaleNormal();
         }
@@ -428,8 +429,8 @@ public class GuiUtils
 
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.disableAlphaTest();
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
 
         Tessellator tessellator = Tessellator.getInstance();
@@ -443,7 +444,27 @@ public class GuiUtils
 
         GlStateManager.shadeModel(GL11.GL_FLAT);
         GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
+        GlStateManager.enableAlphaTest();
         GlStateManager.enableTexture2D();
+    }
+
+    public static void drawInscribedRect(int x, int y, int boundsWidth, int boundsHeight, int rectWidth, int rectHeight)
+    {
+        drawInscribedRect(x, y, boundsWidth, boundsHeight, rectWidth, rectHeight, true, true);
+    }
+
+    public static void drawInscribedRect(int x, int y, int boundsWidth, int boundsHeight, int rectWidth, int rectHeight, boolean centerX, boolean centerY)
+    {
+        if (rectWidth * boundsHeight > rectHeight * boundsWidth) {
+            int h = boundsHeight;
+            boundsHeight = (int) (boundsWidth * ((double) rectHeight / rectWidth));
+            if (centerY) y += (h - boundsHeight) / 2;
+        } else {
+            int w = boundsWidth;
+            boundsWidth = (int) (boundsHeight * ((double) rectWidth / rectHeight));
+            if (centerX) x += (w - boundsWidth) / 2;
+        }
+
+        Gui.drawScaledCustomSizeModalRect(x, y, 0, 0, rectWidth, rectHeight, boundsWidth, boundsHeight, rectWidth, rectHeight);
     }
 }

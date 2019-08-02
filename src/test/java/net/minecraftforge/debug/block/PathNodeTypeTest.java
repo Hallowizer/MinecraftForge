@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,22 +22,21 @@ package net.minecraftforge.debug.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.item.Item;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.Collections;
 
-@Mod(modid = PathNodeTypeTest.MOD_ID, name = "AiNodeTypeTest", version = "1.0", acceptableRemoteVersions = "*")
-@Mod.EventBusSubscriber
+//@Mod(modid = PathNodeTypeTest.MOD_ID, name = "AiNodeTypeTest", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
 public class PathNodeTypeTest
 {
     static final String MOD_ID = "ai_node_type_test";
@@ -45,7 +44,7 @@ public class PathNodeTypeTest
 
     private static final Block TEST_BLOCK = new TestBlock();
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void register(RegistryEvent.Register<Block> event)
     {
         if (ENABLED)
@@ -54,10 +53,10 @@ public class PathNodeTypeTest
         }
     }
 
-    @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MOD_ID)
+    //@Mod.EventBusSubscriber(value = Side.CLIENT, modid = MOD_ID)
     public static class ClientEventHandler
     {
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void registerModels(ModelRegistryEvent event)
         {
             if (ENABLED)

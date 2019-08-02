@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -179,11 +180,27 @@ public abstract class EntityEquipmentInvWrapper implements IItemHandlerModifiabl
         entity.setItemStackToSlot(equipmentSlot, stack);
     }
 
+    @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack)
+    {
+        return true;
+    }
+
     protected EntityEquipmentSlot validateSlotIndex(final int slot)
     {
         if (slot < 0 || slot >= slots.size())
             throw new IllegalArgumentException("Slot " + slot + " not in valid range - [0," + slots.size() + ")");
 
         return slots.get(slot);
+    }
+
+    public static LazyOptional<IItemHandlerModifiable>[] create(EntityLivingBase entity)
+    {
+        @SuppressWarnings("unchecked")
+        LazyOptional<IItemHandlerModifiable>[] ret = new LazyOptional[3];
+        ret[0] = LazyOptional.of(() -> new EntityHandsInvWrapper(entity));
+        ret[1] = LazyOptional.of(() -> new EntityArmorInvWrapper(entity));
+        ret[2] = LazyOptional.of(() -> new CombinedInvWrapper(ret[0].orElse(null), ret[1].orElse(null)));
+        return ret;
     }
 }

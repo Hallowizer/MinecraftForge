@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,23 +19,24 @@
 
 package net.minecraftforge.event.terraingen;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraftforge.eventbus.api.Event;
 
 public class ChunkGeneratorEvent extends Event
 {
-    private final IChunkGenerator gen;
+    private final IChunkGenerator<?> gen;
 
-    public ChunkGeneratorEvent(IChunkGenerator gen)
+    public ChunkGeneratorEvent(IChunkGenerator<?> gen)
     {
         this.gen = gen;
     }
 
-    public IChunkGenerator getGenerator() { return this.getGen(); }
+    public IChunkGenerator<?> getGenerator() { return this.getGen(); }
 
-    public IChunkGenerator getGen()
+    public IChunkGenerator<?> getGen()
     {
         return gen;
     }
@@ -49,24 +50,18 @@ public class ChunkGeneratorEvent extends Event
     @HasResult
     public static class ReplaceBiomeBlocks extends ChunkGeneratorEvent
     {
-        private final int x;
-        private final int z;
-        private final ChunkPrimer primer;
-        private final World world; // CAN BE NULL
+        private final IChunk chunk;
+        private final IWorld world; // CAN BE NULL
 
-        public ReplaceBiomeBlocks(IChunkGenerator chunkProvider, int x, int z, ChunkPrimer primer, World world)
+        public ReplaceBiomeBlocks(IChunkGenerator<?> chunkProvider, IChunk chunk, IWorld world)
         {
             super(chunkProvider);
-            this.x = x;
-            this.z = z;
-            this.primer = primer;
+            this.chunk = chunk;
             this.world = world;
         }
 
-        public int getX() { return x; }
-        public int getZ() { return z; }
-        public ChunkPrimer getPrimer() { return primer; }
-        public World getWorld() { return world; }
+        public IChunk getChunk() { return chunk; }
+        public IWorld getWorld() { return world; }
     }
 
     /**
@@ -85,7 +80,7 @@ public class ChunkGeneratorEvent extends Event
         private final int sizeY;
         private final int sizeZ;
 
-        public InitNoiseField(IChunkGenerator chunkProvider, double[] noisefield, int posX, int posY, int posZ, int sizeX, int sizeY, int sizeZ)
+        public InitNoiseField(IChunkGenerator<?> chunkProvider, double[] noisefield, int posX, int posY, int posZ, int sizeX, int sizeY, int sizeZ)
         {
             super(chunkProvider);
             this.setNoisefield(noisefield);

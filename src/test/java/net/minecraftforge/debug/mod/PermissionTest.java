@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,14 +33,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.FMLInitializationEvent;
+import net.minecraftforge.fml.event.FMLServerStartingEvent;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
 import net.minecraftforge.server.permission.context.BlockPosContext;
 import net.minecraftforge.server.permission.context.ContextKey;
 
-@Mod(modid = PermissionTest.MOD_ID, name = "PermissionTest", version = "1.0.0", acceptableRemoteVersions = "*")
+//@Mod(modid = PermissionTest.MOD_ID, name = "PermissionTest", version = "1.0.0", acceptableRemoteVersions = "*")
 public class PermissionTest
 {
     public static final String MOD_ID = "permission_test";

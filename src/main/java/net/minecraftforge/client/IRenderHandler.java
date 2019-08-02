@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,13 +19,14 @@
 
 package net.minecraftforge.client;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public abstract class IRenderHandler
+@FunctionalInterface
+public interface IRenderHandler
 {
-    @SideOnly(Side.CLIENT)
-    public abstract void render(float partialTicks, WorldClient world, Minecraft mc);
+    @OnlyIn(Dist.CLIENT)
+    void render(int ticks, float partialTicks, WorldClient world, Minecraft mc);
 }

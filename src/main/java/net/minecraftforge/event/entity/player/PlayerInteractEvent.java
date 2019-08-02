@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,14 +30,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.eventbus.api.Cancelable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static net.minecraftforge.fml.common.eventhandler.Event.Result.DEFAULT;
-import static net.minecraftforge.fml.common.eventhandler.Event.Result.DENY;
+import static net.minecraftforge.eventbus.api.Event.Result.DEFAULT;
+import static net.minecraftforge.eventbus.api.Event.Result.DENY;
+
+import net.minecraftforge.eventbus.api.Event.Result;
+import net.minecraftforge.fml.LogicalSide;
 
 /**
  * PlayerInteractEvent is fired when a player interacts in some way.
@@ -168,7 +170,7 @@ public class PlayerInteractEvent extends PlayerEvent
         }
 
         /**
-         * @return If {@link net.minecraft.item.Item#onItemUse} should be called
+         * @return If {@link net.minecraft.item.Item#onItemUseFirst} and {@link net.minecraft.item.Item#onItemUse} should be called
          */
         public Result getUseItem()
         {
@@ -369,11 +371,11 @@ public class PlayerInteractEvent extends PlayerEvent
     }
 
     /**
-     * @return The effective, i.e. logical, side of this interaction. This will be {@link Side#CLIENT} on the client thread, and {@link Side#SERVER} on the server thread.
+     * @return The effective, i.e. logical, side of this interaction. This will be {@link LogicalSide#CLIENT} on the client thread, and {@link LogicalSide#SERVER} on the server thread.
      */
-    public Side getSide()
+    public LogicalSide getSide()
     {
-        return getWorld().isRemote ? Side.CLIENT : Side.SERVER;
+        return getWorld().isRemote ? LogicalSide.CLIENT : LogicalSide.SERVER;
     }
 
     /**

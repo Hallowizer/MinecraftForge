@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,10 +19,12 @@
 
 package net.minecraftforge.registries;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -31,12 +33,15 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.network.FMLHandshakeMessages;
 import net.minecraftforge.registries.ForgeRegistry.Snapshot;
-import net.minecraftforge.registries.IForgeRegistry.*;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class RegistryManager
 {
+    private static final Logger LOGGER = LogManager.getLogger();
     public static final RegistryManager ACTIVE = new RegistryManager("ACTIVE");
     public static final RegistryManager VANILLA = new RegistryManager("VANILLA");
     public static final RegistryManager FROZEN = new RegistryManager("FROZEN");
@@ -68,7 +73,7 @@ public class RegistryManager
         return (ForgeRegistry<V>)this.registries.get(key);
     }
 
-    public <V extends IForgeRegistryEntry<V>> IForgeRegistry<V> getRegistry(Class<V> cls)
+    public <V extends IForgeRegistryEntry<V>> IForgeRegistry<V> getRegistry(Class<? super V> cls)
     {
         return getRegistry(superTypes.get(cls));
     }
@@ -93,23 +98,22 @@ public class RegistryManager
         return getRegistry(key);
     }
 
-    <V extends IForgeRegistryEntry<V>> ForgeRegistry<V> createRegistry(ResourceLocation name, Class<V> type, ResourceLocation defaultKey, int min, int max,
-            @Nullable AddCallback<V> add, @Nullable ClearCallback<V> clear, @Nullable CreateCallback<V> create, @Nullable ValidateCallback<V> validate,
-            boolean persisted, boolean allowOverrides, boolean isModifiable, @Nullable DummyFactory<V> dummyFactory, @Nullable MissingFactory<V> missing)
+    <V extends IForgeRegistryEntry<V>> ForgeRegistry<V> createRegistry(ResourceLocation name, RegistryBuilder<V> builder)
     {
         Set<Class<?>> parents = Sets.newHashSet();
-        findSuperTypes(type, parents);
+        findSuperTypes(builder.getType(), parents);
         SetView<Class<?>> overlappedTypes = Sets.intersection(parents, superTypes.keySet());
         if (!overlappedTypes.isEmpty())
         {
             Class<?> foundType = overlappedTypes.iterator().next();
-            FMLLog.log.error("Found existing registry of type {} named {}, you cannot create a new registry ({}) with type {}, as {} has a parent of that type", foundType, superTypes.get(foundType), name, type, type);
+            LOGGER.error("Found existing registry of type {} named {}, you cannot create a new registry ({}) with type {}, as {} has a parent of that type",
+                    foundType, superTypes.get(foundType), name, builder.getType(), builder.getType());
             throw new IllegalArgumentException("Duplicate registry parent type found - you can only have one registry for a particular super type");
         }
-        ForgeRegistry<V> reg = new ForgeRegistry<V>(type, defaultKey, min, max, create, add, clear, validate, this, allowOverrides, isModifiable, dummyFactory, missing);
+        ForgeRegistry<V> reg = new ForgeRegistry<V>(this, name, builder);
         registries.put(name, reg);
-        superTypes.put(type, name);
-        if (persisted)
+        superTypes.put(builder.getType(), name);
+        if (builder.getSaveToDisc())
             this.persisted.add(name);
         return getRegistry(name);
     }
@@ -142,5 +146,17 @@ public class RegistryManager
         this.persisted.clear();
         this.registries.clear();
         this.superTypes.clear();
+    }
+
+    public static List<Pair<String, FMLHandshakeMessages.S2CRegistry>> generateRegistryPackets(boolean isLocal)
+    {
+        return !isLocal ? ACTIVE.takeSnapshot(false).entrySet().stream().
+                map(e->Pair.of("Registry " + e.getKey(), new FMLHandshakeMessages.S2CRegistry(e.getKey(), e.getValue()))).
+                collect(Collectors.toList()) : Collections.emptyList();
+    }
+
+    public static List<ResourceLocation> registryNames()
+    {
+        return new ArrayList<>(ACTIVE.registries.keySet());
     }
 }

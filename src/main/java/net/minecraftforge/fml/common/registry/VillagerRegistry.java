@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,35 +23,36 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import net.minecraft.entity.monster.EntityZombieVillager;
+
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.Validate;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import net.minecraft.entity.monster.EntityZombieVillager;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.passive.EntityVillager.ITradeList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.RegistryNamespaced;
-import net.minecraft.world.gen.structure.StructureComponent;
-import net.minecraft.world.gen.structure.StructureVillagePieces;
-import net.minecraft.world.gen.structure.StructureVillagePieces.PieceWeight;
-import net.minecraft.world.gen.structure.StructureVillagePieces.Village;
-import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
+import net.minecraft.world.gen.feature.structure.StructurePiece;
+import net.minecraft.world.gen.feature.structure.VillagePieces;
+import net.minecraft.world.gen.feature.structure.VillagePieces.PieceWeight;
+import net.minecraft.world.gen.feature.structure.VillagePieces.Village;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.GameData;
-import net.minecraftforge.registries.IForgeRegistryEntry;
-
-import javax.annotation.Nullable;
 
 /**
  * Registry for villager trading control
  */
 public class VillagerRegistry
 {
-    @ObjectHolder("minecraft:farmer")
-    public static final VillagerProfession FARMER = null;
-    private static final VillagerRegistry INSTANCE = new VillagerRegistry();
 
+    public static final RegistryObject<VillagerProfession> FARMER = RegistryObject.of("minecraft:farmer", ()->VillagerProfession.class);
+    private static final VillagerRegistry INSTANCE = new VillagerRegistry();
     private Map<Class<?>, IVillageCreationHandler> villageCreationHandlers = Maps.newHashMap();
 
     private VillagerRegistry()
@@ -73,7 +74,7 @@ public class VillagerRegistry
          * @param random
          * @param i
          */
-        StructureVillagePieces.PieceWeight getVillagePieceWeight(Random random, int i);
+        VillagePieces.PieceWeight getVillagePieceWeight(Random random, int i);
 
         /**
          * The class of the root structure component to add to the village
@@ -94,7 +95,7 @@ public class VillagerRegistry
          * @param facing
          * @param p5
          */
-        Village buildComponent(StructureVillagePieces.PieceWeight villagePiece, StructureVillagePieces.Start startPiece, List<StructureComponent> pieces, Random random, int p1,
+        Village buildComponent(VillagePieces.PieceWeight villagePiece, VillagePieces.Start startPiece, List<StructurePiece> pieces, Random random, int p1,
                                int p2, int p3, EnumFacing facing, int p5);
     }
 
@@ -115,20 +116,20 @@ public class VillagerRegistry
 
     public static void addExtraVillageComponents(List<PieceWeight> list, Random random, int i)
     {
-        List<StructureVillagePieces.PieceWeight> parts = list;
+        List<VillagePieces.PieceWeight> parts = list;
         for (IVillageCreationHandler handler : instance().villageCreationHandlers.values())
         {
             parts.add(handler.getVillagePieceWeight(random, i));
         }
     }
 
-    public static Village getVillageComponent(StructureVillagePieces.PieceWeight villagePiece, StructureVillagePieces.Start startPiece, List<StructureComponent> pieces, Random random,
+    public static Village getVillageComponent(VillagePieces.PieceWeight villagePiece, VillagePieces.Start startPiece, List<StructurePiece> pieces, Random random,
                                               int p1, int p2, int p3, EnumFacing facing, int p5)
     {
         return instance().villageCreationHandlers.get(villagePiece.villagePieceClass).buildComponent(villagePiece, startPiece, pieces, random, p1, p2, p3, facing, p5);
     }
 
-    RegistryNamespaced<ResourceLocation, VillagerProfession> REGISTRY = GameData.getWrapper(VillagerProfession.class);
+    RegistryNamespaced<VillagerProfession> REGISTRY = GameData.getWrapper(VillagerProfession.class);
 
     private void register(VillagerProfession prof, int id)
     {
@@ -173,9 +174,9 @@ public class VillagerRegistry
                 "minecraft:textures/entity/zombie_villager/zombie_smith.png");
         {
             register(prof, 3);
-            (new VillagerCareer(prof, "armor")).init(VanillaTrades.trades[3][0]);
-            (new VillagerCareer(prof, "weapon")).init(VanillaTrades.trades[3][1]);
-            (new VillagerCareer(prof, "tool")).init(VanillaTrades.trades[3][2]);
+            (new VillagerCareer(prof, "armorer")).init(VanillaTrades.trades[3][0]);
+            (new VillagerCareer(prof, "weapon_smith")).init(VanillaTrades.trades[3][1]);
+            (new VillagerCareer(prof, "tool_smith")).init(VanillaTrades.trades[3][2]);
         }
         prof = new VillagerProfession("minecraft:butcher",
                 "minecraft:textures/entity/villager/butcher.png",
@@ -183,7 +184,7 @@ public class VillagerRegistry
         {
             register(prof, 4);
             (new VillagerCareer(prof, "butcher")).init(VanillaTrades.trades[4][0]);
-            (new VillagerCareer(prof, "leather")).init(VanillaTrades.trades[4][1]);
+            (new VillagerCareer(prof, "leatherworker")).init(VanillaTrades.trades[4][1]);
         }
         prof = new VillagerProfession("minecraft:nitwit",
                 "minecraft:textures/entity/villager/villager.png",
@@ -194,7 +195,7 @@ public class VillagerRegistry
         }
     }
 
-    public static class VillagerProfession extends IForgeRegistryEntry.Impl<VillagerProfession>
+    public static class VillagerProfession extends ForgeRegistryEntry<VillagerProfession>
     {
         private ResourceLocation name;
         private ResourceLocation texture;
@@ -313,23 +314,22 @@ public class VillagerRegistry
      * @param entity The new entity
      * @param rand   The world's RNG
      */
+
     public static void setRandomProfession(EntityVillager entity, Random rand)
     {
-        entity.setProfession(INSTANCE.REGISTRY.getRandomObject(rand));
+        entity.setProfession(INSTANCE.REGISTRY.getRandom(rand));
     }
 
-
-
-
-
-
-
+    public static void setRandomProfession(EntityZombieVillager entity, Random rand)
+    {
+        entity.setProfession(INSTANCE.REGISTRY.getRandom(rand));
+    }
 
     //Below this is INTERNAL USE ONLY DO NOT USE MODDERS
     public static void onSetProfession(EntityVillager entity, int network)
     {
-        VillagerProfession prof = INSTANCE.REGISTRY.getObjectById(network);
-        if (prof == null || INSTANCE.REGISTRY.getIDForObject(prof) != network)
+        VillagerProfession prof = INSTANCE.REGISTRY.get(network);
+        if (prof == null || INSTANCE.REGISTRY.getId(prof) != network)
         {
             throw new RuntimeException("Attempted to set villager profession to unregistered profession: " + network + " " + prof);
         }
@@ -340,18 +340,18 @@ public class VillagerRegistry
 
     public static void onSetProfession(EntityZombieVillager entity, int network)
     {
-        VillagerProfession prof = INSTANCE.REGISTRY.getObjectById(network);
-        if (prof == null && network != -1 || INSTANCE.REGISTRY.getIDForObject(prof) != network)
+        VillagerProfession prof = INSTANCE.REGISTRY.get(network);
+        if (prof == null && network != -1 || INSTANCE.REGISTRY.getId(prof) != network)
         {
             throw new RuntimeException("Attempted to set villager profession to unregistered profession: " + network + " " + prof);
         }
 
-        if (prof != entity.getForgeProfession())
-            entity.setForgeProfession(prof);
+        if (prof != entity.getProfessionForge())
+            entity.setProfession(prof);
     }
 
-    @Deprecated public static VillagerProfession getById(int network){ return INSTANCE.REGISTRY.getObjectById(network); }
-    @Deprecated public static int getId(@Nullable VillagerProfession prof){ return INSTANCE.REGISTRY.getIDForObject(prof); }
+    @Deprecated public static VillagerProfession getById(int network){ return INSTANCE.REGISTRY.get(network); }
+    @Deprecated public static int getId(@Nullable VillagerProfession prof){ return INSTANCE.REGISTRY.getId(prof); }
 
     //TODO: Figure out a good generic system for this. Put on hold for Patches.
 
@@ -362,4 +362,5 @@ public class VillagerRegistry
         //It is nasty I know but it's vanilla.
         private static final ITradeList[][][][] trades = EntityVillager.GET_TRADES_DONT_USE();
     }
+
 }

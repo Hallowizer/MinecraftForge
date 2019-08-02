@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,7 +24,7 @@ import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.init.Items;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -40,8 +40,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-@Mod(modid = TrackingTargetTest.ID, name = "Tracking Target Test", acceptableRemoteVersions = "*")
-@Mod.EventBusSubscriber
+//@Mod(modid = TrackingTargetTest.ID, name = "Tracking Target Test", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
 public class TrackingTargetTest
 {
     public static final String ID = "trackingtargettest";

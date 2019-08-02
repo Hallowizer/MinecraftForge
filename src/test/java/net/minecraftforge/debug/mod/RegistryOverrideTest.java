@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -34,16 +36,16 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@Mod(modid = RegistryOverrideTest.MODID, name = "Registry override test mod", version = "1.0", acceptableRemoteVersions = "*")
-@Mod.EventBusSubscriber
+//@Mod(modid = RegistryOverrideTest.MODID, name = "Registry override test mod", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
 public class RegistryOverrideTest
 {
     public static final String MODID = "registry_override_test";
     static final boolean ENABLED = false;
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event)
     {
         if (ENABLED)
@@ -64,6 +66,31 @@ public class RegistryOverrideTest
                         .setCreativeTab(CreativeTabs.MATERIALS)
                         .setRegistryName("minecraft:stick")
         );
+    }
+
+		@SubscribeEvent
+    public static void registerPotionTypes(RegistryEvent.Register<PotionType> event)
+    {
+        if (ENABLED)
+        {
+            event.getRegistry().register(new PotionType().setRegistryName("minecraft:awkward"));
+        }
+    }
+
+    @SubscribeEvent
+    public static void registerPotions(RegistryEvent.Register<Potion> event)
+    {
+        if (ENABLED)
+        {
+            event.getRegistry().register(new Potion(true, 0x00ffff)
+            {
+                {
+                    setPotionName("effect.poison");
+                    setIconIndex(6, 0);
+                    setEffectiveness(0.25D);
+                }
+            }.setRegistryName("minecraft:poison"));
+        }
     }
 
     private static class BlockReplacement extends Block

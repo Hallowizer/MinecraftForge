@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,6 +31,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -46,38 +48,38 @@ public class VanillaInventoryCodeHooks
     @Nullable
     public static Boolean extractHook(IHopper dest)
     {
-        Pair<IItemHandler, Object> itemHandlerResult = getItemHandler(dest, EnumFacing.UP);
-        if (itemHandlerResult == null)
-            return null;
+        return getItemHandler(dest, EnumFacing.UP)
+                .map(itemHandlerResult -> {
+                    IItemHandler handler = itemHandlerResult.getKey();
 
-        IItemHandler handler = itemHandlerResult.getKey();
-
-        for (int i = 0; i < handler.getSlots(); i++)
-        {
-            ItemStack extractItem = handler.extractItem(i, 1, true);
-            if (!extractItem.isEmpty())
-            {
-                for (int j = 0; j < dest.getSizeInventory(); j++)
-                {
-                    ItemStack destStack = dest.getStackInSlot(j);
-                    if (dest.isItemValidForSlot(j, extractItem) && (destStack.isEmpty() || destStack.getCount() < destStack.getMaxStackSize() && destStack.getCount() < dest.getInventoryStackLimit() && ItemHandlerHelper.canItemStacksStack(extractItem, destStack)))
+                    for (int i = 0; i < handler.getSlots(); i++)
                     {
-                        extractItem = handler.extractItem(i, 1, false);
-                        if (destStack.isEmpty())
-                            dest.setInventorySlotContents(j, extractItem);
-                        else
+                        ItemStack extractItem = handler.extractItem(i, 1, true);
+                        if (!extractItem.isEmpty())
                         {
-                            destStack.grow(1);
-                            dest.setInventorySlotContents(j, destStack);
+                            for (int j = 0; j < dest.getSizeInventory(); j++)
+                            {
+                                ItemStack destStack = dest.getStackInSlot(j);
+                                if (dest.isItemValidForSlot(j, extractItem) && (destStack.isEmpty() || destStack.getCount() < destStack.getMaxStackSize() && destStack.getCount() < dest.getInventoryStackLimit() && ItemHandlerHelper.canItemStacksStack(extractItem, destStack)))
+                                {
+                                    extractItem = handler.extractItem(i, 1, false);
+                                    if (destStack.isEmpty())
+                                        dest.setInventorySlotContents(j, extractItem);
+                                    else
+                                    {
+                                        destStack.grow(1);
+                                        dest.setInventorySlotContents(j, destStack);
+                                    }
+                                    dest.markDirty();
+                                    return true;
+                                }
+                            }
                         }
-                        dest.markDirty();
-                        return true;
                     }
-                }
-            }
-        }
 
-        return false;
+                    return false;
+                })
+                .orElse(null); // TODO bad null
     }
 
     /**
@@ -85,33 +87,29 @@ public class VanillaInventoryCodeHooks
      */
     public static boolean dropperInsertHook(World world, BlockPos pos, TileEntityDispenser dropper, int slot, @Nonnull ItemStack stack)
     {
-        EnumFacing enumfacing = world.getBlockState(pos).getValue(BlockDropper.FACING);
+        EnumFacing enumfacing = world.getBlockState(pos).get(BlockDropper.FACING);
         BlockPos blockpos = pos.offset(enumfacing);
-        Pair<IItemHandler, Object> destinationResult = getItemHandler(world, (double) blockpos.getX(), (double) blockpos.getY(), (double) blockpos.getZ(), enumfacing.getOpposite());
-        if (destinationResult == null)
-        {
-            return true;
-        }
-        else
-        {
-            IItemHandler itemHandler = destinationResult.getKey();
-            Object destination = destinationResult.getValue();
-            ItemStack dispensedStack = stack.copy().splitStack(1);
-            ItemStack remainder = putStackInInventoryAllSlots(dropper, destination, itemHandler, dispensedStack);
+        return getItemHandler(world, (double) blockpos.getX(), (double) blockpos.getY(), (double) blockpos.getZ(), enumfacing.getOpposite())
+                .map(destinationResult -> {
+                    IItemHandler itemHandler = destinationResult.getKey();
+                    Object destination = destinationResult.getValue();
+                    ItemStack dispensedStack = stack.copy().split(1);
+                    ItemStack remainder = putStackInInventoryAllSlots(dropper, destination, itemHandler, dispensedStack);
 
-            if (remainder.isEmpty())
-            {
-                remainder = stack.copy();
-                remainder.shrink(1);
-            }
-            else
-            {
-                remainder = stack.copy();
-            }
+                    if (remainder.isEmpty())
+                    {
+                        remainder = stack.copy();
+                        remainder.shrink(1);
+                    }
+                    else
+                    {
+                        remainder = stack.copy();
+                    }
 
-            dropper.setInventorySlotContents(slot, remainder);
-            return false;
-        }
+                    dropper.setInventorySlotContents(slot, remainder);
+                    return false;
+                })
+                .orElse(true);
     }
 
     /**
@@ -119,42 +117,38 @@ public class VanillaInventoryCodeHooks
      */
     public static boolean insertHook(TileEntityHopper hopper)
     {
-        EnumFacing hopperFacing = BlockHopper.getFacing(hopper.getBlockMetadata());
-        Pair<IItemHandler, Object> destinationResult = getItemHandler(hopper, hopperFacing);
-        if (destinationResult == null)
-        {
-            return false;
-        }
-        else
-        {
-            IItemHandler itemHandler = destinationResult.getKey();
-            Object destination = destinationResult.getValue();
-            if (isFull(itemHandler))
-            {
-                return false;
-            }
-            else
-            {
-                for (int i = 0; i < hopper.getSizeInventory(); ++i)
-                {
-                    if (!hopper.getStackInSlot(i).isEmpty())
+        EnumFacing hopperFacing = hopper.getBlockState().get(BlockHopper.FACING);
+        return getItemHandler(hopper, hopperFacing)
+                .map(destinationResult -> {
+                    IItemHandler itemHandler = destinationResult.getKey();
+                    Object destination = destinationResult.getValue();
+                    if (isFull(itemHandler))
                     {
-                        ItemStack originalSlotContents = hopper.getStackInSlot(i).copy();
-                        ItemStack insertStack = hopper.decrStackSize(i, 1);
-                        ItemStack remainder = putStackInInventoryAllSlots(hopper, destination, itemHandler, insertStack);
-
-                        if (remainder.isEmpty())
+                        return false;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < hopper.getSizeInventory(); ++i)
                         {
-                            return true;
+                            if (!hopper.getStackInSlot(i).isEmpty())
+                            {
+                                ItemStack originalSlotContents = hopper.getStackInSlot(i).copy();
+                                ItemStack insertStack = hopper.decrStackSize(i, 1);
+                                ItemStack remainder = putStackInInventoryAllSlots(hopper, destination, itemHandler, insertStack);
+
+                                if (remainder.isEmpty())
+                                {
+                                    return true;
+                                }
+
+                                hopper.setInventorySlotContents(i, originalSlotContents);
+                            }
                         }
 
-                        hopper.setInventorySlotContents(i, originalSlotContents);
+                        return false;
                     }
-                }
-
-                return false;
-            }
-        }
+                })
+                .orElse(false);
     }
 
     private static ItemStack putStackInInventoryAllSlots(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack)
@@ -200,7 +194,7 @@ public class VanillaInventoryCodeHooks
                     if (!destinationHopper.mayTransfer())
                     {
                         int k = 0;
-
+/* TODO TileEntityHopper patches
                         if (source instanceof TileEntityHopper)
                         {
                             if (destinationHopper.getLastUpdateTime() >= ((TileEntityHopper) source).getLastUpdateTime())
@@ -208,7 +202,7 @@ public class VanillaInventoryCodeHooks
                                 k = 1;
                             }
                         }
-
+*/
                         destinationHopper.setTransferCooldown(8 - k);
                     }
                 }
@@ -218,12 +212,11 @@ public class VanillaInventoryCodeHooks
         return stack;
     }
 
-    @Nullable
-    private static Pair<IItemHandler, Object> getItemHandler(IHopper hopper, EnumFacing hopperFacing)
+    private static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(IHopper hopper, EnumFacing hopperFacing)
     {
-        double x = hopper.getXPos() + (double) hopperFacing.getFrontOffsetX();
-        double y = hopper.getYPos() + (double) hopperFacing.getFrontOffsetY();
-        double z = hopper.getZPos() + (double) hopperFacing.getFrontOffsetZ();
+        double x = hopper.getXPos() + (double) hopperFacing.getXOffset();
+        double y = hopper.getYPos() + (double) hopperFacing.getYOffset();
+        double z = hopper.getZPos() + (double) hopperFacing.getZOffset();
         return getItemHandler(hopper.getWorld(), x, y, z, hopperFacing.getOpposite());
     }
 
@@ -253,30 +246,24 @@ public class VanillaInventoryCodeHooks
         return true;
     }
 
-    @Nullable
-    public static Pair<IItemHandler, Object> getItemHandler(World worldIn, double x, double y, double z, final EnumFacing side)
+    public static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final EnumFacing side)
     {
-        Pair<IItemHandler, Object> destination = null;
         int i = MathHelper.floor(x);
         int j = MathHelper.floor(y);
         int k = MathHelper.floor(z);
         BlockPos blockpos = new BlockPos(i, j, k);
         net.minecraft.block.state.IBlockState state = worldIn.getBlockState(blockpos);
-        Block block = state.getBlock();
 
-        if (block.hasTileEntity(state))
+        if (state.hasTileEntity())
         {
             TileEntity tileentity = worldIn.getTileEntity(blockpos);
             if (tileentity != null)
             {
-                if (tileentity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side))
-                {
-                    IItemHandler capability = tileentity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
-                    destination = ImmutablePair.<IItemHandler, Object>of(capability, tileentity);
-                }
+                return tileentity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)
+                    .map(capability -> ImmutablePair.<IItemHandler, Object>of(capability, tileentity));
             }
         }
 
-        return destination;
+        return LazyOptional.empty();
     }
 }

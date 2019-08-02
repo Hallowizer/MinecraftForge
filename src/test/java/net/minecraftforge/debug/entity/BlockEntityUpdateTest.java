@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,9 +26,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.event.FMLServerStartingEvent;
 
-@Mod(modid = "entityupdateblockedtest", name = "Entity Update Blocked Test", version = "1.0.0", acceptableRemoteVersions = "*")
+//@Mod(modid = "entityupdateblockedtest", name = "Entity Update Blocked Test", version = "1.0.0", acceptableRemoteVersions = "*")
 public class BlockEntityUpdateTest
 {
     @Mod.EventHandler

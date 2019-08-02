@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,9 +21,6 @@ package net.minecraftforge.fml.client.config;
 
 import java.util.List;
 import java.util.regex.Pattern;
-
-import net.minecraftforge.fml.client.config.GuiConfigEntries.IConfigEntry;
-import net.minecraftforge.fml.client.config.GuiEditArrayEntries.IArrayEntry;
 
 /**
  * This interface provides the information needed by GuiConfig and GuiConfigEntries to display config elements for editing.

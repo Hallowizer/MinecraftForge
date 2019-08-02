@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,8 @@
 
 package net.minecraftforge.registries;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -33,10 +30,12 @@ import org.apache.commons.lang3.Validate;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.RegistryNamespaced;
-import net.minecraftforge.fml.common.FMLLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-class NamespacedWrapper<V extends IForgeRegistryEntry<V>> extends RegistryNamespaced<ResourceLocation, V> implements ILockableRegistry
+class NamespacedWrapper<V extends IForgeRegistryEntry<V>> extends RegistryNamespaced<V> implements ILockableRegistry
 {
+    private static final Logger LOGGER = LogManager.getLogger();
     private boolean locked = false;
     private ForgeRegistry<V> delegate;
 
@@ -58,11 +57,11 @@ class NamespacedWrapper<V extends IForgeRegistryEntry<V>> extends RegistryNamesp
 
         int realId = this.delegate.add(id, value);
         if (realId != id && id != -1)
-            FMLLog.log.warn("Registered object did not get ID it asked for. Name: {} Type: {} Expected: {} Got: {}", key, value.getRegistryType().getName(), id, realId);
+            LOGGER.warn("Registered object did not get ID it asked for. Name: {} Type: {} Expected: {} Got: {}", key, value.getRegistryType().getName(), id, realId);
     }
 
     @Override
-    public void putObject(ResourceLocation key, V value)
+    public void put(ResourceLocation key, V value)
     {
         register(-1, key, value);
     }
@@ -71,33 +70,33 @@ class NamespacedWrapper<V extends IForgeRegistryEntry<V>> extends RegistryNamesp
     // Reading Functions
     @Override
     @Nullable
-    public V getObject(@Nullable ResourceLocation name)
+    public V func_212608_b(@Nullable ResourceLocation name)
     {
-        return this.delegate.getValue(name);
+        return this.delegate.getRaw(name); //get without default
     }
 
     @Override
     @Nullable
-    public ResourceLocation getNameForObject(V value)
+    public ResourceLocation getKey(V value)
     {
         return this.delegate.getKey(value);
     }
 
     @Override
-    public boolean containsKey(ResourceLocation key)
+    public boolean func_212607_c(ResourceLocation key)
     {
         return this.delegate.containsKey(key);
     }
 
     @Override
-    public int getIDForObject(@Nullable V value)
+    public int getId(@Nullable V value)
     {
         return this.delegate.getID(value);
     }
 
     @Override
     @Nullable
-    public V getObjectById(int id)
+    public V get(int id)
     {
         return this.delegate.getValue(id);
     }
@@ -116,10 +115,16 @@ class NamespacedWrapper<V extends IForgeRegistryEntry<V>> extends RegistryNamesp
 
     @Override
     @Nullable
-    public V getRandomObject(Random random)
+    public V getRandom(Random random)
     {
-        Collection<V> values = this.delegate.getValuesCollection();
+        Collection<V> values = this.delegate.getValues();
         return values.stream().skip(random.nextInt(values.size())).findFirst().orElse(null);
+    }
+
+    @Override
+    public boolean isEmpty()
+    {
+        return this.delegate.isEmpty();
     }
 
     //internal

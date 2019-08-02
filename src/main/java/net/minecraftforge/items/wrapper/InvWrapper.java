@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -109,7 +109,7 @@ public class InvWrapper implements IItemHandlerModifiable
                 stack = stack.copy();
                 if (!simulate)
                 {
-                    ItemStack copy = stack.splitStack(m);
+                    ItemStack copy = stack.split(m);
                     copy.grow(stackInSlot.getCount());
                     getInv().setInventorySlotContents(slot, copy);
                     getInv().markDirty();
@@ -134,7 +134,7 @@ public class InvWrapper implements IItemHandlerModifiable
                 stack = stack.copy();
                 if (!simulate)
                 {
-                    getInv().setInventorySlotContents(slot, stack.splitStack(m));
+                    getInv().setInventorySlotContents(slot, stack.split(m));
                     getInv().markDirty();
                     return stack;
                 }
@@ -202,6 +202,12 @@ public class InvWrapper implements IItemHandlerModifiable
     public int getSlotLimit(int slot)
     {
         return getInv().getInventoryStackLimit();
+    }
+
+    @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack)
+    {
+        return getInv().isItemValidForSlot(slot, stack);
     }
 
     public IInventory getInv()

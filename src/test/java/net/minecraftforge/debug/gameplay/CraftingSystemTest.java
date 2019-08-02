@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,14 +29,14 @@ import net.minecraftforge.common.crafting.IRecipeFactory;
 import net.minecraftforge.common.crafting.JsonContext;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.function.BooleanSupplier;
 
-@Mod(modid = CraftingSystemTest.MOD_ID, name = "CraftingTestMod", version = "1.0", acceptableRemoteVersions = "*")
-@Mod.EventBusSubscriber
+//@Mod(modid = CraftingSystemTest.MOD_ID, name = "CraftingTestMod", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
 public class CraftingSystemTest
 {
     static final String MOD_ID = "crafting_system_test";
@@ -44,7 +44,7 @@ public class CraftingSystemTest
 
     static final Logger logger = LogManager.getLogger(MOD_ID);
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void registerRecipes(RegistryEvent.Register<IRecipe> event)
     {
         logger.info("Registering Test Recipes:");

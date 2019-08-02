@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -46,8 +46,8 @@ import java.util.Set;
  * Most of the real work is in the advancements directory of this mod.
  * This mod tests ore-dict advancement triggers.
  */
-@Mod.EventBusSubscriber
-@Mod(modid = OredictTriggerTest.MODID, name = "Oredict Item Predicate Test", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
+//@Mod(modid = OredictTriggerTest.MODID, name = "Oredict Item Predicate Test", version = "1.0", acceptableRemoteVersions = "*")
 public class OredictTriggerTest
 {
     public static final String MODID = "oredict_predicate";

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,12 +19,12 @@
 
 package net.minecraftforge.client.event;
 
+import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 
 /**
@@ -33,7 +33,7 @@ import java.io.File;
  * This event is {@link Cancelable}
  *
  * {@link #screenshotFile} contains the file the screenshot will be/was saved to
- * {@link #image} contains the {@link BufferedImage} that will be saved
+ * {@link #image} contains the {@link NativeImage} that will be saved
  * {@link #resultMessage} contains the {@link ITextComponent} to be returned. If {@code null}, the default vanilla message will be used instead
  */
 @Cancelable
@@ -42,18 +42,18 @@ public class ScreenshotEvent extends Event
 
     public static final ITextComponent DEFAULT_CANCEL_REASON = new TextComponentString("Screenshot canceled");
 
-    private BufferedImage image;
+    private NativeImage image;
     private File screenshotFile;
 
     private ITextComponent resultMessage = null;
 
-    public ScreenshotEvent(BufferedImage image, File screenshotFile)
+    public ScreenshotEvent(NativeImage image, File screenshotFile)
     {
         this.image = image;
         this.screenshotFile = screenshotFile;
     }
 
-    public BufferedImage getImage()
+    public NativeImage getImage()
     {
         return image;
     }

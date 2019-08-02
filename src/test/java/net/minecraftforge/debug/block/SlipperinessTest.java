@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@ package net.minecraftforge.debug.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityBoat;
@@ -30,18 +30,18 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Collections;
 
-@Mod(modid = SlipperinessTest.MOD_ID, name = "Slipperiness Test", version = "0.0.0", acceptableRemoteVersions = "*")
-@EventBusSubscriber
+//@Mod(modid = SlipperinessTest.MOD_ID, name = "Slipperiness Test", version = "0.0.0", acceptableRemoteVersions = "*")
+//@EventBusSubscriber
 public class SlipperinessTest
 {
     static final String MOD_ID = "slipperiness_test";
@@ -70,7 +70,7 @@ public class SlipperinessTest
         e.getRegistry().register(new ItemBlock(BB_BLOCK).setRegistryName(BB_BLOCK.getRegistryName()));
     }
 
-    @EventBusSubscriber(value = Side.CLIENT, modid = MOD_ID)
+    //@EventBusSubscriber(value = Side.CLIENT, modid = MOD_ID)
     public static class ClientEventHandler
     {
         @SubscribeEvent

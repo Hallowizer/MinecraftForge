@@ -1,11 +1,11 @@
---- ../src-base/minecraft/net/minecraft/block/BlockMushroom.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockMushroom.java
-@@ -89,7 +89,7 @@
-             }
-             else
-             {
--                return p_180671_1_.func_175699_k(p_180671_2_) < 13 && this.func_185514_i(iblockstate);
-+                return p_180671_1_.func_175699_k(p_180671_2_) < 13 && iblockstate.func_177230_c().canSustainPlant(iblockstate, p_180671_1_, p_180671_2_.func_177977_b(), net.minecraft.util.EnumFacing.UP, this);
-             }
-         }
-         else
+--- a/net/minecraft/block/BlockMushroom.java
++++ b/net/minecraft/block/BlockMushroom.java
+@@ -64,7 +64,7 @@
+       IBlockState iblockstate = p_196260_2_.func_180495_p(blockpos);
+       Block block = iblockstate.func_177230_c();
+       if (block != Blocks.field_150391_bh && block != Blocks.field_196661_l) {
+-         return p_196260_2_.func_201669_a(p_196260_3_, 0) < 13 && this.func_200014_a_(iblockstate, p_196260_2_, blockpos);
++         return p_196260_2_.func_201669_a(p_196260_3_, 0) < 13 && iblockstate.canSustainPlant(p_196260_2_, blockpos, net.minecraft.util.EnumFacing.UP, this);
+       } else {
+          return true;
+       }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,24 +23,25 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import net.minecraft.command.ICommandSender;
+import net.minecraft.command.CommandSource;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentBase;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.storage.SessionLockException;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.WorldWorkerManager.IWorker;
 
 public class ChunkGenWorker implements IWorker
 {
-    private final ICommandSender listener;
+    private final CommandSource listener;
     protected final BlockPos start;
     protected final int total;
-    private final int dim;
+    private final DimensionType dim;
     private final Queue<BlockPos> queue;
     private final int notificationFrequency;
     private int lastNotification = 0;
@@ -48,7 +49,7 @@ public class ChunkGenWorker implements IWorker
     private int genned = 0;
     private Boolean keepingLoaded;
 
-    public ChunkGenWorker(ICommandSender listener, BlockPos start, int total, int dim, int interval)
+    public ChunkGenWorker(CommandSource listener, BlockPos start, int total, DimensionType dim, int interval)
     {
         this.listener = listener;
         this.start = start;
@@ -85,15 +86,9 @@ public class ChunkGenWorker implements IWorker
         return ret;
     }
 
-    @Deprecated // TODO remove in 1.13
-    public TextComponentTranslation getStartMessage()
+    public TextComponentBase getStartMessage(CommandSource sender)
     {
         return new TextComponentTranslation("commands.forge.gen.start", total, start.getX(), start.getZ(), dim);
-    }
-
-    public TextComponentBase getStartMessage(ICommandSender sender)
-    {
-        return TextComponentHelper.createComponentTranslation(sender, "commands.forge.gen.start", total, start.getX(), start.getZ(), dim);
     }
 
     @Override
@@ -105,14 +100,13 @@ public class ChunkGenWorker implements IWorker
     @Override
     public boolean doWork()
     {
-        WorldServer world = DimensionManager.getWorld(dim);
+        WorldServer world = DimensionManager.getWorld(listener.getServer(), dim, false, false);
         if (world == null)
         {
-            DimensionManager.initDimension(dim);
-            world = DimensionManager.getWorld(dim);
+            world = DimensionManager.initWorld(listener.getServer(), dim);
             if (world == null)
             {
-                listener.sendMessage(TextComponentHelper.createComponentTranslation(listener, "commands.forge.gen.dim_fail", dim));
+                listener.sendFeedback(new TextComponentTranslation("commands.forge.gen.dim_fail", dim), true);
                 queue.clear();
                 return false;
             }
@@ -124,7 +118,7 @@ public class ChunkGenWorker implements IWorker
 
             if (lastNotifcationTime < System.currentTimeMillis() - 10*1000)
             {
-                listener.sendMessage(TextComponentHelper.createComponentTranslation(listener, "commands.forge.gen.progress", total - queue.size(), total));
+                listener.sendFeedback(new TextComponentTranslation("commands.forge.gen.progress", total - queue.size(), total), true);
                 lastNotifcationTime = System.currentTimeMillis();
             }
             return false;
@@ -137,12 +131,12 @@ public class ChunkGenWorker implements IWorker
             // While we work we don't want to cause world load spam so pause unloading the world.
             if (keepingLoaded == null)
             {
-                keepingLoaded = DimensionManager.keepDimensionLoaded(dim, true);
+                keepingLoaded = DimensionManager.keepLoaded(dim, true);
             }
 
             if (++lastNotification >= notificationFrequency || lastNotifcationTime < System.currentTimeMillis() - 60*1000)
             {
-                listener.sendMessage(TextComponentHelper.createComponentTranslation(listener, "commands.forge.gen.progress", total - queue.size(), total));
+                listener.sendFeedback(new TextComponentTranslation("commands.forge.gen.progress", total - queue.size(), total), true);
                 lastNotification = 0;
                 lastNotifcationTime = System.currentTimeMillis();
             }
@@ -150,27 +144,27 @@ public class ChunkGenWorker implements IWorker
             int x = next.getX();
             int z = next.getZ();
 
-            Chunk target = world.getChunkFromChunkCoords(x, z);
+            Chunk target = world.getChunk(x, z);
             Chunk[] chunks = { target };
 
-            if (!target.isTerrainPopulated())
+            if (!target.isPopulated())
             {
                 // In order for a chunk to populate, The chunks around its bottom right corner need to be loaded.
                 // So lets load those chunks, but this needs to be done in a certain order to make this trigger.
                 // So this does load more chunks then it should, and is a hack, but lets go!.
                 chunks = new Chunk[] {
                     target,
-                    world.getChunkFromChunkCoords(x + 1, z),
-                    world.getChunkFromChunkCoords(x + 1, z + 1),
-                    world.getChunkFromChunkCoords(x,     z + 1),
+                    world.getChunk(x + 1, z),
+                    world.getChunk(x + 1, z + 1),
+                    world.getChunk(x,     z + 1),
                 };
                 try
                 {
                     world.getChunkProvider().chunkLoader.saveChunk(world, target);
                 }
-                catch (IOException | MinecraftException e)
+                catch (IOException | SessionLockException e)
                 {
-                    listener.sendMessage(TextComponentHelper.createComponentTranslation(listener, "commands.forge.gen.saveerror", e.getMessage()));
+                    listener.sendFeedback(new TextComponentTranslation("commands.forge.gen.saveerror", e.getMessage()), true);
                 }
                 genned++;
             }
@@ -185,10 +179,10 @@ public class ChunkGenWorker implements IWorker
 
         if (queue.size() == 0)
         {
-            listener.sendMessage(TextComponentHelper.createComponentTranslation(listener, "commands.forge.gen.complete", genned, total, dim));
-            if (keepingLoaded != null && keepingLoaded)
+            listener.sendFeedback(new TextComponentTranslation("commands.forge.gen.complete", genned, total, dim), true);
+            if (keepingLoaded != null && !keepingLoaded)
             {
-                DimensionManager.keepDimensionLoaded(dim, false);
+                DimensionManager.keepLoaded(dim, false);
             }
             return false;
         }

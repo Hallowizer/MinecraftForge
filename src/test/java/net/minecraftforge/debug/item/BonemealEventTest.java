@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,12 +23,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = BonemealEventTest.MODID, name = "Bonemeal Event Test", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = BonemealEventTest.MODID, name = "Bonemeal Event Test", version = "1.0", acceptableRemoteVersions = "*")
 public class BonemealEventTest
 {
     public static final String MODID = "bonemealeventtest";
@@ -53,7 +53,7 @@ public class BonemealEventTest
         if (event.getHand() == EnumHand.MAIN_HAND)
         {
             // If the bone meal is being used from the main hand, set the result to ALLOW to use up the bone meal without growing the crop
-            event.setResult(Event.Result.ALLOW);
+            event.setResult(net.minecraftforge.eventbus.api.Event.Result.ALLOW);
             logger.info("Prevented bone meal growth effect from main hand");
         }
         else if (event.getHand() == EnumHand.OFF_HAND)

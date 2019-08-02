@@ -1,40 +1,27 @@
---- ../src-base/minecraft/net/minecraft/client/particle/Particle.java
-+++ ../src-work/minecraft/net/minecraft/client/particle/Particle.java
-@@ -265,8 +265,8 @@
-         {
-             this.field_187134_n = p_187115_1_;
-             this.field_187135_o = p_187115_2_;
--            AxisAlignedBB axisalignedbb = this.func_187116_l();
--            this.func_187108_a(new AxisAlignedBB(axisalignedbb.field_72340_a, axisalignedbb.field_72338_b, axisalignedbb.field_72339_c, axisalignedbb.field_72340_a + (double)this.field_187134_n, axisalignedbb.field_72338_b + (double)this.field_187135_o, axisalignedbb.field_72339_c + (double)this.field_187134_n));
-+            // FORGE: Fix MC-12269 - Glitchy movement when setSize is called without setPosition
-+            func_187109_b(field_187126_f, field_187127_g, field_187128_h);
-         }
-     }
+--- a/net/minecraft/client/particle/Particle.java
++++ b/net/minecraft/client/particle/Particle.java
+@@ -249,6 +249,8 @@
  
-@@ -283,6 +283,8 @@
-     public void func_187110_a(double p_187110_1_, double p_187110_3_, double p_187110_5_)
-     {
-         double d0 = p_187110_3_;
-+        double origX = p_187110_1_;
-+        double origZ = p_187110_5_;
+    public void func_187110_a(double p_187110_1_, double p_187110_3_, double p_187110_5_) {
+       double d0 = p_187110_3_;
++      double origX = p_187110_1_;
++      double origZ = p_187110_5_;
+       if (this.field_190017_n && (p_187110_1_ != 0.0D || p_187110_3_ != 0.0D || p_187110_5_ != 0.0D)) {
+          ReuseableStream<VoxelShape> reuseablestream = new ReuseableStream<>(this.field_187122_b.func_199406_a((Entity)null, this.func_187116_l(), p_187110_1_, p_187110_3_, p_187110_5_));
+          p_187110_3_ = VoxelShapes.func_212437_a(EnumFacing.Axis.Y, this.func_187116_l(), reuseablestream.func_212761_a(), p_187110_3_);
+@@ -267,12 +269,12 @@
+       }
  
-         if (this.field_190017_n)
-         {
-@@ -315,14 +317,14 @@
-         }
+       this.func_187118_j();
+-      this.field_187132_l = p_187110_3_ != p_187110_3_ && d0 < 0.0D;
+-      if (p_187110_1_ != p_187110_1_) {
++      this.field_187132_l = d0 != p_187110_3_ && d0 < 0.0D;
++      if (origX != p_187110_1_) {
+          this.field_187129_i = 0.0D;
+       }
  
-         this.func_187118_j();
--        this.field_187132_l = p_187110_3_ != p_187110_3_ && d0 < 0.0D;
-+        this.field_187132_l = d0 != p_187110_3_ && d0 < 0.0D;
+-      if (p_187110_5_ != p_187110_5_) {
++      if (origZ != p_187110_5_) {
+          this.field_187131_k = 0.0D;
+       }
  
--        if (p_187110_1_ != p_187110_1_)
-+        if (origX != p_187110_1_)
-         {
-             this.field_187129_i = 0.0D;
-         }
- 
--        if (p_187110_5_ != p_187110_5_)
-+        if (origZ != p_187110_5_)
-         {
-             this.field_187131_k = 0.0D;
-         }

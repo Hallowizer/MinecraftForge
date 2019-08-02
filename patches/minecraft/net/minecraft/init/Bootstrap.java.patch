@@ -1,29 +1,36 @@
---- ../src-base/minecraft/net/minecraft/init/Bootstrap.java
-+++ ../src-work/minecraft/net/minecraft/init/Bootstrap.java
-@@ -264,6 +264,9 @@
-         };
-         BlockDispenser.field_149943_a.func_82595_a(Items.field_151129_at, ibehaviordispenseitem);
-         BlockDispenser.field_149943_a.func_82595_a(Items.field_151131_as, ibehaviordispenseitem);
-+        BlockDispenser.field_149943_a.func_82595_a(Items.field_151117_aB, net.minecraftforge.fluids.DispenseFluidContainer.getInstance());
-+        BlockDispenser.field_149943_a.func_82595_a(Items.field_151133_ar, net.minecraftforge.fluids.DispenseFluidContainer.getInstance());
-+        if (false)
-         BlockDispenser.field_149943_a.func_82595_a(Items.field_151133_ar, new BehaviorDefaultDispenseItem()
-         {
-             private final BehaviorDefaultDispenseItem field_150840_b = new BehaviorDefaultDispenseItem();
-@@ -489,6 +492,7 @@
-         if (!field_151355_a)
-         {
-             field_151355_a = true;
+--- a/net/minecraft/init/Bootstrap.java
++++ b/net/minecraft/init/Bootstrap.java
+@@ -79,6 +79,7 @@
+ import net.minecraft.world.gen.ChunkGeneratorType;
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.api.distmarker.OnlyIn;
++
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ 
+@@ -252,6 +253,9 @@
+       BlockDispenser.func_199774_a(Items.field_203797_aN, ibehaviordispenseitem);
+       BlockDispenser.func_199774_a(Items.field_203795_aL, ibehaviordispenseitem);
+       BlockDispenser.func_199774_a(Items.field_204272_aO, ibehaviordispenseitem);
++      /*BlockDispenser.registerDispenseBehavior(Items.MILK_BUCKET, net.minecraftforge.fluids.DispenseFluidContainer.getInstance());
++      BlockDispenser.registerDispenseBehavior(Items.BUCKET, net.minecraftforge.fluids.DispenseFluidContainer.getInstance());
++      if (false)*/
+       BlockDispenser.func_199774_a(Items.field_151133_ar, new BehaviorDefaultDispenseItem() {
+          private final BehaviorDefaultDispenseItem field_150840_b = new BehaviorDefaultDispenseItem();
+ 
+@@ -420,6 +424,7 @@
+             PaintingType.func_200831_a();
+             StatList.func_212734_a();
+             IRegistry.func_212613_e();
++            net.minecraftforge.fml.common.registry.VillagerRegistry.instance();
+             if (SharedConstants.field_206244_b) {
+                func_210839_a("block", IRegistry.field_212618_g, Block::func_149739_a);
+                func_210839_a("biome", IRegistry.field_212624_m, Biome::func_210773_k);
+@@ -429,6 +434,7 @@
+                func_210839_a("entity", IRegistry.field_212629_r, EntityType::func_210760_d);
+             }
+ 
 +            if (false) // skip redirectOutputToLog, Forge already redirects stdout and stderr output to log so that they print with more context
              func_179868_d();
-             SoundEvent.func_187504_b();
-             Block.func_149671_p();
-@@ -524,6 +528,8 @@
-                     field_179871_c.error("Errors with built-in loot tables");
-                 }
-             }
-+
-+            net.minecraftforge.registries.GameData.vanillaSnapshot();
-         }
-     }
- 
+          }
+       }

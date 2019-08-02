@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -40,19 +40,20 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.animation.Event;
 import net.minecraftforge.common.animation.ITimeValue;
 import net.minecraftforge.common.animation.TimeValues;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.util.JsonUtils;
-import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -67,6 +68,7 @@ import java.util.function.Function;
 
 public final class AnimationStateMachine implements IAnimationStateMachine
 {
+    private static final Logger LOGGER = LogManager.getLogger();
     private final ImmutableMap<String, ITimeValue> parameters;
     private final ImmutableMap<String, IClip> clips;
     private final ImmutableList<String> states;
@@ -90,12 +92,6 @@ public final class AnimationStateMachine implements IAnimationStateMachine
                 return Clips.apply(key.getLeft(), key.getMiddle(), key.getRight());
             }
         });
-
-    @Deprecated
-    public AnimationStateMachine(ImmutableMap<String, ITimeValue> parameters, ImmutableMap<String, IClip> clips, ImmutableList<String> states, ImmutableMap<String, String> transitions, String startState)
-    {
-        this(parameters, clips, states, ImmutableMultimap.copyOf(Multimaps.newSetMultimap(Maps.transformValues(transitions, ImmutableSet::of), Sets::newHashSet)), startState);
-    }
 
     public AnimationStateMachine(ImmutableMap<String, ITimeValue> parameters, ImmutableMap<String, IClip> clips, ImmutableList<String> states, ImmutableMultimap<String, String> transitions, String startState)
     {
@@ -163,7 +159,7 @@ public final class AnimationStateMachine implements IAnimationStateMachine
                     }
                     else
                     {
-                        FMLLog.log.error("Unknown special event \"{}\", ignoring.", event.event());
+                        LOGGER.error("Unknown special event \"{}\", ignoring.", event.event());
                     }
                 }
             }
@@ -213,7 +209,7 @@ public final class AnimationStateMachine implements IAnimationStateMachine
     /**
      * Load a new instance if AnimationStateMachine at specified location, with specified custom parameters.
      */
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static IAnimationStateMachine load(IResourceManager manager, ResourceLocation location, ImmutableMap<String, ITimeValue> customParameters)
     {
         try (IResource resource = manager.getResource(location))
@@ -232,7 +228,7 @@ public final class AnimationStateMachine implements IAnimationStateMachine
         }
         catch(IOException | JsonParseException e)
         {
-            FMLLog.log.error("Exception loading Animation State Machine {}, skipping", location, e);
+            LOGGER.error("Exception loading Animation State Machine {}, skipping", location, e);
             return missing;
         }
         finally

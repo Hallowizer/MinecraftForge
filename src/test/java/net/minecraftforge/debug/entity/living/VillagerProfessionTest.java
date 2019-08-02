@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,12 +22,12 @@ package net.minecraftforge.debug.entity.living;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.VillagerRegistry.VillagerCareer;
 import net.minecraftforge.fml.common.registry.VillagerRegistry.VillagerProfession;
 
-@Mod(modid = "professiontest", name = "ProfessionTest2000", version = "1.0", acceptableRemoteVersions = "*")
-@EventBusSubscriber
+//@Mod(modid = "professiontest", name = "ProfessionTest2000", version = "1.0", acceptableRemoteVersions = "*")
+//@EventBusSubscriber
 public class VillagerProfessionTest
 {
     @SubscribeEvent

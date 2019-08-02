@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,7 +29,7 @@ import net.minecraft.util.EnumFacing;
  */
 public interface ITransformation
 {
-    Matrix4f getMatrix();
+    Matrix4f getMatrixVec();
 
     EnumFacing rotate(EnumFacing facing);
 

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,11 +18,12 @@
  */
 
 package net.minecraftforge.fml.client;
-
+/*
+import static net.minecraftforge.fml.Logging.SPLASH;
+import static net.minecraftforge.fml.Logging.fmlLog;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -47,6 +48,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import com.google.common.base.CharMatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -58,20 +60,19 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.SimpleResource;
 import net.minecraft.crash.CrashReport;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.CrashReportExtender;
 import net.minecraftforge.fml.common.EnhancedRuntimeException;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.ICrashCallable;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
-import net.minecraftforge.fml.common.asm.FMLSanityChecker;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.LWJGLUtil;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.Drawable;
 import org.lwjgl.opengl.SharedDrawable;
@@ -84,6 +85,7 @@ import org.lwjgl.util.glu.GLU;
 @SuppressWarnings("serial")
 public class SplashProgress
 {
+/*
     private static Drawable d;
     private static volatile boolean pause = false;
     private static volatile boolean done = false;
@@ -94,7 +96,7 @@ public class SplashProgress
     private static SplashFontRenderer fontRenderer;
 
     private static final IResourcePack mcPack = Minecraft.getMinecraft().mcDefaultResourcePack;
-    private static final IResourcePack fmlPack = createResourcePack(FMLSanityChecker.fmlLocation);
+    private static final IResourcePack fmlPack = mcPack;
     private static IResourcePack miscPack;
 
     private static Texture fontTexture;
@@ -121,8 +123,21 @@ public class SplashProgress
     private static final int TIMING_FRAME_COUNT = 200;
     private static final int TIMING_FRAME_THRESHOLD = TIMING_FRAME_COUNT * 5 * 1000000; // 5 ms per frame, scaled to nanos
 
-    static final Semaphore mutex = new Semaphore(1);
+    private static final Semaphore mutex = new Semaphore(1);
+    */
 
+    public static void processMessages() {
+        /*
+        // workaround for windows requiring messages being processed on the main thread
+        if (LWJGLUtil.getPlatform() != LWJGLUtil.PLATFORM_WINDOWS) return null;
+        // If we can't grab the mutex, the update call is blocked, probably in native code, just skip it and carry on
+        // We'll get another go next time
+        if (!SplashProgress.mutex.tryAcquire()) return null;
+        Display.processMessages();
+        SplashProgress.mutex.release();
+        */
+    }
+    /*
     private static String getString(String name, String def)
     {
         String value = config.getProperty(name, def);
@@ -160,16 +175,10 @@ public class SplashProgress
         }
         catch(IOException e)
         {
-            FMLLog.log.info("Could not load splash.properties, will create a default one");
+            fmlLog.info(SPLASH, "Could not load splash.properties, will create a default one");
         }
 
-        //Some systems do not support this and have weird effects, so we need to detect and disable them by default.
-        //The user can always force enable it if they want to take the responsibility for bugs.
-        boolean defaultEnabled = true;
-
-        // Enable if we have the flag, and there's either no optifine, or optifine has added a key to the blackboard ("optifine.ForgeSplashCompatible")
-        // Optifine authors - add this key to the blackboard if you feel your modifications are now compatible with this code.
-        enabled =            getBool("enabled",      defaultEnabled) && ( (!FMLClientHandler.instance().hasOptifine()) || Launch.blackboard.containsKey("optifine.ForgeSplashCompatible"));
+        enabled =            getBool("enabled",      true);
         rotate =             getBool("rotate",       false);
         showMemory =         getBool("showMemory",   true);
         logoOffset =         getInt("logoOffset",    0);
@@ -195,14 +204,14 @@ public class SplashProgress
         }
         catch(IOException e)
         {
-            FMLLog.log.error("Could not save the splash.properties file", e);
+            LOGGER.error("Could not save the splash.properties file", e);
         }
 
         miscPack = createResourcePack(miscPackFile);
 
         if(!enabled) return;
         // getting debug info out of the way, while we still can
-        FMLCommonHandler.instance().registerCrashCallable(new ICrashCallable()
+        CrashReportExtender.registerCrashCallable(new ICrashCallable()
         {
             @Override
             public String call() throws Exception
@@ -222,7 +231,7 @@ public class SplashProgress
         CrashReport report = CrashReport.makeCrashReport(new Throwable(), "Loading screen debug info");
         StringBuilder systemDetailsBuilder = new StringBuilder();
         report.getCategory().appendToStringBuilder(systemDetailsBuilder);
-        FMLLog.log.info(systemDetailsBuilder.toString());
+        fmlLog.info(SPLASH, systemDetailsBuilder.toString());
 
         try
         {
@@ -232,7 +241,7 @@ public class SplashProgress
         }
         catch (LWJGLException e)
         {
-            FMLLog.log.error("Error starting SplashProgress:", e);
+            LOGGER.error("Error starting SplashProgress:", e);
             disableSplash(e);
         }
 
@@ -390,13 +399,13 @@ public class SplashProgress
                         if (!isDisplayVSyncForced)
                         {
                             isDisplayVSyncForced = true;
-                            FMLLog.log.info("Using alternative sync timing : {} frames of Display.update took {} nanos", TIMING_FRAME_COUNT, updateTiming);
+                            fmlLog.info(SPLASH,"Using alternative sync timing : {} frames of Display.update took {} nanos", TIMING_FRAME_COUNT, updateTiming);
                         }
                         try { Thread.sleep(16); } catch (InterruptedException ie) {}
                     } else
                     {
                         if (framecount ==TIMING_FRAME_COUNT) {
-                            FMLLog.log.info("Using sync timing. {} frames of Display.update took {} nanos", TIMING_FRAME_COUNT, updateTiming);
+                            fmlLog.info("Using sync timing. {} frames of Display.update took {} nanos", TIMING_FRAME_COUNT, updateTiming);
                         }
                         Display.sync(100);
                     }
@@ -440,9 +449,10 @@ public class SplashProgress
                 drawBox(barWidth - 2, barHeight - 2);
                 // slidy part
                 setColor(barColor);
-                drawBox((barWidth - 2) * (b.getStep() + 1) / (b.getSteps() + 1), barHeight - 2); // Step can sometimes be 0.
+                int step = b.getStep();
+                drawBox((barWidth - 2) * (step + 1) / (b.getTotalSteps() + 1), barHeight - 2); // Step can sometimes be 0.
                 // progress text
-                String progress = "" + b.getStep() + "/" + b.getSteps();
+                String progress = "" + step + "/" + b.getTotalSteps();
                 glTranslatef(((float)barWidth - 2) / 2 - fontRenderer.getStringWidth(progress), 2, 0);
                 setColor(fontColor);
                 glScalef(2, 2, 1);
@@ -529,7 +539,7 @@ public class SplashProgress
                 }
                 catch (LWJGLException e)
                 {
-                    FMLLog.log.error("Error setting GL context:", e);
+                    LOGGER.error("Error setting GL context:", e);
                     throw new RuntimeException(e);
                 }
                 glClearColor((float)((backgroundColor >> 16) & 0xFF) / 0xFF, (float)((backgroundColor >> 8) & 0xFF) / 0xFF, (float)(backgroundColor & 0xFF) / 0xFF, 1);
@@ -556,7 +566,7 @@ public class SplashProgress
                 }
                 catch (LWJGLException e)
                 {
-                    FMLLog.log.error("Error releasing GL context:", e);
+                    LOGGER.error("Error releasing GL context:", e);
                     throw new RuntimeException(e);
                 }
                 finally
@@ -570,7 +580,7 @@ public class SplashProgress
             @Override
             public void uncaughtException(Thread t, Throwable e)
             {
-                FMLLog.log.error("Splash thread Exception", e);
+                LOGGER.error("Splash thread Exception", e);
                 threadError = e;
             }
         });
@@ -606,7 +616,7 @@ public class SplashProgress
      * Resource loading doesn't usually require this call.
      * Call {@link #resume()} when you're done.
      * @deprecated not a stable API, will break, don't use this yet
-     */
+     * /
     @Deprecated
     public static void pause()
     {
@@ -621,14 +631,14 @@ public class SplashProgress
         }
         catch (LWJGLException e)
         {
-            FMLLog.log.error("Error setting GL context:", e);
+            LOGGER.error("Error setting GL context:", e);
             throw new RuntimeException(e);
         }
     }
 
     /**
      * @deprecated not a stable API, will break, don't use this yet
-     */
+     * /
     @Deprecated
     public static void resume()
     {
@@ -642,7 +652,7 @@ public class SplashProgress
         }
         catch (LWJGLException e)
         {
-            FMLLog.log.error("Error releasing GL context:", e);
+            LOGGER.error("Error releasing GL context:", e);
             throw new RuntimeException(e);
         }
         lock.unlock();
@@ -665,7 +675,7 @@ public class SplashProgress
         }
         catch (Exception e)
         {
-            FMLLog.log.error("Error finishing SplashProgress:", e);
+            LOGGER.error("Error finishing SplashProgress:", e);
             disableSplash(e);
         }
     }
@@ -718,7 +728,7 @@ public class SplashProgress
         }
         catch(IOException e)
         {
-            FMLLog.log.error("Could not save the splash.properties file", e);
+            LOGGER.error("Could not save the splash.properties file", e);
             return false;
         }
         return true;
@@ -737,6 +747,17 @@ public class SplashProgress
     }
 
     private static final IntBuffer buf = BufferUtils.createIntBuffer(4 * 1024 * 1024);
+
+    // From FontRenderer.renderCharAtPos
+    private static final String ALLOWED_CHARS = "\u00c0\u00c1\u00c2\u00c8\u00ca\u00cb\u00cd\u00d3\u00d4\u00d5\u00da\u00df\u00e3\u00f5\u011f\u0130\u0131\u0152\u0153\u015e\u015f\u0174\u0175\u017e\u0207\u0000\u0000\u0000\u0000\u0000\u0000\u0000 !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u0000\u00c7\u00fc\u00e9\u00e2\u00e4\u00e0\u00e5\u00e7\u00ea\u00eb\u00e8\u00ef\u00ee\u00ec\u00c4\u00c5\u00c9\u00e6\u00c6\u00f4\u00f6\u00f2\u00fb\u00f9\u00ff\u00d6\u00dc\u00f8\u00a3\u00d8\u00d7\u0192\u00e1\u00ed\u00f3\u00fa\u00f1\u00d1\u00aa\u00ba\u00bf\u00ae\u00ac\u00bd\u00bc\u00a1\u00ab\u00bb\u2591\u2592\u2593\u2502\u2524\u2561\u2562\u2556\u2555\u2563\u2551\u2557\u255d\u255c\u255b\u2510\u2514\u2534\u252c\u251c\u2500\u253c\u255e\u255f\u255a\u2554\u2569\u2566\u2560\u2550\u256c\u2567\u2568\u2564\u2565\u2559\u2558\u2552\u2553\u256b\u256a\u2518\u250c\u2588\u2584\u258c\u2590\u2580\u03b1\u03b2\u0393\u03c0\u03a3\u03c3\u03bc\u03c4\u03a6\u0398\u03a9\u03b4\u221e\u2205\u2208\u2229\u2261\u00b1\u2265\u2264\u2320\u2321\u00f7\u2248\u00b0\u2219\u00b7\u221a\u207f\u00b2\u25a0\u0000";
+    private static final CharMatcher DISALLOWED_CHAR_MATCHER = CharMatcher.anyOf(ALLOWED_CHARS).negate();
+
+    public static String stripSpecialChars(String message)
+    {
+        // We can't handle many unicode points in the splash renderer
+        return DISALLOWED_CHAR_MATCHER.removeFrom(net.minecraft.util.StringUtils.stripControlCodes(message));
+    }
+
 
     @SuppressWarnings("unused")
     private static class Texture
@@ -824,7 +845,7 @@ public class SplashProgress
             }
             catch(IOException e)
             {
-                FMLLog.log.error("Error reading texture from file: {}", location, e);
+                LOGGER.error("Error reading texture from file: {}", location, e);
                 throw new RuntimeException(e);
             }
             finally
@@ -962,4 +983,5 @@ public class SplashProgress
     {
         return (int) (bytes / 1024L / 1024L);
     }
+    */
 }

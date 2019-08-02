@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,16 +23,17 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
+
+import net.minecraftforge.eventbus.api.Event.HasResult;
 
 /**
  * ZombieEvent is fired whenever a zombie is spawned for aid.
- * If a method utilizes this {@link Event} as its parameter, the method will 
+ * If a method utilizes this {@link Event} as its parameter, the method will
  * receive every child event of this class.
  * 
  * All children of this event are fired on the {@link MinecraftForge#EVENT_BUS}.
@@ -64,7 +65,7 @@ public class ZombieEvent extends EntityEvent {
      * {@link #attacker} contains the living Entity that attacked and caused this event to fire.
      * {@link #summonChance} contains the likelihood that a Zombie would successfully be summoned.
      * 
-     * This event is not {@link Cancelable}.
+     * This event is not {@link net.minecraftforge.eventbus.api.Cancelable}.
      * 
      * This event has a result. {@link HasResult}
      * {@link Result#ALLOW} Zombie is summoned.

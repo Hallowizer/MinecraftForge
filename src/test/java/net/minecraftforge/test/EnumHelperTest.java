@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@ package net.minecraftforge.test;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import net.minecraft.enchantment.EnumEnchantmentType;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.passive.HorseArmorType;
 import net.minecraft.init.Bootstrap;
 import net.minecraftforge.client.EnumHelperClient;
@@ -107,6 +108,10 @@ public class EnumHelperTest
                     boolean filter = declaredConstructor.isSynthetic();
 
                     if (returnType == EnumEnchantmentType.class && declaredConstructor.getParameterTypes().length == 2)
+                    {
+                        filter = true; //We don't want people using this method.
+                    }
+                    if (returnType == EntityLiving.SpawnPlacementType.class && declaredConstructor.getParameterTypes().length == 2)
                     {
                         filter = true; //We don't want people using this method.
                     }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,11 +24,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.event.FMLInitializationEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = "brewingreciperegistrytest", name = "BrewingRecipeRegistryTest", version = "0.0.0", acceptableRemoteVersions = "*")
+//@Mod(modid = "brewingreciperegistrytest", name = "BrewingRecipeRegistryTest", version = "0.0.0", acceptableRemoteVersions = "*")
 public class BrewingRecipeRegistryTest
 {
     public static final boolean ENABLE = false;

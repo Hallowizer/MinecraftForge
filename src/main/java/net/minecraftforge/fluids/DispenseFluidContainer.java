@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityDispenser;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
@@ -68,7 +69,7 @@ public class DispenseFluidContainer extends BehaviorDefaultDispenseItem
     private ItemStack fillContainer(@Nonnull IBlockSource source, @Nonnull ItemStack stack)
     {
         World world = source.getWorld();
-        EnumFacing dispenserFacing = source.getBlockState().getValue(BlockDispenser.FACING);
+        EnumFacing dispenserFacing = source.getBlockState().get(BlockDispenser.FACING);
         BlockPos blockpos = source.getBlockPos().offset(dispenserFacing);
 
         FluidActionResult actionResult = FluidUtil.tryPickUpFluid(stack, null, world, blockpos, dispenserFacing.getOpposite());
@@ -101,14 +102,14 @@ public class DispenseFluidContainer extends BehaviorDefaultDispenseItem
     {
         ItemStack singleStack = stack.copy();
         singleStack.setCount(1);
-        IFluidHandlerItem fluidHandler = FluidUtil.getFluidHandler(singleStack);
+        IFluidHandlerItem fluidHandler = null; // TODO fluids FluidUtil.getFluidHandler(singleStack);
         if (fluidHandler == null)
         {
             return super.dispenseStack(source, stack);
         }
 
         FluidStack fluidStack = fluidHandler.drain(Fluid.BUCKET_VOLUME, false);
-        EnumFacing dispenserFacing = source.getBlockState().getValue(BlockDispenser.FACING);
+        EnumFacing dispenserFacing = source.getBlockState().get(BlockDispenser.FACING);
         BlockPos blockpos = source.getBlockPos().offset(dispenserFacing);
         FluidActionResult result = fluidStack != null ? FluidUtil.tryPlaceFluid(null, source.getWorld(), blockpos, stack, fluidStack) : FluidActionResult.FAILURE;
 

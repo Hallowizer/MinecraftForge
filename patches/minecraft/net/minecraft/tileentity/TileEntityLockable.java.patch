@@ -1,30 +1,26 @@
---- ../src-base/minecraft/net/minecraft/tileentity/TileEntityLockable.java
-+++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityLockable.java
-@@ -48,4 +48,27 @@
-     {
-         return (ITextComponent)(this.func_145818_k_() ? new TextComponentString(this.func_70005_c_()) : new TextComponentTranslation(this.func_70005_c_(), new Object[0]));
-     }
+--- a/net/minecraft/tileentity/TileEntityLockable.java
++++ b/net/minecraft/tileentity/TileEntityLockable.java
+@@ -36,4 +36,23 @@
+    public void func_174892_a(LockCode p_174892_1_) {
+       this.field_174901_a = p_174892_1_;
+    }
 +
-+    private net.minecraftforge.items.IItemHandler itemHandler;
++   private net.minecraftforge.common.util.LazyOptional<?> itemHandler = net.minecraftforge.common.util.LazyOptional.of(() -> createUnSidedHandler());
++   protected net.minecraftforge.items.IItemHandler createUnSidedHandler() {
++      return new net.minecraftforge.items.wrapper.InvWrapper(this);
++   }
 +
-+    protected net.minecraftforge.items.IItemHandler createUnSidedHandler()
-+    {
-+        return new net.minecraftforge.items.wrapper.InvWrapper(this);
-+    }
++   @javax.annotation.Nullable
++   public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> cap, @javax.annotation.Nullable net.minecraft.util.EnumFacing side) {
++      if (!this.field_145846_f && cap == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ) {
++         return itemHandler.cast();
++      }
++      return super.getCapability(cap, side);
++   }
 +
-+    @SuppressWarnings("unchecked")
-+    @Override
-+    @javax.annotation.Nullable
-+    public <T> T getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @javax.annotation.Nullable net.minecraft.util.EnumFacing facing)
-+    {
-+        if (capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-+            return (T) (itemHandler == null ? (itemHandler = createUnSidedHandler()) : itemHandler);
-+        return super.getCapability(capability, facing);
-+    }
-+
-+    @Override
-+    public boolean hasCapability(net.minecraftforge.common.capabilities.Capability<?> capability, @javax.annotation.Nullable net.minecraft.util.EnumFacing facing)
-+    {
-+        return capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(capability, facing);
-+    }
++   @Override
++   public void func_145843_s() {
++      super.func_145843_s();
++      itemHandler.invalidate();
++   }
  }

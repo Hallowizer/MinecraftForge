@@ -1,23 +1,10 @@
---- ../src-base/minecraft/net/minecraft/client/gui/ServerListEntryNormal.java
-+++ ../src-work/minecraft/net/minecraft/client/gui/ServerListEntryNormal.java
-@@ -83,7 +83,7 @@
-         boolean flag1 = this.field_148301_e.field_82821_f < 340;
-         boolean flag2 = flag || flag1;
-         this.field_148300_d.field_71466_p.func_78276_b(this.field_148301_e.field_78847_a, p_192634_2_ + 32 + 3, p_192634_3_ + 1, 16777215);
--        List<String> list = this.field_148300_d.field_71466_p.func_78271_c(this.field_148301_e.field_78843_d, p_192634_4_ - 32 - 2);
-+        List<String> list = this.field_148300_d.field_71466_p.func_78271_c(net.minecraftforge.fml.client.FMLClientHandler.instance().fixDescription(this.field_148301_e.field_78843_d), p_192634_4_ - 32 - 2);
+--- a/net/minecraft/client/gui/ServerListEntryNormal.java
++++ b/net/minecraft/client/gui/ServerListEntryNormal.java
+@@ -143,6 +143,7 @@
+       } else if (k1 >= p_194999_1_ - l - 15 - 2 && k1 <= p_194999_1_ - 15 - 2 && l1 >= 0 && l1 <= 8) {
+          this.field_148303_c.func_146793_a(s);
+       }
++      net.minecraftforge.fml.client.ClientHooks.drawForgePingInfo(this.field_148303_c, field_148301_e, j, i, p_194999_1_, k1, l1);
  
-         for (int i = 0; i < Math.min(list.size(), 2); ++i)
-         {
-@@ -177,6 +177,11 @@
-         int i1 = p_192634_6_ - p_192634_2_;
-         int j1 = p_192634_7_ - p_192634_3_;
- 
-+        String tooltip = net.minecraftforge.fml.client.FMLClientHandler.instance().enhanceServerListEntry(this, this.field_148301_e, p_192634_2_, p_192634_4_, p_192634_3_, i1, j1);
-+        if (tooltip != null)
-+        {
-+            this.field_148303_c.func_146793_a(tooltip);
-+        } else
-         if (i1 >= p_192634_4_ - 15 && i1 <= p_192634_4_ - 5 && j1 >= 0 && j1 <= 8)
-         {
-             this.field_148303_c.func_146793_a(s1);
+       if (this.field_148300_d.field_71474_y.field_85185_A || p_194999_5_) {
+          this.field_148300_d.func_110434_K().func_110577_a(field_178014_d);

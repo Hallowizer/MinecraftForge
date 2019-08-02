@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@ package net.minecraftforge.items.wrapper;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -31,6 +32,16 @@ public class SidedInvWrapper implements IItemHandlerModifiable
 {
     protected final ISidedInventory inv;
     protected final EnumFacing side;
+
+    @SuppressWarnings("unchecked")
+    public static LazyOptional<IItemHandlerModifiable>[] create(ISidedInventory inv, EnumFacing... sides) {
+        LazyOptional<IItemHandlerModifiable>[] ret = new LazyOptional[sides.length];
+        for (int x = 0; x < sides.length; x++) {
+            final EnumFacing side = sides[x];
+            ret[x] = LazyOptional.of(() -> new SidedInvWrapper(inv, side));
+        }
+        return ret;
+    }
 
     public SidedInvWrapper(ISidedInventory inv, EnumFacing side)
     {
@@ -126,7 +137,7 @@ public class SidedInvWrapper implements IItemHandlerModifiable
                 stack = stack.copy();
                 if (!simulate)
                 {
-                    ItemStack copy = stack.splitStack(m);
+                    ItemStack copy = stack.split(m);
                     copy.grow(stackInSlot.getCount());
                     setInventorySlotContents(slot1, copy);
                     return stack;
@@ -150,7 +161,7 @@ public class SidedInvWrapper implements IItemHandlerModifiable
                 stack = stack.copy();
                 if (!simulate)
                 {
-                    setInventorySlotContents(slot1, stack.splitStack(m));
+                    setInventorySlotContents(slot1, stack.split(m));
                     return stack;
                 }
                 else
@@ -229,5 +240,12 @@ public class SidedInvWrapper implements IItemHandlerModifiable
     public int getSlotLimit(int slot)
     {
         return inv.getInventoryStackLimit();
+    }
+
+    @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack)
+    {
+        int slot1 = getSlot(inv, slot, side);
+        return slot1 == -1 ? false : inv.isItemValidForSlot(slot1, stack);
     }
 }

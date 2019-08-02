@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,9 +27,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBucketMilk;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -45,6 +46,8 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
  */
 public class FluidBucketWrapper implements IFluidHandlerItem, ICapabilityProvider
 {
+    private final LazyOptional<IFluidHandlerItem> holder = LazyOptional.of(() -> this);
+
     @Nonnull
     protected ItemStack container;
 
@@ -61,18 +64,19 @@ public class FluidBucketWrapper implements IFluidHandlerItem, ICapabilityProvide
     }
 
     public boolean canFillFluidType(FluidStack fluid)
-    {
+    {/* TODO fluids
         if (fluid.getFluid() == FluidRegistry.WATER || fluid.getFluid() == FluidRegistry.LAVA || fluid.getFluid().getName().equals("milk"))
         {
             return true;
         }
         return FluidRegistry.isUniversalBucketEnabled() && FluidRegistry.getBucketFluids().contains(fluid.getFluid());
+        */ return false;
     }
 
     @Nullable
     public FluidStack getFluid()
     {
-        Item item = container.getItem();
+        Item item = container.getItem();/* TODO fluids
         if (item == Items.WATER_BUCKET)
         {
             return new FluidStack(FluidRegistry.WATER, Fluid.BUCKET_VOLUME);
@@ -85,22 +89,14 @@ public class FluidBucketWrapper implements IFluidHandlerItem, ICapabilityProvide
         {
             return FluidRegistry.getFluidStack("milk", Fluid.BUCKET_VOLUME);
         }
-        else if (item == ForgeModContainer.getInstance().universalBucket)
+        else*/ if (item == ForgeMod.getInstance().universalBucket)
         {
-            return ForgeModContainer.getInstance().universalBucket.getFluid(container);
+            return ForgeMod.getInstance().universalBucket.getFluid(container);
         }
         else
         {
             return null;
         }
-    }
-
-    /**
-     * @deprecated use the NBT-sensitive version {@link #setFluid(FluidStack)}
-     */
-    @Deprecated
-    protected void setFluid(@Nullable Fluid fluid) {
-        setFluid(new FluidStack(fluid, Fluid.BUCKET_VOLUME));
     }
 
     protected void setFluid(@Nullable FluidStack fluidStack)
@@ -176,21 +172,11 @@ public class FluidBucketWrapper implements IFluidHandlerItem, ICapabilityProvide
 
         return null;
     }
-
+    
     @Override
-    public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing)
+    @Nonnull
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
     {
-        return capability == CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY;
-    }
-
-    @Override
-    @Nullable
-    public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
-    {
-        if (capability == CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
-        {
-            return CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY.cast(this);
-        }
-        return null;
+        return CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY.orEmpty(capability, holder);
     }
 }

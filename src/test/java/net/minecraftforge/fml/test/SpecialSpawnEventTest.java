@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,10 +27,10 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@Mod(modid = SpecialSpawnEventTest.MOD_ID, version = "1.0", acceptableRemoteVersions="*")
+//@Mod(modid = SpecialSpawnEventTest.MOD_ID, version = "1.0", acceptableRemoteVersions="*")
 public class SpecialSpawnEventTest {
     private static final boolean ENABLED = false;
     public static final String MOD_ID = "spawnerduratest";

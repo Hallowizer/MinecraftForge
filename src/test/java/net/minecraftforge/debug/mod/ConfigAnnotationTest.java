@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,16 +32,16 @@ import net.minecraftforge.common.config.Config.Type;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLInitializationEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Mod(modid = ConfigAnnotationTest.MODID, name = "ConfigTest", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = ConfigAnnotationTest.MODID, name = "ConfigTest", version = "1.0", acceptableRemoteVersions = "*")
 public class ConfigAnnotationTest
 {
     public static final String MODID = "config_test";

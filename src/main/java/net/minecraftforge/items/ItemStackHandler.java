@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -165,6 +165,12 @@ public class ItemStackHandler implements IItemHandler, IItemHandlerModifiable, I
     }
 
     @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack)
+    {
+        return true;
+    }
+
+    @Override
     public NBTTagCompound serializeNBT()
     {
         NBTTagList nbtTagList = new NBTTagList();
@@ -173,30 +179,30 @@ public class ItemStackHandler implements IItemHandler, IItemHandlerModifiable, I
             if (!stacks.get(i).isEmpty())
             {
                 NBTTagCompound itemTag = new NBTTagCompound();
-                itemTag.setInteger("Slot", i);
-                stacks.get(i).writeToNBT(itemTag);
-                nbtTagList.appendTag(itemTag);
+                itemTag.setInt("Slot", i);
+                stacks.get(i).write(itemTag);
+                nbtTagList.add(itemTag);
             }
         }
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setTag("Items", nbtTagList);
-        nbt.setInteger("Size", stacks.size());
+        nbt.setInt("Size", stacks.size());
         return nbt;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt)
     {
-        setSize(nbt.hasKey("Size", Constants.NBT.TAG_INT) ? nbt.getInteger("Size") : stacks.size());
-        NBTTagList tagList = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        for (int i = 0; i < tagList.tagCount(); i++)
+        setSize(nbt.contains("Size", Constants.NBT.TAG_INT) ? nbt.getInt("Size") : stacks.size());
+        NBTTagList tagList = nbt.getList("Items", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < tagList.size(); i++)
         {
-            NBTTagCompound itemTags = tagList.getCompoundTagAt(i);
-            int slot = itemTags.getInteger("Slot");
+            NBTTagCompound itemTags = tagList.getCompound(i);
+            int slot = itemTags.getInt("Slot");
 
             if (slot >= 0 && slot < stacks.size())
             {
-                stacks.set(slot, new ItemStack(itemTags));
+                stacks.set(slot, ItemStack.read(itemTags));
             }
         }
         onLoad();

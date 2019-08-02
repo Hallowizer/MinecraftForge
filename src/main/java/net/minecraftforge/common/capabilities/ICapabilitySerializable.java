@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,8 +19,8 @@
 
 package net.minecraftforge.common.capabilities;
 
-import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.INBTBase;
 import net.minecraftforge.common.util.INBTSerializable;
 
 //Just a mix of the two, useful in patches to lower the size.
-public interface ICapabilitySerializable<T extends NBTBase> extends ICapabilityProvider, INBTSerializable<T>{}
+public interface ICapabilitySerializable<T extends INBTBase> extends ICapabilityProvider, INBTSerializable<T>{}

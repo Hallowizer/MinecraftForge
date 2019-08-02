@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,16 +20,17 @@
 package net.minecraftforge.event.entity;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event.HasResult;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event.HasResult;
 
 /**
  * EntityTravelToDimensionEvent is fired before an Entity travels to a dimension.<br>
  * <br>
  * {@link #dimension} contains the id of the dimension the entity is traveling to.<br>
  * <br>
- * This event is {@link Cancelable}.<br>
+ * This event is {@link net.minecraftforge.eventbus.api.Cancelable}.<br>
  * If this event is canceled, the Entity does not travel to the dimension.<br>
  * <br>
  * This event does not have a result. {@link HasResult}<br>
@@ -39,15 +40,15 @@ import net.minecraftforge.fml.common.eventhandler.Event.HasResult;
 @Cancelable
 public class EntityTravelToDimensionEvent extends EntityEvent
 {
-    private final int dimension;
+    private final DimensionType dimension;
 
-    public EntityTravelToDimensionEvent(Entity entity, int dimension)
+    public EntityTravelToDimensionEvent(Entity entity, DimensionType dimension)
     {
         super(entity);
         this.dimension = dimension;
     }
 
-    public int getDimension()
+    public DimensionType getDimension()
     {
         return dimension;
     }

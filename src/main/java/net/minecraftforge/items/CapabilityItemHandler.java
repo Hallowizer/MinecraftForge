@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,7 @@
 package net.minecraftforge.items;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.INBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
@@ -40,7 +40,7 @@ public class CapabilityItemHandler
         CapabilityManager.INSTANCE.register(IItemHandler.class, new Capability.IStorage<IItemHandler>()
         {
             @Override
-            public NBTBase writeNBT(Capability<IItemHandler> capability, IItemHandler instance, EnumFacing side)
+            public INBTBase writeNBT(Capability<IItemHandler> capability, IItemHandler instance, EnumFacing side)
             {
                 NBTTagList nbtTagList = new NBTTagList();
                 int size = instance.getSlots();
@@ -50,29 +50,29 @@ public class CapabilityItemHandler
                     if (!stack.isEmpty())
                     {
                         NBTTagCompound itemTag = new NBTTagCompound();
-                        itemTag.setInteger("Slot", i);
-                        stack.writeToNBT(itemTag);
-                        nbtTagList.appendTag(itemTag);
+                        itemTag.setInt("Slot", i);
+                        stack.write(itemTag);
+                        nbtTagList.add(itemTag);
                     }
                 }
                 return nbtTagList;
             }
 
             @Override
-            public void readNBT(Capability<IItemHandler> capability, IItemHandler instance, EnumFacing side, NBTBase base)
+            public void readNBT(Capability<IItemHandler> capability, IItemHandler instance, EnumFacing side, INBTBase base)
             {
                 if (!(instance instanceof IItemHandlerModifiable))
                     throw new RuntimeException("IItemHandler instance does not implement IItemHandlerModifiable");
                 IItemHandlerModifiable itemHandlerModifiable = (IItemHandlerModifiable) instance;
                 NBTTagList tagList = (NBTTagList) base;
-                for (int i = 0; i < tagList.tagCount(); i++)
+                for (int i = 0; i < tagList.size(); i++)
                 {
-                    NBTTagCompound itemTags = tagList.getCompoundTagAt(i);
-                    int j = itemTags.getInteger("Slot");
+                    NBTTagCompound itemTags = tagList.getCompound(i);
+                    int j = itemTags.getInt("Slot");
 
                     if (j >= 0 && j < instance.getSlots())
                     {
-                        itemHandlerModifiable.setStackInSlot(j, new ItemStack(itemTags));
+                        itemHandlerModifiable.setStackInSlot(j, ItemStack.read(itemTags));
                     }
                 }
             }

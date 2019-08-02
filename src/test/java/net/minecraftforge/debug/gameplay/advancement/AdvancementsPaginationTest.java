@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,7 @@ package net.minecraftforge.debug.gameplay.advancement;
 
 import net.minecraftforge.fml.common.Mod;
 
-@Mod(modid = "advancements_pagination", name = "Advancements Pagination test mod", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = "advancements_pagination", name = "Advancements Pagination test mod", version = "1.0", acceptableRemoteVersions = "*")
 public class AdvancementsPaginationTest
 {
 }

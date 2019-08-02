@@ -1,45 +1,33 @@
---- ../src-base/minecraft/net/minecraft/block/BlockPistonBase.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockPistonBase.java
-@@ -241,7 +241,7 @@
-                     }
-                 }
- 
--                if (!flag1 && iblockstate.func_185904_a() != Material.field_151579_a && func_185646_a(iblockstate, p_189539_2_, blockpos, enumfacing.func_176734_d(), false, enumfacing) && (iblockstate.func_185905_o() == EnumPushReaction.NORMAL || block == Blocks.field_150331_J || block == Blocks.field_150320_F))
-+                if (!flag1 && !iblockstate.func_177230_c().isAir(iblockstate, p_189539_2_, blockpos) && func_185646_a(iblockstate, p_189539_2_, blockpos, enumfacing.func_176734_d(), false, enumfacing) && (iblockstate.func_185905_o() == EnumPushReaction.NORMAL || block == Blocks.field_150331_J || block == Blocks.field_150320_F))
-                 {
-                     this.func_176319_a(p_189539_2_, p_189539_3_, enumfacing, false);
-                 }
-@@ -307,7 +307,7 @@
-                     return false;
-                 }
- 
--                return !block.func_149716_u();
-+                return !block.hasTileEntity(p_185646_0_);
+--- a/net/minecraft/block/BlockPistonBase.java
++++ b/net/minecraft/block/BlockPistonBase.java
+@@ -244,7 +244,7 @@
+                return false;
              }
-             else
-             {
-@@ -353,7 +353,9 @@
-             {
-                 BlockPos blockpos1 = list2.get(j);
-                 IBlockState iblockstate = p_176319_1_.func_180495_p(blockpos1);
--                iblockstate.func_177230_c().func_176226_b(p_176319_1_, blockpos1, iblockstate, 0);
-+                // Forge: With our change to how snowballs are dropped this needs to disallow to mimic vanilla behavior.
-+                float chance = iblockstate.func_177230_c() instanceof BlockSnow ? -1.0f : 1.0f;
-+                iblockstate.func_177230_c().func_180653_a(p_176319_1_, blockpos1, iblockstate, chance, 0);
-                 p_176319_1_.func_180501_a(blockpos1, Blocks.field_150350_a.func_176223_P(), 4);
-                 --k;
-                 aiblockstate[k] = iblockstate;
-@@ -434,6 +436,13 @@
-         return new BlockStateContainer(this, new IProperty[] {field_176387_N, field_176320_b});
-     }
  
-+    /* ======================================== FORGE START =====================================*/
-+    public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis)
-+    {
-+        IBlockState state = world.func_180495_p(pos);
-+        return !state.func_177229_b(field_176320_b) && super.rotateBlock(world, pos, axis);
-+    }
+-            return !block.func_149716_u();
++            return !p_185646_0_.hasTileEntity();
+          } else {
+             return false;
+          }
+@@ -280,7 +280,9 @@
+          for(int j = list2.size() - 1; j >= 0; --j) {
+             BlockPos blockpos2 = list2.get(j);
+             IBlockState iblockstate = p_176319_1_.func_180495_p(blockpos2);
+-            iblockstate.func_196949_c(p_176319_1_, blockpos2, 0);
++            // Forge: With our change to how snowballs are dropped this needs to disallow to mimic vanilla behavior.
++            float chance = iblockstate.func_177230_c() instanceof BlockSnow ? -1.0f : 1.0f;
++            iblockstate.func_196941_a(p_176319_1_, blockpos2, chance, 0);
+             p_176319_1_.func_180501_a(blockpos2, Blocks.field_150350_a.func_176223_P(), 18);
+             --k;
+             aiblockstate[k] = iblockstate;
+@@ -333,6 +335,10 @@
+       return p_185499_1_.func_206870_a(field_176387_N, p_185499_2_.func_185831_a(p_185499_1_.func_177229_b(field_176387_N)));
+    }
+ 
++   public IBlockState rotate(IBlockState state, net.minecraft.world.IWorld world, BlockPos pos, Rotation direction) {
++       return state.func_177229_b(field_176320_b) ? state : super.rotate(state, world, pos, direction);
++   }
 +
-     public BlockFaceShape func_193383_a(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
-     {
-         p_193383_2_ = this.func_176221_a(p_193383_2_, p_193383_1_, p_193383_3_);
+    public IBlockState func_185471_a(IBlockState p_185471_1_, Mirror p_185471_2_) {
+       return p_185471_1_.func_185907_a(p_185471_2_.func_185800_a(p_185471_1_.func_177229_b(field_176387_N)));
+    }

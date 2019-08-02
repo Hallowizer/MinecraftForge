@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,22 +25,21 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.ForgeModContainer;
-import net.minecraftforge.common.ForgeVersion;
-import net.minecraftforge.common.ForgeVersion.Status;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.versions.forge.ForgeVersion;
+import net.minecraftforge.fml.VersionChecker;
+import net.minecraftforge.fml.client.ClientModLoader;
+import net.minecraftforge.api.distmarker.Dist;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class NotificationModUpdateScreen extends GuiScreen
 {
 
     private static final ResourceLocation VERSION_CHECK_ICONS = new ResourceLocation(ForgeVersion.MOD_ID, "textures/gui/version_check_icons.png");
 
     private final GuiButton modButton;
-    private Status showNotification = null;
+    private VersionChecker.Status showNotification = null;
     private boolean hasCheckedForUpdates = false;
 
     public NotificationModUpdateScreen(GuiButton modButton)
@@ -55,31 +54,22 @@ public class NotificationModUpdateScreen extends GuiScreen
         {
             if (modButton != null)
             {
-                for (ModContainer mod : Loader.instance().getModList())
-                {
-                    Status status = ForgeVersion.getResult(mod).status;
-                    if (status == Status.OUTDATED || status == Status.BETA_OUTDATED)
-                    {
-                        // TODO: Needs better visualization, maybe stacked icons
-                        // drawn in a terrace-like pattern?
-                        showNotification = Status.OUTDATED;
-                    }
-                }
+                showNotification = ClientModLoader.checkForUpdates();
             }
             hasCheckedForUpdates = true;
         }
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    public void render(int mouseX, int mouseY, float partialTicks)
     {
-        if (showNotification == null || !showNotification.shouldDraw() || ForgeModContainer.disableVersionCheck)
+        if (showNotification == null || !showNotification.shouldDraw() || ForgeMod.disableVersionCheck)
         {
             return;
         }
 
-        Minecraft.getMinecraft().getTextureManager().bindTexture(VERSION_CHECK_ICONS);
-        GlStateManager.color(1, 1, 1, 1);
+        Minecraft.getInstance().getTextureManager().bindTexture(VERSION_CHECK_ICONS);
+        GlStateManager.color4f(1, 1, 1, 1);
         GlStateManager.pushMatrix();
 
         int x = modButton.x;
@@ -94,7 +84,7 @@ public class NotificationModUpdateScreen extends GuiScreen
     public static NotificationModUpdateScreen init(GuiMainMenu guiMainMenu, GuiButton modButton)
     {
         NotificationModUpdateScreen notificationModUpdateScreen = new NotificationModUpdateScreen(modButton);
-        notificationModUpdateScreen.setGuiSize(guiMainMenu.width, guiMainMenu.height);
+        notificationModUpdateScreen.setWorldAndResolution(guiMainMenu.mc, guiMainMenu.width, guiMainMenu.height);
         notificationModUpdateScreen.initGui();
         return notificationModUpdateScreen;
     }

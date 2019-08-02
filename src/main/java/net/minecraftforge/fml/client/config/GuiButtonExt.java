@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -48,19 +48,20 @@ public class GuiButtonExt extends GuiButton
      * Draws this button to the screen.
      */
     @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
+    public void render(int mouseX, int mouseY, float partial)
     {
         if (this.visible)
         {
+            Minecraft mc = Minecraft.getInstance();
             this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
             int k = this.getHoverState(this.hovered);
             GuiUtils.drawContinuousTexturedBox(BUTTON_TEXTURES, this.x, this.y, 0, 46 + k * 20, this.width, this.height, 200, 20, 2, 3, 2, 2, this.zLevel);
-            this.mouseDragged(mc, mouseX, mouseY);
+            this.renderBg(mc, mouseX, mouseY);
             int color = 14737632;
 
-            if (packedFGColour != 0)
+            if (packedFGColor != 0)
             {
-                color = packedFGColour;
+                color = packedFGColor;
             }
             else if (!this.enabled)
             {

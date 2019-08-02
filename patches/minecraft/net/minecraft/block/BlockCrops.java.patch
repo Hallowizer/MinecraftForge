@@ -1,81 +1,57 @@
---- ../src-base/minecraft/net/minecraft/block/BlockCrops.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockCrops.java
-@@ -70,6 +70,7 @@
-     {
-         super.func_180650_b(p_180650_1_, p_180650_2_, p_180650_3_, p_180650_4_);
+--- a/net/minecraft/block/BlockCrops.java
++++ b/net/minecraft/block/BlockCrops.java
+@@ -55,12 +55,14 @@
  
-+        if (!p_180650_1_.func_175697_a(p_180650_2_, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
-         if (p_180650_1_.func_175671_l(p_180650_2_.func_177984_a()) >= 9)
-         {
-             int i = this.func_185527_x(p_180650_3_);
-@@ -78,9 +79,10 @@
-             {
-                 float f = func_180672_a(this, p_180650_1_, p_180650_2_);
- 
--                if (p_180650_4_.nextInt((int)(25.0F / f) + 1) == 0)
-+                if(net.minecraftforge.common.ForgeHooks.onCropsGrowPre(p_180650_1_, p_180650_2_, p_180650_3_, p_180650_4_.nextInt((int)(25.0F / f) + 1) == 0))
-                 {
-                     p_180650_1_.func_180501_a(p_180650_2_, this.func_185528_e(i + 1), 2);
-+                    net.minecraftforge.common.ForgeHooks.onCropsGrowPost(p_180650_1_, p_180650_2_, p_180650_3_, p_180650_1_.func_180495_p(p_180650_2_));
-                 }
+    public void func_196267_b(IBlockState p_196267_1_, World p_196267_2_, BlockPos p_196267_3_, Random p_196267_4_) {
+       super.func_196267_b(p_196267_1_, p_196267_2_, p_196267_3_, p_196267_4_);
++      if (!p_196267_2_.func_205050_e(p_196267_3_, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
+       if (p_196267_2_.func_201669_a(p_196267_3_.func_177984_a(), 0) >= 9) {
+          int i = this.func_185527_x(p_196267_1_);
+          if (i < this.func_185526_g()) {
+             float f = func_180672_a(this, p_196267_2_, p_196267_3_);
+-            if (p_196267_4_.nextInt((int)(25.0F / f) + 1) == 0) {
++            if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(p_196267_2_, p_196267_3_, p_196267_1_, p_196267_4_.nextInt((int)(25.0F / f) + 1) == 0)) {
+                p_196267_2_.func_180501_a(p_196267_3_, this.func_185528_e(i + 1), 2);
++               net.minecraftforge.common.ForgeHooks.onCropsGrowPost(p_196267_2_, p_196267_3_, p_196267_1_);
              }
-         }
-@@ -116,11 +118,11 @@
-                 float f1 = 0.0F;
-                 IBlockState iblockstate = p_180672_1_.func_180495_p(blockpos.func_177982_a(i, 0, j));
+          }
+       }
+@@ -89,9 +91,9 @@
+          for(int j = -1; j <= 1; ++j) {
+             float f1 = 0.0F;
+             IBlockState iblockstate = p_180672_1_.func_180495_p(blockpos.func_177982_a(i, 0, j));
+-            if (iblockstate.func_177230_c() == Blocks.field_150458_ak) {
++            if (iblockstate.canSustainPlant(p_180672_1_, blockpos.func_177982_a(i, 0, j), net.minecraft.util.EnumFacing.UP, (net.minecraftforge.common.IPlantable)p_180672_0_)) {
+                f1 = 1.0F;
+-               if (iblockstate.func_177229_b(BlockFarmland.field_176531_a) > 0) {
++               if (iblockstate.isFertile(p_180672_1_, blockpos.func_177982_a(i, 0, j))) {
+                   f1 = 3.0F;
+                }
+             }
+@@ -135,15 +137,20 @@
+    }
  
--                if (iblockstate.func_177230_c() == Blocks.field_150458_ak)
-+                if (iblockstate.func_177230_c().canSustainPlant(iblockstate, p_180672_1_, blockpos.func_177982_a(i, 0, j), net.minecraft.util.EnumFacing.UP, (net.minecraftforge.common.IPlantable)p_180672_0_))
-                 {
-                     f1 = 1.0F;
- 
--                    if (((Integer)iblockstate.func_177229_b(BlockFarmland.field_176531_a)).intValue() > 0)
-+                    if (iblockstate.func_177230_c().isFertile(p_180672_1_, blockpos.func_177982_a(i, 0, j)))
-                     {
-                         f1 = 3.0F;
-                     }
-@@ -161,7 +163,8 @@
- 
-     public boolean func_180671_f(World p_180671_1_, BlockPos p_180671_2_, IBlockState p_180671_3_)
-     {
--        return (p_180671_1_.func_175699_k(p_180671_2_) >= 8 || p_180671_1_.func_175678_i(p_180671_2_)) && this.func_185514_i(p_180671_1_.func_180495_p(p_180671_2_.func_177977_b()));
-+        IBlockState soil = p_180671_1_.func_180495_p(p_180671_2_.func_177977_b());
-+        return (p_180671_1_.func_175699_k(p_180671_2_) >= 8 || p_180671_1_.func_175678_i(p_180671_2_)) && soil.func_177230_c().canSustainPlant(soil, p_180671_1_, p_180671_2_.func_177977_b(), net.minecraft.util.EnumFacing.UP, this);
-     }
- 
-     protected Item func_149866_i()
-@@ -174,11 +177,32 @@
-         return Items.field_151015_O;
-     }
- 
-+    @Override
-+    public void getDrops(net.minecraft.util.NonNullList<ItemStack> drops, net.minecraft.world.IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
-+    {
-+        super.getDrops(drops, world, pos, state, 0);
-+        int age = func_185527_x(state);
-+        Random rand = world instanceof World ? ((World)world).field_73012_v : new Random();
+    public void func_196255_a(IBlockState p_196255_1_, World p_196255_2_, BlockPos p_196255_3_, float p_196255_4_, int p_196255_5_) {
+-      super.func_196255_a(p_196255_1_, p_196255_2_, p_196255_3_, p_196255_4_, 0);
+-      if (!p_196255_2_.field_72995_K) {
+-         int i = this.func_185527_x(p_196255_1_);
++      super.func_196255_a(p_196255_1_, p_196255_2_, p_196255_3_, p_196255_4_, p_196255_5_);
++   }
 +
-+        if (age >= func_185526_g())
-+        {
-+            int k = 3 + fortune;
-+
-+            for (int i = 0; i < 3 + fortune; ++i)
-+            {
-+                if (rand.nextInt(2 * func_185526_g()) <= age)
-+                {
-+                    drops.add(new ItemStack(this.func_149866_i(), 1, 0));
-+                }
-+            }
-+        }
-+    }
-+
-     public void func_180653_a(World p_180653_1_, BlockPos p_180653_2_, IBlockState p_180653_3_, float p_180653_4_, int p_180653_5_)
-     {
--        super.func_180653_a(p_180653_1_, p_180653_2_, p_180653_3_, p_180653_4_, 0);
-+        super.func_180653_a(p_180653_1_, p_180653_2_, p_180653_3_, p_180653_4_, p_180653_5_);
++   @Override
++   public void getDrops(IBlockState state, net.minecraft.util.NonNullList<ItemStack> drops, World world, BlockPos pos, int fortune) {
++      super.getDrops(state, drops, world, pos, 0);
++      {
++         int i = this.func_185527_x(state);
+          if (i >= this.func_185526_g()) {
+-            int j = 3 + p_196255_5_;
++            int j = 3 + fortune;
  
--        if (!p_180653_1_.field_72995_K)
-+        if (false && !p_180653_1_.field_72995_K) // Forge: NOP all this.
-         {
-             int i = this.func_185527_x(p_180653_3_);
- 
+             for(int k = 0; k < j; ++k) {
+-               if (p_196255_2_.field_73012_v.nextInt(2 * this.func_185526_g()) <= i) {
+-                  func_180635_a(p_196255_2_, p_196255_3_, new ItemStack(this.func_199772_f()));
++               if (world.field_73012_v.nextInt(2 * this.func_185526_g()) <= i) {
++                  drops.add(new ItemStack(this.func_199772_f()));
+                }
+             }
+          }

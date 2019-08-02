@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@ package net.minecraftforge.debug.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -33,6 +33,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
@@ -43,13 +44,12 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-import net.minecraftforge.fml.relauncher.Side;
 
-@EventBusSubscriber
-@Mod(modid = MaterialFogColorTest.MODID, name = "FogColor inside material debug.", version = "1.0", acceptableRemoteVersions = "*")
+//@EventBusSubscriber
+//@Mod(modid = MaterialFogColorTest.MODID, name = "FogColor inside material debug.", version = "1.0", acceptableRemoteVersions = "*")
 public class MaterialFogColorTest
 {
     static final boolean ENABLED = false; // <-- enable mod
@@ -65,7 +65,7 @@ public class MaterialFogColorTest
         }
     }
 
-    public static final Fluid SLIME = new Fluid("slime", new ResourceLocation(MODID, "slime_still"), new ResourceLocation(MODID, "slime_flow")) {
+    public static final Fluid SLIME = new Fluid("slime", new ResourceLocation(MODID, "slime_still"), new ResourceLocation(MODID, "slime_flow"), new ResourceLocation(MODID, "slime_overlay")) {
         @Override
         public int getColor()
         {
@@ -93,13 +93,13 @@ public class MaterialFogColorTest
         }
     }
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event)
     {
         if (ENABLED)
         {
             event.getRegistry().register((new BlockFluidClassic(SLIME, Material.WATER)).setRegistryName(RES_LOC).setUnlocalizedName(RES_LOC.toString()));
-            Fluid fluid = new Fluid("fog_test", Blocks.WATER.getRegistryName(), Blocks.FLOWING_WATER.getRegistryName());
+            Fluid fluid = new Fluid("fog_test", new ResourceLocation("blocks/water_still"), new ResourceLocation("blocks/water_flow"), new ResourceLocation("blocks/water_overlay"));
             FluidRegistry.registerFluid(fluid);
             Block fluidBlock = new BlockFluidClassic(fluid, Material.WATER)
             {
@@ -113,7 +113,7 @@ public class MaterialFogColorTest
         }
     }
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event)
     {
         if (ENABLED)
@@ -122,7 +122,7 @@ public class MaterialFogColorTest
         }
     }
 
-    @EventBusSubscriber(value = Side.CLIENT, modid = MODID)
+    //@EventBusSubscriber(value = Side.CLIENT, modid = MODID)
     public static class ClientEventHandler
     {
         @SubscribeEvent

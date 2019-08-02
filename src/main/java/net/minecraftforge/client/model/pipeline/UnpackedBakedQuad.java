@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.client.model.pipeline;
 
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
@@ -35,7 +35,7 @@ public class UnpackedBakedQuad extends BakedQuad
 
     public UnpackedBakedQuad(float[][][] unpackedData, int tint, EnumFacing orientation, TextureAtlasSprite texture, boolean applyDiffuseLighting, VertexFormat format)
     {
-        super(new int[format.getNextOffset() /* / 4 * 4 */], tint, orientation, texture, applyDiffuseLighting, format);
+        super(new int[format.getSize() /* / 4 * 4 */], tint, orientation, texture, applyDiffuseLighting, format);
         this.unpackedData = unpackedData;
         this.format = format;
     }
@@ -180,8 +180,8 @@ public class UnpackedBakedQuad extends BakedQuad
             }
             if(contractUVs)
             {
-                float tX = texture.getIconWidth() / (texture.getMaxU() - texture.getMinU());
-                float tY = texture.getIconHeight() / (texture.getMaxV() - texture.getMinV());
+                float tX = texture.getWidth() / (texture.getMaxU() - texture.getMinU());
+                float tY = texture.getHeight() / (texture.getMaxV() - texture.getMinV());
                 float tS = tX > tY ? tX : tY;
                 float ep = 1f / (tS * 0x100);
                 int uve = 0;

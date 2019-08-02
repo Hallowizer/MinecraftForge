@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,14 +24,14 @@ import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IWorldReader;
 
 public class BlockInfo
 {
     private static final EnumFacing[] SIDES = EnumFacing.values();
 
     private final BlockColors colors;
-    private IBlockAccess world;
+    private IWorldReader world;
     private IBlockState state;
     private BlockPos blockPos;
 
@@ -60,7 +60,7 @@ public class BlockInfo
     {
         if(cachedTint == tint) return cachedMultiplier;
         cachedTint = tint;
-        cachedMultiplier = colors.colorMultiplier(state, world, blockPos, tint);
+        cachedMultiplier = colors.getColor(state, world, blockPos, tint);
         return cachedMultiplier;
     }
 
@@ -72,7 +72,7 @@ public class BlockInfo
         shz = (float) offset.z;
     }
 
-    public void setWorld(IBlockAccess world)
+    public void setWorld(IWorldReader world)
     {
         this.world = world;
         cachedTint = -1;
@@ -123,7 +123,7 @@ public class BlockInfo
                 {
                     BlockPos pos = blockPos.add(x - 1, y - 1, z - 1);
                     IBlockState state = world.getBlockState(pos);
-                    t[x][y][z] = state.getLightOpacity(world, pos) < 15;
+                    t[x][y][z] = state.getOpacity(world, pos) < 15;
                     int brightness = state.getPackedLightmapCoords(world, pos);
                     s[x][y][z] = (brightness >> 0x14) & 0xF;
                     b[x][y][z] = (brightness >> 0x04) & 0xF;
@@ -135,9 +135,9 @@ public class BlockInfo
         {
             if(!state.doesSideBlockRendering(world, blockPos, side))
             {
-                int x = side.getFrontOffsetX() + 1;
-                int y = side.getFrontOffsetY() + 1;
-                int z = side.getFrontOffsetZ() + 1;
+                int x = side.getXOffset() + 1;
+                int y = side.getYOffset() + 1;
+                int z = side.getZOffset() + 1;
                 s[x][y][z] = Math.max(s[1][1][1] - 1, s[x][y][z]);
                 b[x][y][z] = Math.max(b[1][1][1] - 1, b[x][y][z]);
             }
@@ -195,7 +195,7 @@ public class BlockInfo
         }
     }
 
-    public IBlockAccess getWorld()
+    public IWorldReader getWorld()
     {
         return world;
     }

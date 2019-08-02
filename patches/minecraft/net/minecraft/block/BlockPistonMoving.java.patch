@@ -1,37 +1,26 @@
---- ../src-base/minecraft/net/minecraft/block/BlockPistonMoving.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockPistonMoving.java
-@@ -116,7 +116,7 @@
+--- a/net/minecraft/block/BlockPistonMoving.java
++++ b/net/minecraft/block/BlockPistonMoving.java
+@@ -86,14 +86,22 @@
+    }
  
-     public void func_180653_a(World p_180653_1_, BlockPos p_180653_2_, IBlockState p_180653_3_, float p_180653_4_, int p_180653_5_)
-     {
--        if (!p_180653_1_.field_72995_K)
-+        if (false && !p_180653_1_.field_72995_K) // Forge: Noop this out
-         {
-             TileEntityPiston tileentitypiston = this.func_185589_c(p_180653_1_, p_180653_2_);
+    public void func_196255_a(IBlockState p_196255_1_, World p_196255_2_, BlockPos p_196255_3_, float p_196255_4_, int p_196255_5_) {
+-      if (!p_196255_2_.field_72995_K) {
++      if (false && !p_196255_2_.field_72995_K) { //Forge: Noop this out
+          TileEntityPiston tileentitypiston = this.func_196342_a(p_196255_2_, p_196255_3_);
+          if (tileentitypiston != null) {
+             tileentitypiston.func_200230_i().func_196949_c(p_196255_2_, p_196255_3_, 0);
+          }
+       }
++      super.func_196255_a(p_196255_1_, p_196255_2_, p_196255_3_, 1, p_196255_5_); // mimic vanilla behavior from above and ignore chance
+    }
  
-@@ -126,6 +126,7 @@
-                 iblockstate.func_177230_c().func_176226_b(p_180653_1_, p_180653_2_, iblockstate, 0);
-             }
-         }
-+        super.func_180653_a(p_180653_1_, p_180653_2_, p_180653_3_, 1, p_180653_5_); // mimic vanilla behavior from above and ignore chance
-     }
- 
-     @Nullable
-@@ -210,6 +211,17 @@
-         return new BlockStateContainer(this, new IProperty[] {field_176426_a, field_176425_b});
-     }
- 
-+    @Override
-+    public void getDrops(net.minecraft.util.NonNullList<net.minecraft.item.ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
-+    {
-+        TileEntityPiston tileentitypiston = this.func_185589_c(world, pos);
-+        if (tileentitypiston != null)
-+        {
-+            IBlockState pushed = tileentitypiston.func_174927_b();
-+            drops.addAll(pushed.func_177230_c().getDrops(world, pos, pushed, fortune)); // use the old method until it gets removed, for backward compatibility
-+        }
-+    }
++   @Override
++   public void getDrops(IBlockState state, net.minecraft.util.NonNullList<ItemStack> drops, World world, BlockPos pos, int fortune) {
++      TileEntityPiston te = this.func_196342_a(world, pos);
++      if (te != null)
++         te.func_200230_i().getDrops(drops, world, pos, fortune);
++   }
 +
-     public BlockFaceShape func_193383_a(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
-     {
-         return BlockFaceShape.UNDEFINED;
+    public VoxelShape func_196244_b(IBlockState p_196244_1_, IBlockReader p_196244_2_, BlockPos p_196244_3_) {
+       return VoxelShapes.func_197880_a();
+    }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,12 +19,12 @@
 
 package net.minecraftforge.client.event;
 
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.EntityLivingBase;
 
-public abstract class RenderLivingEvent<T extends EntityLivingBase> extends Event
+public abstract class RenderLivingEvent<T extends EntityLivingBase> extends net.minecraftforge.eventbus.api.Event
 {
     private final EntityLivingBase entity;
     private final RenderLivingBase<T> renderer;
@@ -32,12 +32,6 @@ public abstract class RenderLivingEvent<T extends EntityLivingBase> extends Even
     private final double x;
     private final double y;
     private final double z;
-
-    @Deprecated
-    public RenderLivingEvent(EntityLivingBase entity, RenderLivingBase<T> renderer, double x, double y, double z)
-    {
-        this(entity, renderer, 1, x, y, z);
-    }
 
     public RenderLivingEvent(EntityLivingBase entity, RenderLivingBase<T> renderer, float partialRenderTick, double x, double y, double z)
     {
@@ -56,17 +50,13 @@ public abstract class RenderLivingEvent<T extends EntityLivingBase> extends Even
     public double getY() { return y; }
     public double getZ() { return z; }
 
-    @Cancelable
+    @net.minecraftforge.eventbus.api.Cancelable
     public static class Pre<T extends EntityLivingBase> extends RenderLivingEvent<T>
     {
-        @Deprecated
-        public Pre(EntityLivingBase entity, RenderLivingBase<T> renderer, double x, double y, double z){ super(entity, renderer, x, y, z); }
         public Pre(EntityLivingBase entity, RenderLivingBase<T> renderer, float partialRenderTick, double x, double y, double z){ super(entity, renderer, partialRenderTick, x, y, z); }
     }
     public static class Post<T extends EntityLivingBase> extends RenderLivingEvent<T>
     {
-        @Deprecated
-        public Post(EntityLivingBase entity, RenderLivingBase<T> renderer, double x, double y, double z){ super(entity, renderer, x, y, z); }
         public Post(EntityLivingBase entity, RenderLivingBase<T> renderer, float partialRenderTick, double x, double y, double z){ super(entity, renderer, partialRenderTick, x, y, z); }
     }
 
@@ -74,7 +64,7 @@ public abstract class RenderLivingEvent<T extends EntityLivingBase> extends Even
     {
         public Specials(EntityLivingBase entity, RenderLivingBase<T> renderer, double x, double y, double z){ super(entity, renderer, 0, x, y, z); }
 
-        @Cancelable
+        @net.minecraftforge.eventbus.api.Cancelable
         public static class Pre<T extends EntityLivingBase> extends Specials<T>
         {
             public Pre(EntityLivingBase entity, RenderLivingBase<T> renderer, double x, double y, double z){ super(entity, renderer, x, y, z); }

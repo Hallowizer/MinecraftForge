@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,10 +19,10 @@
 
 package net.minecraftforge.event.entity.player;
 
-import java.util.List;
+import java.util.Collection;
 
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import net.minecraftforge.eventbus.api.Cancelable;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -46,7 +46,7 @@ public class PlayerDropsEvent extends LivingDropsEvent
      * @param source The source of the damage which is killing the player.
      * @param drops List of all drops entering the world.
      */
-    public PlayerDropsEvent(EntityPlayer entity, DamageSource source, List<EntityItem> drops, boolean recentlyHit)
+    public PlayerDropsEvent(EntityPlayer entity, DamageSource source, Collection<EntityItem> drops, boolean recentlyHit)
     {
         super(entity, source, drops, ForgeHooks.getLootingLevel(entity, source.getTrueSource(), source), recentlyHit);
 

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,9 +37,12 @@ import javax.vecmath.Matrix4f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
-import net.minecraft.client.renderer.block.model.BlockPart;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import net.minecraft.client.renderer.model.BlockPart;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.model.animation.ModelBlockAnimation.Parameter.Interpolation;
@@ -53,7 +56,6 @@ import net.minecraftforge.common.model.animation.IJoint;
 import net.minecraftforge.common.model.animation.IJointClip;
 import net.minecraftforge.common.model.animation.JointClips;
 import net.minecraftforge.common.util.JsonUtils;
-import net.minecraftforge.fml.common.FMLLog;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
@@ -69,6 +71,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class ModelBlockAnimation
 {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private final ImmutableMap<String, ImmutableMap<String, float[]>> joints;
     private final ImmutableMap<String, MBClip> clips;
     private transient ImmutableMultimap<Integer, MBJointWeight> jointIndexMap;
@@ -530,7 +534,7 @@ public class ModelBlockAnimation
                     if(trOp.isPresent() && !trOp.get().isIdentity())
                     {
                         float w = info.getWeights().get(i)[0];
-                        tmp = trOp.get().getMatrix();
+                        tmp = trOp.get().getMatrixVec();
                         tmp.mul(w);
                         m.add(tmp);
                         weight += w;
@@ -567,7 +571,7 @@ public class ModelBlockAnimation
         }
         catch(IOException | JsonParseException e)
         {
-            FMLLog.log.error("Exception loading vanilla model animation {}, skipping", armatureLocation, e);
+            LOGGER.error("Exception loading vanilla model animation {}, skipping", armatureLocation, e);
             return defaultModelBlockAnimation;
         }
     }

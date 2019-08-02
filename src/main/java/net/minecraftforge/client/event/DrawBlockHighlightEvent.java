@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,22 +19,22 @@
 
 package net.minecraftforge.client.event;
 
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.WorldRenderer;
 
 @Cancelable
 public class DrawBlockHighlightEvent extends Event
 {
-    private final RenderGlobal context;
+    private final WorldRenderer context;
     private final EntityPlayer player;
     private final RayTraceResult target;
     private final int subID;
     private final float partialTicks;
 
-    public DrawBlockHighlightEvent(RenderGlobal context, EntityPlayer player, RayTraceResult target, int subID, float partialTicks)
+    public DrawBlockHighlightEvent(WorldRenderer context, EntityPlayer player, RayTraceResult target, int subID, float partialTicks)
     {
         this.context = context;
         this.player = player;
@@ -43,7 +43,7 @@ public class DrawBlockHighlightEvent extends Event
         this.partialTicks= partialTicks;
     }
 
-    public RenderGlobal getContext() { return context; }
+    public WorldRenderer getContext() { return context; }
     public EntityPlayer getPlayer() { return player; }
     public RayTraceResult getTarget() { return target; }
     public int getSubID() { return subID; }

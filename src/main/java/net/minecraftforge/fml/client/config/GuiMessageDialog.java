@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -40,6 +40,6 @@ public class GuiMessageDialog extends GuiDisconnected
     public void initGui()
     {
         super.initGui();
-        buttonList.get(0).displayString = I18n.format(buttonText);
+        buttons.get(0).displayString = I18n.format(buttonText);
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,8 @@ package net.minecraftforge.server.permission;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.server.ServerModLoader;
 import net.minecraftforge.server.permission.context.IContext;
 
 import javax.annotation.Nullable;
@@ -72,7 +73,7 @@ public enum DefaultPermissionHandler implements IPermissionHandler
             return true;
         }
 
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         return server != null && server.getPlayerList().canSendCommands(profile);
     }
 

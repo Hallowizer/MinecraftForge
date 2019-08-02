@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,7 @@
 package net.minecraftforge.client.event;
 
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Event class for handling GuiContainer specific events.
@@ -59,6 +59,40 @@ public class GuiContainerEvent extends Event
          * @param mouseY       The current Y position of the players mouse.
          */
         public DrawForeground(GuiContainer guiContainer, int mouseX, int mouseY)
+        {
+            super(guiContainer);
+            this.mouseX = mouseX;
+            this.mouseY = mouseY;
+        }
+
+        public int getMouseX()
+        {
+            return mouseX;
+        }
+
+        public int getMouseY()
+        {
+            return mouseY;
+        }
+    }
+    
+    /**
+     * This event is fired directly after the GuiContainer has draw any background elements,
+     * This is useful for drawing new background elements.
+     */
+    public static class DrawBackground extends GuiContainerEvent
+    {
+        private final int mouseX;
+        private final int mouseY;
+
+        /**
+         * Called directly after the GuiContainer has drawn any background elements.
+         *
+         * @param guiContainer The container.
+         * @param mouseX       The current X position of the players mouse.
+         * @param mouseY       The current Y position of the players mouse.
+         */
+        public DrawBackground(GuiContainer guiContainer, int mouseX, int mouseY)
         {
             super(guiContainer);
             this.mouseX = mouseX;

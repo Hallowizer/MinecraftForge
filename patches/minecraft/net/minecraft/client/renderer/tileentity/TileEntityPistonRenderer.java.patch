@@ -1,15 +1,10 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/tileentity/TileEntityPistonRenderer.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/tileentity/TileEntityPistonRenderer.java
-@@ -23,10 +23,11 @@
- @SideOnly(Side.CLIENT)
- public class TileEntityPistonRenderer extends TileEntitySpecialRenderer<TileEntityPiston>
- {
--    private final BlockRendererDispatcher field_178462_c = Minecraft.func_71410_x().func_175602_ab();
-+    private BlockRendererDispatcher field_178462_c;
+--- a/net/minecraft/client/renderer/tileentity/TileEntityPistonRenderer.java
++++ b/net/minecraft/client/renderer/tileentity/TileEntityPistonRenderer.java
+@@ -67,6 +67,7 @@
+    }
  
-     public void func_192841_a(TileEntityPiston p_192841_1_, double p_192841_2_, double p_192841_4_, double p_192841_6_, float p_192841_8_, int p_192841_9_, float p_192841_10_)
-     {
-+        if (field_178462_c == null) field_178462_c = Minecraft.func_71410_x().func_175602_ab(); //Forge: Delay this from constructor to allow us to change it later
-         BlockPos blockpos = p_192841_1_.func_174877_v();
-         IBlockState iblockstate = p_192841_1_.func_174927_b();
-         Block block = iblockstate.func_177230_c();
+    private boolean func_188186_a(BlockPos p_188186_1_, IBlockState p_188186_2_, BufferBuilder p_188186_3_, World p_188186_4_, boolean p_188186_5_) {
++      if (field_178462_c == null) field_178462_c = Minecraft.func_71410_x().func_175602_ab();
+       return this.field_178462_c.func_175019_b().func_199324_a(p_188186_4_, this.field_178462_c.func_184389_a(p_188186_2_), p_188186_2_, p_188186_1_, p_188186_3_, p_188186_5_, new Random(), p_188186_2_.func_209533_a(p_188186_1_));
+    }
+ }

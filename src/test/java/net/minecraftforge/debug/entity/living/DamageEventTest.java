@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -38,12 +38,12 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.event.FMLServerStartingEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = DamageEventTest.MODID, name = "ForgeDebugLivingDamage", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = DamageEventTest.MODID, name = "ForgeDebugLivingDamage", version = "1.0", acceptableRemoteVersions = "*")
 public class DamageEventTest
 {
 
@@ -151,17 +151,17 @@ public class DamageEventTest
         evt.registerServerCommand(new CommandDamage());
     }
 
-    @EventBusSubscriber
+    //@EventBusSubscriber
     public static class TestEventHandler
     {
 
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void livingHurtPre(LivingHurtEvent evt)
         {
             logger.info("Entity {} damage from {} (pre-reduction): {}", evt.getEntity(), evt.getSource().getDamageType(), evt.getAmount());
         }
 
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void livingHurtPost(LivingDamageEvent evt)
         {
             logger.info("Entity {} damage from {} (post-reduction): {}", evt.getEntity(), evt.getSource().getDamageType(), evt.getAmount());

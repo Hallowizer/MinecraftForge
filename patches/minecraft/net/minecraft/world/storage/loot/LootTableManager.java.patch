@@ -1,20 +1,11 @@
---- ../src-base/minecraft/net/minecraft/world/storage/loot/LootTableManager.java
-+++ ../src-work/minecraft/net/minecraft/world/storage/loot/LootTableManager.java
-@@ -111,7 +111,7 @@
+--- a/net/minecraft/world/storage/loot/LootTableManager.java
++++ b/net/minecraft/world/storage/loot/LootTableManager.java
+@@ -39,7 +39,7 @@
+          ResourceLocation resourcelocation1 = new ResourceLocation(resourcelocation.func_110624_b(), s.substring(field_195435_a, s.length() - field_195436_b));
  
-                         try
-                         {
--                            return (LootTable)JsonUtils.func_188178_a(LootTableManager.field_186526_b, s, LootTable.class);
-+                            return net.minecraftforge.common.ForgeHooks.loadLootTable(LootTableManager.field_186526_b, p_186517_1_, s, true, LootTableManager.this);
-                         }
-                         catch (IllegalArgumentException | JsonParseException jsonparseexception)
-                         {
-@@ -153,7 +153,7 @@
- 
-                 try
-                 {
--                    return (LootTable)JsonUtils.func_188178_a(LootTableManager.field_186526_b, s, LootTable.class);
-+                    return net.minecraftforge.common.ForgeHooks.loadLootTable(LootTableManager.field_186526_b, p_186518_1_, s, false, LootTableManager.this);
-                 }
-                 catch (JsonParseException jsonparseexception)
-                 {
+          try (IResource iresource = p_195410_1_.func_199002_a(resourcelocation)) {
+-            LootTable loottable = JsonUtils.func_188178_a(field_186526_b, IOUtils.toString(iresource.func_199027_b(), StandardCharsets.UTF_8), LootTable.class);
++            LootTable loottable =net.minecraftforge.common.ForgeHooks.loadLootTable(field_186526_b, resourcelocation, IOUtils.toString(iresource.func_199027_b(), StandardCharsets.UTF_8), iresource.func_199026_d().equals("Default"), this);
+             if (loottable != null) {
+                this.field_186527_c.put(resourcelocation1, loottable);
+             }

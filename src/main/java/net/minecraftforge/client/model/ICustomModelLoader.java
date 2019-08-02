@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,29 @@
 
 package net.minecraftforge.client.model;
 
-import net.minecraft.client.resources.IResourceManagerReloadListener;
-import net.minecraft.util.ResourceLocation;
+import java.util.function.Predicate;
 
-public interface ICustomModelLoader extends IResourceManagerReloadListener
+import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.resource.IResourceType;
+import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.resource.VanillaResourceType;
+
+public interface ICustomModelLoader extends ISelectiveResourceReloadListener
 {
+    @Override
+    void onResourceManagerReload(IResourceManager resourceManager);
+
+    @Override
+    default void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate)
+    {
+        if (resourcePredicate.test(VanillaResourceType.MODELS))
+        {
+            onResourceManagerReload(resourceManager);
+        }
+    }
+
     /*
      * Checks if given model should be loaded by this loader.
      * Reading file contents is inadvisable, if possible decision should be made based on the location alone.
@@ -33,5 +51,12 @@ public interface ICustomModelLoader extends IResourceManagerReloadListener
     /*
      * loads (or reloads) specified model
      */
-    IModel loadModel(ResourceLocation modelLocation) throws Exception;
+    IUnbakedModel loadModel(ResourceLocation modelLocation) throws Exception;
+
+
+    @Override
+    default IResourceType getResourceType()
+    {
+       return VanillaResourceType.MODELS;
+    }
 }

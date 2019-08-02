@@ -1,11 +1,12 @@
---- ../src-base/minecraft/net/minecraft/block/BlockLadder.java
-+++ ../src-work/minecraft/net/minecraft/block/BlockLadder.java
-@@ -158,6 +158,8 @@
-         return new BlockStateContainer(this, new IProperty[] {field_176382_a});
-     }
- 
-+    @Override public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) { return true; }
+--- a/net/minecraft/block/BlockLadder.java
++++ b/net/minecraft/block/BlockLadder.java
+@@ -151,4 +151,9 @@
+          return false;
+       }
+    }
 +
-     public BlockFaceShape func_193383_a(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
-     {
-         return BlockFaceShape.UNDEFINED;
++   @Override
++   public boolean isLadder(IBlockState state, net.minecraft.world.IWorldReader world, BlockPos pos, net.minecraft.entity.EntityLivingBase entity) {
++      return true;
++   }
+ }

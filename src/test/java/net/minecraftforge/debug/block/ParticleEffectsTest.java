@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -37,21 +37,21 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import static net.minecraftforge.debug.block.ParticleEffectsTest.MOD_ID;
 import static net.minecraftforge.debug.block.ParticleEffectsTest.MOD_NAME;
 
-@EventBusSubscriber
-@Mod (modid = MOD_ID, name = MOD_NAME, version = "1.0", acceptableRemoteVersions = "*")
+//@EventBusSubscriber
+//@Mod(modid = MOD_ID, name = MOD_NAME, version = "1.0", acceptableRemoteVersions = "*")
 public class ParticleEffectsTest
 {
 
@@ -86,7 +86,7 @@ public class ParticleEffectsTest
             }
 
             @Override
-            @SideOnly (Side.CLIENT)
+            @OnlyIn(Dist.CLIENT)
             public boolean addHitEffects(IBlockState state, World world, RayTraceResult target, ParticleManager manager)
             {
                 world.spawnParticle(EnumParticleTypes.REDSTONE, target.hitVec.x, target.hitVec.y, target.hitVec.z, 0, 1, 0);
@@ -94,7 +94,7 @@ public class ParticleEffectsTest
             }
 
             @Override
-            @SideOnly (Side.CLIENT)
+            @OnlyIn(Dist.CLIENT)
             public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager manager)
             {
                 world.spawnParticle(EnumParticleTypes.REDSTONE, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0, 1);
@@ -117,7 +117,7 @@ public class ParticleEffectsTest
         event.getRegistry().register(item.setRegistryName(particleBlockLocation));
     }
 
-    @EventBusSubscriber (value = Side.CLIENT, modid = MOD_ID)
+    //@EventBusSubscriber (value = Side.CLIENT, modid = MOD_ID)
     public static class ClientEventHandler
     {
 

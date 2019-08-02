@@ -1,19 +1,13 @@
---- ../src-base/minecraft/net/minecraft/world/storage/loot/LootContext.java
-+++ ../src-work/minecraft/net/minecraft/world/storage/loot/LootContext.java
-@@ -89,6 +89,16 @@
-         }
-     }
+--- a/net/minecraft/world/storage/loot/LootContext.java
++++ b/net/minecraft/world/storage/loot/LootContext.java
+@@ -91,6 +91,10 @@
+       }
+    }
  
-+    public WorldServer getWorld()
-+    {
-+        return field_186499_b;
-+    }
++   public int getLootingModifier() {
++      return net.minecraftforge.common.ForgeHooks.getLootingLevel(func_186493_a(), func_186492_c(), field_186503_f);
++   }
 +
-+    public int getLootingModifier()
-+    {
-+        return net.minecraftforge.common.ForgeHooks.getLootingLevel(func_186493_a(), func_186492_c(), field_186503_f);
-+    }
-+
-     public static class Builder
-         {
-             private final WorldServer field_186474_a;
+    public static class Builder {
+       private final WorldServer field_186474_a;
+       private float field_186475_b;

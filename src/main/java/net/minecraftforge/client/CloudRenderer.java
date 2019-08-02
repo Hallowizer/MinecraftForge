@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,13 +19,15 @@
 
 package net.minecraftforge.client;
 
+import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
+import java.util.function.Predicate;
 
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -34,23 +36,25 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.IReloadableResourceManager;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.entity.Entity;
+import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.common.ForgeConfig;
+import net.minecraftforge.resource.IResourceType;
+import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.resource.VanillaResourceType;
 
-public class CloudRenderer implements IResourceManagerReloadListener
+public class CloudRenderer implements ISelectiveResourceReloadListener
 {
     // Shared constants.
     private static final float PX_SIZE = 1 / 256F;
 
     // Building constants.
     private static final VertexFormat FORMAT = DefaultVertexFormats.POSITION_TEX_COLOR;
-    private static final int TOP_SECTIONS = 12;	// Number of slices a top face will span.
+    private static final int TOP_SECTIONS = 12;    // Number of slices a top face will span.
     private static final int HEIGHT = 4;
     private static final float INSET = 0.001F;
     private static final float ALPHA = 0.8F;
@@ -59,7 +63,7 @@ public class CloudRenderer implements IResourceManagerReloadListener
     private static final boolean WIREFRAME = false;
 
     // Instance fields
-    private final Minecraft mc = Minecraft.getMinecraft();
+    private final Minecraft mc = Minecraft.getInstance();
     private final ResourceLocation texture = new ResourceLocation("textures/environment/clouds.png");
 
     private int displayList = -1;
@@ -75,7 +79,7 @@ public class CloudRenderer implements IResourceManagerReloadListener
     public CloudRenderer()
     {
         // Resource manager should always be reloadable.
-        ((IReloadableResourceManager) mc.getResourceManager()).registerReloadListener(this);
+        ((IReloadableResourceManager) mc.getResourceManager()).addReloadListener(this);
     }
 
     private int getScale()
@@ -237,7 +241,7 @@ public class CloudRenderer implements IResourceManagerReloadListener
         if (OpenGlHelper.useVbo())
             vbo = new VertexBuffer(FORMAT);
         else
-            GlStateManager.glNewList(displayList = GLAllocation.generateDisplayLists(1), GL11.GL_COMPILE);
+            GlStateManager.newList(displayList = GLAllocation.generateDisplayLists(1), GL11.GL_COMPILE);
 
         vertices(buffer);
 
@@ -250,7 +254,7 @@ public class CloudRenderer implements IResourceManagerReloadListener
         else
         {
             tess.draw();
-            GlStateManager.glEndList();
+            GlStateManager.endList();
         }
     }
 
@@ -266,10 +270,10 @@ public class CloudRenderer implements IResourceManagerReloadListener
 
     public void checkSettings()
     {
-        boolean newEnabled = ForgeModContainer.forgeCloudsEnabled
+        boolean newEnabled = ForgeConfig.CLIENT.forgeCloudsEnabled.get()
                 && mc.gameSettings.shouldRenderClouds() != 0
                 && mc.world != null
-                && mc.world.provider.isSurfaceWorld();
+                && mc.world.dimension.isSurfaceWorld();
 
         if (isBuilt()
                     && (!newEnabled
@@ -299,7 +303,7 @@ public class CloudRenderer implements IResourceManagerReloadListener
 
         double x = entity.prevPosX + (entity.posX - entity.prevPosX) * partialTicks
                 + totalOffset * 0.03;
-        double y = mc.world.provider.getCloudHeight()
+        double y = mc.world.dimension.getCloudHeight()
                 - (entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks)
                 + 0.33;
         double z = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * partialTicks;
@@ -316,7 +320,7 @@ public class CloudRenderer implements IResourceManagerReloadListener
         GlStateManager.pushMatrix();
 
         // Translate by the remainder after the UV offset.
-        GlStateManager.translate((offU * scale) - x, y, (offV * scale) - z);
+        GlStateManager.translated((offU * scale) - x, y, (offV * scale) - z);
 
         // Modulo to prevent texture samples becoming inaccurate at extreme offsets.
         offU = offU % texW;
@@ -324,13 +328,13 @@ public class CloudRenderer implements IResourceManagerReloadListener
 
         // Translate the texture.
         GlStateManager.matrixMode(GL11.GL_TEXTURE);
-        GlStateManager.translate(offU * PX_SIZE, offV * PX_SIZE, 0);
+        GlStateManager.translatef(offU * PX_SIZE, offV * PX_SIZE, 0);
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
 
         GlStateManager.disableCull();
 
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(
+        GlStateManager.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 
@@ -340,33 +344,23 @@ public class CloudRenderer implements IResourceManagerReloadListener
         float g = (float) color.y;
         float b = (float) color.z;
 
-        if (mc.gameSettings.anaglyph)
-        {
-            float tempR = r * 0.3F + g * 0.59F + b * 0.11F;
-            float tempG = r * 0.3F + g * 0.7F;
-            float tempB = r * 0.3F + b * 0.7F;
-            r = tempR;
-            g = tempG;
-            b = tempB;
-        }
-
         if (COLOR_TEX == null)
-            COLOR_TEX = new DynamicTexture(1, 1);
+            COLOR_TEX = new DynamicTexture(1, 1, false);
 
         // Apply a color multiplier through a texture upload if shaders aren't supported.
-        COLOR_TEX.getTextureData()[0] = 255 << 24
+        COLOR_TEX.getTextureData().setPixelRGBA(0, 0, 255 << 24
                 | ((int) (r * 255)) << 16
                 | ((int) (g * 255)) << 8
-                | (int) (b * 255);
+                | (int) (b * 255));
         COLOR_TEX.updateDynamicTexture();
 
-        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        GlStateManager.activeTexture(OpenGlHelper.GL_TEXTURE1);
         GlStateManager.bindTexture(COLOR_TEX.getGlTextureId());
         GlStateManager.enableTexture2D();
 
         // Bind the clouds texture last so the shader's sampler2D is correct.
-        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-        mc.renderEngine.bindTexture(texture);
+        GlStateManager.activeTexture(OpenGlHelper.GL_TEXTURE0);
+        mc.textureManager.bindTexture(texture);
 
         ByteBuffer buffer = Tessellator.getInstance().getBuffer().getByteBuffer();
 
@@ -375,19 +369,19 @@ public class CloudRenderer implements IResourceManagerReloadListener
         {
             vbo.bindBuffer();
 
-            int stride = FORMAT.getNextOffset();
-            GlStateManager.glVertexPointer(3, GL11.GL_FLOAT, stride, 0);
-            GlStateManager.glEnableClientState(GL11.GL_VERTEX_ARRAY);
-            GlStateManager.glTexCoordPointer(2, GL11.GL_FLOAT, stride, 12);
-            GlStateManager.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-            GlStateManager.glColorPointer(4, GL11.GL_UNSIGNED_BYTE, stride, 20);
-            GlStateManager.glEnableClientState(GL11.GL_COLOR_ARRAY);
+            int stride = FORMAT.getSize();
+            GlStateManager.vertexPointer(3, GL11.GL_FLOAT, stride, 0);
+            GlStateManager.enableClientState(GL11.GL_VERTEX_ARRAY);
+            GlStateManager.texCoordPointer(2, GL11.GL_FLOAT, stride, 12);
+            GlStateManager.enableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+            GlStateManager.colorPointer(4, GL11.GL_UNSIGNED_BYTE, stride, 20);
+            GlStateManager.enableClientState(GL11.GL_COLOR_ARRAY);
         }
         else
         {
-            buffer.limit(FORMAT.getNextOffset());
+            buffer.limit(FORMAT.getSize());
             for (int i = 0; i < FORMAT.getElementCount(); i++)
-                FORMAT.getElements().get(i).getUsage().preDraw(FORMAT, i, FORMAT.getNextOffset(), buffer);
+                FORMAT.getElements().get(i).getUsage().preDraw(FORMAT, i, FORMAT.getSize(), buffer);
             buffer.position(0);
         }
 
@@ -399,28 +393,13 @@ public class CloudRenderer implements IResourceManagerReloadListener
             GlStateManager.callList(displayList);
 
         // Full render.
-        if (!mc.gameSettings.anaglyph)
-        {
-            GlStateManager.colorMask(true, true, true, true);
-        }
-        else
-        {
-            switch (EntityRenderer.anaglyphField)
-            {
-            case 0:
-                GlStateManager.colorMask(false, true, true, true);
-                break;
-            case 1:
-                GlStateManager.colorMask(true, false, false, true);
-                break;
-            }
-        }
+        GlStateManager.colorMask(true, true, true, true);
 
         // Wireframe for debug.
         if (WIREFRAME)
         {
-            GlStateManager.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
-            GlStateManager.glLineWidth(2.0F);
+            GlStateManager.polygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+            GlStateManager.lineWidth(2.0F);
             GlStateManager.disableTexture2D();
             GlStateManager.depthMask(false);
             GlStateManager.disableFog();
@@ -428,7 +407,7 @@ public class CloudRenderer implements IResourceManagerReloadListener
                 vbo.drawArrays(GL11.GL_QUADS);
             else
                 GlStateManager.callList(displayList);
-            GlStateManager.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+            GlStateManager.polygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
             GlStateManager.depthMask(true);
             GlStateManager.enableTexture2D();
             GlStateManager.enableFog();
@@ -446,13 +425,13 @@ public class CloudRenderer implements IResourceManagerReloadListener
 
         buffer.limit(0);
         for (int i = 0; i < FORMAT.getElementCount(); i++)
-            FORMAT.getElements().get(i).getUsage().postDraw(FORMAT, i, FORMAT.getNextOffset(), buffer);
+            FORMAT.getElements().get(i).getUsage().postDraw(FORMAT, i, FORMAT.getSize(), buffer);
         buffer.position(0);
 
         // Disable our coloring.
-        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        GlStateManager.activeTexture(OpenGlHelper.GL_TEXTURE1);
         GlStateManager.disableTexture2D();
-        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        GlStateManager.activeTexture(OpenGlHelper.GL_TEXTURE0);
 
         // Reset texture matrix.
         GlStateManager.matrixMode(GL11.GL_TEXTURE);
@@ -469,17 +448,45 @@ public class CloudRenderer implements IResourceManagerReloadListener
 
     private void reloadTextures()
     {
-        if (mc.renderEngine != null)
+        if (mc.textureManager != null)
         {
-            mc.renderEngine.bindTexture(texture);
+            mc.textureManager.bindTexture(texture);
             texW = GlStateManager.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
             texH = GlStateManager.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
         }
     }
 
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager)
+    public void onResourceManagerReload(@Nonnull IResourceManager resourceManager, @Nonnull Predicate<IResourceType> resourcePredicate)
     {
-        reloadTextures();
+        if (resourcePredicate.test(VanillaResourceType.TEXTURES))
+        {
+            reloadTextures();
+        }
     }
+
+    private static CloudRenderer cloudRenderer;
+    private static CloudRenderer getCloudRenderer()
+    {
+        if (cloudRenderer == null)
+            cloudRenderer = new CloudRenderer();
+        return cloudRenderer;
+    }
+
+    public static void updateCloudSettings()
+    {
+        getCloudRenderer().checkSettings();
+    }
+
+    public static boolean renderClouds(int cloudTicks, float partialTicks, WorldClient world, Minecraft client)
+    {
+        IRenderHandler renderer = world.dimension.getCloudRenderer();
+        if (renderer != null)
+        {
+            renderer.render(cloudTicks, partialTicks, world, client);
+            return true;
+        }
+        return getCloudRenderer().render(cloudTicks, partialTicks);
+    }
+
 }

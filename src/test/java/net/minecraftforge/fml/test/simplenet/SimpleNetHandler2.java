@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,12 +20,12 @@
 package net.minecraftforge.fml.test.simplenet;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public class SimpleNetHandler2 implements IMessageHandler<SimpleNetTestMessage2, SimpleNetTestMessage1>
 {
     @Override
-    public SimpleNetTestMessage1 onMessage(SimpleNetTestMessage2 message, MessageContext context)
+    public SimpleNetTestMessage1 onMessage(SimpleNetTestMessage2 message, NetworkEvent.Context context)
     {
         return null;
     }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,9 +19,9 @@
 
 package net.minecraftforge.client.event;
 
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraft.client.renderer.WorldRenderer;
 
 /**
  * This event is fired on {@link net.minecraftforge.common.MinecraftForge#EVENT_BUS}
@@ -30,20 +30,18 @@ import net.minecraft.client.renderer.RenderGlobal;
  * and prevents {@link RenderSpecificHandEvent} from firing.
  * TODO This may get merged in 11 with RenderSpecificHandEvent to make a generic hand rendering
  */
-@Cancelable
-public class RenderHandEvent extends Event
+@net.minecraftforge.eventbus.api.Cancelable
+public class RenderHandEvent extends net.minecraftforge.eventbus.api.Event
 {
-    private final RenderGlobal context;
+    private final WorldRenderer context;
     private final float partialTicks;
-    private final int renderPass;
-    public RenderHandEvent(RenderGlobal context, float partialTicks, int renderPass)
+    public RenderHandEvent(WorldRenderer context, float partialTicks)
     {
         this.context = context;
         this.partialTicks = partialTicks;
-        this.renderPass = renderPass;
     }
 
-    public RenderGlobal getContext()
+    public WorldRenderer getContext()
     {
         return context;
     }
@@ -51,10 +49,5 @@ public class RenderHandEvent extends Event
     public float getPartialTicks()
     {
         return partialTicks;
-    }
-
-    public int getRenderPass()
-    {
-        return renderPass;
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,14 +22,15 @@ package net.minecraftforge.client.model.pipeline;
 import javax.vecmath.Vector3f;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IWorldReader;
 
 import java.util.Objects;
 
@@ -107,7 +108,16 @@ public class VertexLighterFlat extends QuadGatheringTransformer
         updateIndices();
     }
 
-    private static VertexFormat withNormal(VertexFormat format)
+    private static final VertexFormat BLOCK_WITH_NORMAL = withNormalUncached(DefaultVertexFormats.BLOCK);
+    static VertexFormat withNormal(VertexFormat format)
+    {
+        //This is the case in 99.99%. Cache the value, so we don't have to redo it every time, and the speed up the equals check in LightUtil
+        if (format == DefaultVertexFormats.BLOCK)
+            return BLOCK_WITH_NORMAL;
+        return withNormalUncached(format);
+    }
+
+    private static VertexFormat withNormalUncached(VertexFormat format)
     {
         if (format == null || format.hasNormal()) return format;
         return new VertexFormat(format).addElement(NORMAL_4F);
@@ -167,7 +177,7 @@ public class VertexLighterFlat extends QuadGatheringTransformer
             float y = position[v][1] - .5f;
             float z = position[v][2] - .5f;
 
-            //if(blockInfo.getBlock().isFullCube())
+//            if(blockInfo.getState().getBlock().isFullCube(blockInfo.getState()))
             {
                 x += normal[v][0] * .5f;
                 y += normal[v][1] * .5f;
@@ -190,10 +200,6 @@ public class VertexLighterFlat extends QuadGatheringTransformer
                     color[v][i] *= d;
                 }
             }
-            if(EntityRenderer.anaglyphEnable)
-            {
-                applyAnaglyph(color[v]);
-            }
 
             // no need for remapping cause all we could've done is add 1 element to the end
             for(int e = 0; e < count; e++)
@@ -210,33 +216,25 @@ public class VertexLighterFlat extends QuadGatheringTransformer
                         pos[2] += blockInfo.getBlockPos().getZ();*/
                         parent.put(e, position[v]);
                         break;
-                    case NORMAL: if(normalIndex != -1)
-                    {
+                    case NORMAL:
                         parent.put(e, normal[v]);
                         break;
-                    }
                     case COLOR:
                         parent.put(e, color[v]);
                         break;
-                    case UV: if(element.getIndex() == 1)
-                    {
-                        parent.put(e, lightmap[v]);
-                        break;
-                    }
+                    case UV:
+                        if(element.getIndex() == 1)
+                        {
+                            parent.put(e, lightmap[v]);
+                            break;
+                        }
+                        // else fallthrough to default
                     default:
                         parent.put(e, quadData[e][v]);
                 }
             }
         }
         tint = -1;
-    }
-
-    protected void applyAnaglyph(float[] color)
-    {
-        float r = color[0];
-        color[0] = (r * 30 + color[1] * 59 + color[2] * 11) / 100;
-        color[1] = (r * 3 + color[1] * 7) / 10;
-        color[2] = (r * 3 + color[2] * 7) / 10;
     }
 
     protected void updateLightmap(float[] normal, float[] lightmap, float x, float y, float z)
@@ -287,7 +285,7 @@ public class VertexLighterFlat extends QuadGatheringTransformer
         this.diffuse = diffuse;
     }
 
-    public void setWorld(IBlockAccess world)
+    public void setWorld(IWorldReader world)
     {
         blockInfo.setWorld(world);
     }

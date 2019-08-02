@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,6 @@
 package net.minecraftforge.fml.client.config;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 
 import javax.annotation.Nullable;
 
@@ -107,7 +106,7 @@ public class GuiSlider extends GuiButtonExt
      * Fired when the mouse button is dragged. Equivalent of MouseListener.mouseDragged(MouseEvent e).
      */
     @Override
-    protected void mouseDragged(Minecraft par1Minecraft, int par2, int par3)
+    protected void renderBg(Minecraft par1Minecraft, int par2, int par3)
     {
         if (this.visible)
         {
@@ -117,9 +116,7 @@ public class GuiSlider extends GuiButtonExt
                 updateSlider();
             }
 
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.drawTexturedModalRect(this.x + (int)(this.sliderValue * (float)(this.width - 8)), this.y, 0, 66, 4, 20);
-            this.drawTexturedModalRect(this.x + (int)(this.sliderValue * (float)(this.width - 8)) + 4, this.y, 196, 66, 4, 20);
+            GuiUtils.drawContinuousTexturedBox(BUTTON_TEXTURES, this.x + (int)(this.sliderValue * (float)(this.width - 8)), this.y, 0, 66, 8, this.height, 200, 20, 2, 3, 2, 2, this.zLevel);
         }
     }
 
@@ -128,19 +125,11 @@ public class GuiSlider extends GuiButtonExt
      * e).
      */
     @Override
-    public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3)
+    public void onClick(double mouseX, double mouseY)
     {
-        if (super.mousePressed(par1Minecraft, par2, par3))
-        {
-            this.sliderValue = (float)(par2 - (this.x + 4)) / (float)(this.width - 8);
-            updateSlider();
-            this.dragging = true;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        this.sliderValue = (mouseX - (this.x + 4)) / (this.width - 8);
+        updateSlider();
+        this.dragging = true;
     }
 
     public void updateSlider()
@@ -198,7 +187,7 @@ public class GuiSlider extends GuiButtonExt
      * Fired when the mouse button is released. Equivalent of MouseListener.mouseReleased(MouseEvent e).
      */
     @Override
-    public void mouseReleased(int par1, int par2)
+    public void onRelease(double mouseX, double mouseY)
     {
         this.dragging = false;
     }

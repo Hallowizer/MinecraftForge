@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,9 +29,9 @@ import net.minecraftforge.common.command.SelectorHandler;
 import net.minecraftforge.common.command.SelectorHandlerManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.event.FMLInitializationEvent;
 
-@Mod(modid = "selectorhandlertest", name = "Selector Handler Test", version = "0.0.0", acceptableRemoteVersions = "*")
+//@Mod(modid = "selectorhandlertest", name = "Selector Handler Test", version = "0.0.0", acceptableRemoteVersions = "*")
 public class SelectorHandlerTest
 {
     @EventHandler
