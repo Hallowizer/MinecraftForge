@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,18 +28,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
-import net.minecraft.client.renderer.block.model.ModelBlockDefinition;
-import net.minecraft.client.renderer.block.model.ModelRotation;
-import net.minecraft.client.renderer.block.model.Variant;
-import net.minecraft.client.renderer.block.model.VariantList;
+import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.client.renderer.model.BlockModelDefinition;
+import net.minecraft.client.renderer.model.ModelRotation;
+import net.minecraft.client.renderer.model.Variant;
+import net.minecraft.client.renderer.model.VariantList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 
-import net.minecraftforge.fml.common.FMLLog;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -56,6 +59,9 @@ public class BlockStateLoader
             .registerTypeAdapter(ForgeBlockStateV1.Variant.class, ForgeBlockStateV1.Variant.Deserializer.INSTANCE)
             .registerTypeAdapter(TRSRTransformation.class, ForgeBlockStateV1.TRSRDeserializer.INSTANCE)
             .create();
+    
+    private static final Logger LOGGER = LogManager.getLogger();
+    
     /**
      * Loads a BlockStates json file.
      * Will attempt to parse it as a Forge Enhanced version if possible.
@@ -69,7 +75,7 @@ public class BlockStateLoader
      *
      * @return Model definition including variants for all known combinations.
      */
-    public static ModelBlockDefinition load(Reader reader, ResourceLocation location, final Gson vanillaGSON)
+    public static BlockModelDefinition load(Reader reader, ResourceLocation location, final Gson vanillaGSON)
     {
         try
         {
@@ -90,22 +96,20 @@ public class BlockStateLoader
                         for (ForgeBlockStateV1.Variant var : entry.getValue())
                         {
                             boolean uvLock = var.getUvLock().orElse(false);
-                            boolean smooth = var.getSmooth().orElse(true);
-                            boolean gui3d = var.getGui3d().orElse(true);
                             int weight = var.getWeight().orElse(1);
 
-                            if (var.getModel() != null && var.getSubmodels().size() == 0 && var.getTextures().size() == 0 && var.getCustomData().size() == 0 && var.getState().orElse(ModelRotation.X0_Y0) instanceof ModelRotation)
+                            if (var.isVanillaCompatible())
                                 mcVars.add(new Variant(var.getModel(), (ModelRotation)var.getState().orElse(ModelRotation.X0_Y0), uvLock, weight));
                             else
-                                mcVars.add(new ForgeVariant(location, var.getModel(), var.getState().orElse(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, var.getTextures(), var.getOnlyPartsVariant(), var.getCustomData()));
+                                mcVars.add(new ForgeVariant(location, var.getModel(), var.getState().orElse(TRSRTransformation.identity()), uvLock, var.getSmooth(), var.getGui3d(), weight, var.getTextures(), var.getOnlyPartsVariant(), var.getCustomData()));
                         }
                         variants.put(entry.getKey(), new VariantList(mcVars));
                     }
 
-                    return new ModelBlockDefinition(variants, null);
+                    return new BlockModelDefinition(variants, null);
 
                 default: //Unknown version.. try loading it as normal.
-                    return vanillaGSON.fromJson(reader, ModelBlockDefinition.class);
+                    return vanillaGSON.fromJson(reader, BlockModelDefinition.class);
             }
         }
         catch (IOException e)
@@ -156,11 +160,11 @@ public class BlockStateLoader
         private final ImmutableMap<String, String> textures;
         private final ImmutableMap<String, SubModel> parts;
         private final ImmutableMap<String, String> customData;
-        private final boolean smooth;
-        private final boolean gui3d;
+        private final Optional<Boolean> smooth;
+        private final Optional<Boolean> gui3d;
         private final IModelState state;
 
-        public ForgeVariant(ResourceLocation blockstateLocation, @Nullable ResourceLocation model, IModelState state, boolean uvLock, boolean smooth, boolean gui3d, int weight, ImmutableMap<String, String> textures, ImmutableMap<String, SubModel> parts, ImmutableMap<String, String> customData)
+        ForgeVariant(ResourceLocation blockstateLocation, @Nullable ResourceLocation model, IModelState state, boolean uvLock, Optional<Boolean> smooth, Optional<Boolean> gui3d, int weight, ImmutableMap<String, String> textures, ImmutableMap<String, SubModel> parts, ImmutableMap<String, String> customData)
         {
             super(model == null ? new ResourceLocation("builtin/missing") : model, state instanceof ModelRotation ? (ModelRotation)state : ModelRotation.X0_Y0, uvLock, weight);
             this.blockstateLocation = blockstateLocation;
@@ -172,13 +176,12 @@ public class BlockStateLoader
             this.gui3d = gui3d;
         }
 
-        private IModel runModelHooks(IModel base, boolean smooth, boolean gui3d, boolean uvlock, ImmutableMap<String, String> textureMap, ImmutableMap<String, String> customData)
+        private IUnbakedModel runModelHooks(IUnbakedModel base, Optional<Boolean> smooth, Optional<Boolean> gui3d, ImmutableMap<String, String> textureMap, ImmutableMap<String, String> customData)
         {
             base = base.process(customData);
             base = base.retexture(textureMap);
-            base = base.smoothLighting(smooth);
-            base = base.gui3d(gui3d);
-            base = base.uvlock(uvlock);
+            base = smooth.map(base::smoothLighting).orElse(base);
+            base = gui3d.map(base::gui3d).orElse(base);
             return base;
         }
 
@@ -186,7 +189,7 @@ public class BlockStateLoader
          * Used to replace the base model with a re-textured model containing sub-models.
          */
         @Override
-        public IModel process(IModel base)
+        public IUnbakedModel process(IUnbakedModel base)
         {
             int size = parts.size();
             // FIXME: should missing base be handled this way?
@@ -194,22 +197,22 @@ public class BlockStateLoader
 
             if (hasBase)
             {
-                base = runModelHooks(base, smooth, gui3d, this.isUvLock(), textures, customData);
+                base = runModelHooks(base, smooth, gui3d, textures, customData);
 
                 if (size <= 0)
                     return base;
             }
 
-            ImmutableMap.Builder<String, Pair<IModel, IModelState>> models = ImmutableMap.builder();
+            ImmutableMap.Builder<String, Pair<IUnbakedModel, IModelState>> models = ImmutableMap.builder();
             for (Entry<String, SubModel> entry : parts.entrySet())
             {
                 SubModel part = entry.getValue();
 
                 final ResourceLocation modelLocation = part.getModelLocation();
-                final IModel model;
+                final IUnbakedModel model;
                 if (modelLocation == null)
                 {
-                    FMLLog.log.error("model not found for variant {} for blockstate {}", entry.getKey(), blockstateLocation);
+                    LOGGER.error("model not found for variant {} for blockstate {}", entry.getKey(), blockstateLocation);
                     model = ModelLoaderRegistry.getMissingModel(blockstateLocation, new Throwable());
                 }
                 else
@@ -217,7 +220,7 @@ public class BlockStateLoader
                     model = ModelLoaderRegistry.getModelOrLogError(modelLocation, "Unable to load block sub-model: \'" + modelLocation);
                 }
 
-                models.put(entry.getKey(), Pair.of(runModelHooks(model, part.smooth, part.gui3d, part.uvLock, part.getTextures(), part.getCustomData()), part.getState()));
+                models.put(entry.getKey(), Pair.of(runModelHooks(model, Optional.of(part.smooth), Optional.of(part.gui3d), part.getTextures(), part.getCustomData()), part.getState()));
             }
 
             return new MultiModel(getModelLocation(), hasBase ? base : null, models.build());

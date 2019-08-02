@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.fluid;
 
@@ -24,8 +25,8 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -48,6 +49,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.ForgeVersion;
@@ -71,12 +73,11 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.Event.Result;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
@@ -85,7 +86,7 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@Mod(modid = DynBucketTest.MODID, name = "DynBucketTest", version = "0.1", dependencies = "after:" + ModelFluidTest.MODID, acceptableRemoteVersions = "*")
+//@Mod(modid = DynBucketTest.MODID, name = "DynBucketTest", version = "0.1", dependencies = "after:" + ModelFluidTest.MODID, acceptableRemoteVersions = "*")
 public class DynBucketTest
 {
     public static final String MODID = "dynbuckettest";
@@ -119,7 +120,7 @@ public class DynBucketTest
         GameRegistry.registerTileEntity(TileSimpleTank.class, "simpletank");
     }
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public void registerItems(RegistryEvent.Register<Item> event)
     {
         FluidRegistry.addBucketForFluid(FluidRegistry.getFluid(TestFluid.name));
@@ -132,7 +133,7 @@ public class DynBucketTest
         );
     }
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public void registerRecipes(RegistryEvent.Register<IRecipe> event)
     {
         ItemStack filledBucket = FluidUtil.getFilledBucket(new FluidStack(ModelFluidTest.FLUID, Fluid.BUCKET_VOLUME));
@@ -151,7 +152,7 @@ public class DynBucketTest
         }
     }
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public void onBucketFill(FillBucketEvent event)
     {
         RayTraceResult target = event.getTarget();
@@ -179,10 +180,10 @@ public class DynBucketTest
         }
     }
 
-    @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
+    //@Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
     public static class ClientEventHandler
     {
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void setupModels(ModelRegistryEvent event)
         {
             if (!ENABLE || !ModelFluidTest.ENABLE) return;
@@ -380,3 +381,4 @@ public class DynBucketTest
         }
     }
 }
+*/

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,17 +19,23 @@
 
 package net.minecraftforge.client.model;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 import java.util.List;
+import java.util.Random;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraft.world.IWorldReader;
+import net.minecraftforge.client.model.data.IModelData;
 import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class BakedModelWrapper<T extends IBakedModel> implements IBakedModel
@@ -42,7 +48,7 @@ public abstract class BakedModelWrapper<T extends IBakedModel> implements IBaked
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand)
     {
         return originalModel.getQuads(state, side, rand);
     }
@@ -54,7 +60,7 @@ public abstract class BakedModelWrapper<T extends IBakedModel> implements IBaked
     }
 
     @Override
-    public boolean isAmbientOcclusion(IBlockState state)
+    public boolean isAmbientOcclusion(BlockState state)
     {
         return originalModel.isAmbientOcclusion(state);
     }
@@ -93,5 +99,25 @@ public abstract class BakedModelWrapper<T extends IBakedModel> implements IBaked
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType cameraTransformType)
     {
         return originalModel.handlePerspective(cameraTransformType);
+    }
+
+    @Override
+    public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data)
+    {
+        return originalModel.getParticleTexture(data);
+    }
+
+    @Nonnull
+    @Override
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData)
+    {
+        return originalModel.getQuads(state, side, rand, extraData);
+    }
+
+    @Nonnull
+    @Override
+    public IModelData getModelData(@Nonnull IEnviromentBlockReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData)
+    {
+        return originalModel.getModelData(world, pos, state, tileData);
     }
 }

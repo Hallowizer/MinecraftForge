@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,63 +20,34 @@
 package net.minecraftforge.fml.client.config;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.widget.button.Button;
 
 /**
  * This class provides a checkbox style control.
- *
- * @author bspkrs
  */
-public class GuiCheckBox extends GuiButton
+public class GuiCheckBox extends Button
 {
     private boolean isChecked;
     private int     boxWidth;
 
-    public GuiCheckBox(int id, int xPos, int yPos, String displayString, boolean isChecked)
+    public GuiCheckBox(int xPos, int yPos, String displayString, boolean isChecked)
     {
-        super(id, xPos, yPos, displayString);
+        super(xPos, yPos, Minecraft.getInstance().fontRenderer.getStringWidth(displayString) + 2 + 11, 11, displayString, b -> {});
         this.isChecked = isChecked;
-        this.boxWidth = 11;
-        this.height = 11;
-        this.width = this.boxWidth + 2 + Minecraft.getMinecraft().fontRenderer.getStringWidth(displayString);
     }
 
     @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial)
+    public void renderButton(int mouseX, int mouseY, float partial)
     {
-        if (this.visible)
-        {
-            this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.boxWidth && mouseY < this.y + this.height;
-            GuiUtils.drawContinuousTexturedBox(BUTTON_TEXTURES, this.x, this.y, 0, 46, this.boxWidth, this.height, 200, 20, 2, 3, 2, 2, this.zLevel);
-            this.mouseDragged(mc, mouseX, mouseY);
-            int color = 14737632;
-
-            if (packedFGColour != 0)
-            {
-                color = packedFGColour;
-            }
-            else if (!this.enabled)
-            {
-                color = 10526880;
-            }
-
-            if (this.isChecked)
-                this.drawCenteredString(mc.fontRenderer, "x", this.x + this.boxWidth / 2 + 1, this.y + 1, 14737632);
-
-            this.drawString(mc.fontRenderer, displayString, this.x + this.boxWidth + 2, this.y + 2, color);
-        }
+        super.renderButton(mouseX, mouseY, partial);
+        if (this.isChecked)
+            this.drawCenteredString(Minecraft.getInstance().fontRenderer, "x", this.x + this.boxWidth / 2 + 1, this.y + 1, 14737632);
     }
 
     @Override
-    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
+    public void onPress()
     {
-        if (this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height)
-        {
-            this.isChecked = !this.isChecked;
-            return true;
-        }
-
-        return false;
+        this.isChecked = !this.isChecked;
     }
 
     public boolean isChecked()

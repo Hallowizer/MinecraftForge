@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,9 +19,9 @@
 
 package net.minecraftforge.client.event;
 
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraft.client.gui.screen.Screen;
 
 /**
  * This event is called before any Gui will open.
@@ -30,21 +30,21 @@ import net.minecraft.client.gui.GuiScreen;
  * 
  * @author jk-5
  */
-@Cancelable
-public class GuiOpenEvent extends Event
+@net.minecraftforge.eventbus.api.Cancelable
+public class GuiOpenEvent extends net.minecraftforge.eventbus.api.Event
 {
-    private GuiScreen gui;
-    public GuiOpenEvent(GuiScreen gui)
+    private Screen gui;
+    public GuiOpenEvent(Screen gui)
     {
         this.setGui(gui);
     }
 
-    public GuiScreen getGui()
+    public Screen getGui()
     {
         return gui;
     }
 
-    public void setGui(GuiScreen gui)
+    public void setGui(Screen gui)
     {
         this.gui = gui;
     }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,9 @@
 
 package net.minecraftforge.event.entity.living;
 
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 /**
  * LivingSetAttackTargetEvent is fired when an Entity sets a target to attack.<br>
@@ -35,7 +33,7 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
  * <br>
  * {@link #target} contains the newly targeted Entity.<br>
  * <br>
- * This event is not {@link Cancelable}.<br>
+ * This event is not {@link net.minecraftforge.eventbus.api.Cancelable}.<br>
  * <br>
  * This event does not have a result. {@link HasResult}<br>
  * <br>
@@ -44,14 +42,14 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 public class LivingSetAttackTargetEvent extends LivingEvent
 {
 
-    private final EntityLivingBase target;
-    public LivingSetAttackTargetEvent(EntityLivingBase entity, EntityLivingBase target)
+    private final LivingEntity target;
+    public LivingSetAttackTargetEvent(LivingEntity entity, LivingEntity target)
     {
         super(entity);
         this.target = target;
     }
 
-    public EntityLivingBase getTarget()
+    public LivingEntity getTarget()
     {
         return target;
     }

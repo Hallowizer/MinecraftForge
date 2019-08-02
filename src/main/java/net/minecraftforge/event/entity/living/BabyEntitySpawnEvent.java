@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,15 +19,12 @@
 
 package net.minecraftforge.event.entity.living;
 
-import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.ai.EntityAIMate;
-import net.minecraft.entity.ai.EntityAIVillagerMate;
-import net.minecraft.entity.passive.EntityAnimal;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.AgeableEntity;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
 import javax.annotation.Nullable;
 
 /**
@@ -50,24 +47,24 @@ import javax.annotation.Nullable;
  * This event is fired on the {@link MinecraftForge#EVENT_BUS}.
  **/
 @Cancelable
-public class BabyEntitySpawnEvent extends Event
+public class BabyEntitySpawnEvent extends net.minecraftforge.eventbus.api.Event
 {
-    private final EntityLiving parentA;
-    private final EntityLiving parentB;
-    private final EntityPlayer causedByPlayer;
-    private EntityAgeable child;
+    private final MobEntity parentA;
+    private final MobEntity parentB;
+    private final PlayerEntity causedByPlayer;
+    private AgeableEntity child;
 
-    public BabyEntitySpawnEvent(EntityLiving parentA, EntityLiving parentB, @Nullable EntityAgeable proposedChild)
+    public BabyEntitySpawnEvent(MobEntity parentA, MobEntity parentB, @Nullable AgeableEntity proposedChild)
     {
         //causedByPlayer calculated here to simplify the patch.
-        EntityPlayer causedByPlayer = null;
-        if (parentA instanceof EntityAnimal) {
-            causedByPlayer = ((EntityAnimal)parentA).getLoveCause();
+        PlayerEntity causedByPlayer = null;
+        if (parentA instanceof AnimalEntity) {
+            causedByPlayer = ((AnimalEntity)parentA).getLoveCause();
         }
 
-        if (causedByPlayer == null && parentB instanceof EntityAnimal)
+        if (causedByPlayer == null && parentB instanceof AnimalEntity)
         {
-            causedByPlayer = ((EntityAnimal)parentB).getLoveCause();
+            causedByPlayer = ((AnimalEntity)parentB).getLoveCause();
         }
 
         this.parentA = parentA;
@@ -76,29 +73,29 @@ public class BabyEntitySpawnEvent extends Event
         this.child = proposedChild;
     }
 
-    public EntityLiving getParentA()
+    public MobEntity getParentA()
     {
         return parentA;
     }
 
-    public EntityLiving getParentB()
+    public MobEntity getParentB()
     {
         return parentB;
     }
 
     @Nullable
-    public EntityPlayer getCausedByPlayer()
+    public PlayerEntity getCausedByPlayer()
     {
         return causedByPlayer;
     }
 
     @Nullable
-    public EntityAgeable getChild()
+    public AgeableEntity getChild()
     {
         return child;
     }
 
-    public void setChild(EntityAgeable proposedChild)
+    public void setChild(AgeableEntity proposedChild)
     {
         child = proposedChild;
     }

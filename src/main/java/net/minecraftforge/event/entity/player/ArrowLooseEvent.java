@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,9 @@
 
 package net.minecraftforge.event.entity.player;
 
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemBow;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
@@ -37,7 +35,7 @@ import javax.annotation.Nonnull;
  * {@link #bow} contains the ItemBow ItemStack that was used in this event.<br>
  * {@link #charge} contains the value for how much the player had charged before stopping the shot.<br>
  * <br>
- * This event is {@link Cancelable}.<br>
+ * This event is {@link net.minecraftforge.eventbus.api.Cancelable}.<br>
  * If this event is canceled, the player does not stop using the bow.<br>
  * <br>
  * This event does not have a result. {@link HasResult}<br>
@@ -52,7 +50,7 @@ public class ArrowLooseEvent extends PlayerEvent
     private final boolean hasAmmo;
     private int charge;
 
-    public ArrowLooseEvent(EntityPlayer player, @Nonnull ItemStack bow, World world, int charge, boolean hasAmmo)
+    public ArrowLooseEvent(PlayerEntity player, @Nonnull ItemStack bow, World world, int charge, boolean hasAmmo)
     {
         super(player);
         this.bow = bow;

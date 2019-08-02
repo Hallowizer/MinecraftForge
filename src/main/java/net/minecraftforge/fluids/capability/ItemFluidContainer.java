@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,7 @@ package net.minecraftforge.fluids.capability;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 
@@ -40,13 +40,14 @@ public class ItemFluidContainer extends Item
     /**
      * @param capacity   The maximum capacity of this fluid container.
      */
-    public ItemFluidContainer(int capacity)
+    public ItemFluidContainer(Item.Properties properties, int capacity)
     {
+        super(properties);
         this.capacity = capacity;
     }
 
     @Override
-    public ICapabilityProvider initCapabilities(@Nonnull ItemStack stack, @Nullable NBTTagCompound nbt)
+    public ICapabilityProvider initCapabilities(@Nonnull ItemStack stack, @Nullable CompoundNBT nbt)
     {
         return new FluidHandlerItemStack(stack, capacity);
     }

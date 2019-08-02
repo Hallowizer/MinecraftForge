@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.common.util;
 
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.ChunkPos;
 
 // Sorter to load nearby chunks first
@@ -28,7 +28,7 @@ public class ChunkCoordComparator implements java.util.Comparator<ChunkPos>
     private int x;
     private int z;
 
-    public ChunkCoordComparator(EntityPlayerMP entityplayer)
+    public ChunkCoordComparator(ServerPlayerEntity entityplayer)
     {
         x = (int) entityplayer.posX >> 4;
         z = (int) entityplayer.posZ >> 4;

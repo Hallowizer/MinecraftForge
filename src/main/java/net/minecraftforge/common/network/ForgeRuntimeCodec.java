@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,7 +18,7 @@
  */
 
 package net.minecraftforge.common.network;
-
+/* TODO handshake
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraftforge.fml.common.network.FMLIndexedMessageToMessageCodec;
@@ -41,3 +41,4 @@ public class ForgeRuntimeCodec extends FMLIndexedMessageToMessageCodec<ForgeMess
         msg.fromBytes(source);
     }
 }
+*/

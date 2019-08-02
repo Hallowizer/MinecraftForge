@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.gameplay.advancement;
 
@@ -23,14 +24,14 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.critereon.PositionTrigger;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(name = "advancementcriteriontest", modid = "advancementcriteriontest", version = "1.0", acceptableRemoteVersions = "*")
-@Mod.EventBusSubscriber
+//@Mod(name = "advancementcriteriontest", modid = "advancementcriteriontest", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
 public class AdvancementCriterionTest {
     private static final PositionTrigger TRIGGER = new PositionTrigger(new ResourceLocation("advancementcriteriontest", "position"));
 
@@ -49,3 +50,4 @@ public class AdvancementCriterionTest {
         }
     }
 }
+*/

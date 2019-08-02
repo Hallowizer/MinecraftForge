@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,40 +20,41 @@
 package net.minecraftforge.client.model.animation;
 
 import java.util.List;
+import java.util.Random;
 
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.client.renderer.model.Model;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.BasicState;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
 import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
 import net.minecraftforge.common.animation.Event;
 import net.minecraftforge.common.animation.IEventHandler;
-import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.animation.CapabilityAnimation;
 
-import net.minecraftforge.common.model.animation.IAnimationStateMachine;
-import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 
 /**
  * ModelBase that works with the Forge model system and animations.
  * Some quirks are still left, deprecated for the moment.
  */
+/*
 @Deprecated
-public class AnimationModelBase<T extends Entity> extends ModelBase implements IEventHandler<T>
+public class AnimationModelBase<T extends Entity> extends Model implements IEventHandler<T>
 {
     private final VertexLighterFlat lighter;
     private final ResourceLocation modelLocation;
@@ -65,24 +66,26 @@ public class AnimationModelBase<T extends Entity> extends ModelBase implements I
     }
 
     @SuppressWarnings("unchecked")
-    @Override
+    //@Override
     public void render(Entity entity, float limbSwing, float limbSwingSpeed, float timeAlive, float yawHead, float rotationPitch, float scale)
     {
-        IAnimationStateMachine capability = entity.getCapability(CapabilityAnimation.ANIMATION_CAPABILITY, null);
-        if (capability == null)
-        {
-            return;
-        }
-        Pair<IModelState, Iterable<Event>> pair = capability.apply(timeAlive / 20);
-        handleEvents((T)entity, timeAlive / 20, pair.getRight());
-        IModel model = ModelLoaderRegistry.getModelOrMissing(modelLocation);
-        IBakedModel bakedModel = model.bake(pair.getLeft(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
+        entity.getCapability(CapabilityAnimation.ANIMATION_CAPABILITY, null)
+            .map(cap -> cap.apply(timeAlive / 20))
+            .map(pair -> {
+                handleEvents((T) entity, timeAlive / 20, pair.getRight());
+                IUnbakedModel unbaked = ModelLoaderRegistry.getModelOrMissing(modelLocation);
+                // TODO where should uvlock data come from?
+                return unbaked.bake(ModelLoader.defaultModelGetter(), ModelLoader.defaultTextureGetter(), new BasicState(pair.getLeft(), false), DefaultVertexFormats.ITEM);
+            }).ifPresent(model -> drawModel(model, entity));
+    }
 
+    private void drawModel(IBakedModel bakedModel, Entity entity)
+    {
         BlockPos pos = new BlockPos(entity.posX, entity.posY + entity.height, entity.posZ);
 
         RenderHelper.disableStandardItemLighting();
         GlStateManager.pushMatrix();
-        GlStateManager.rotate(180, 0, 0, 1);
+        GlStateManager.rotatef(180, 0, 0, 1);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
@@ -93,7 +96,9 @@ public class AnimationModelBase<T extends Entity> extends ModelBase implements I
         lighter.setState(Blocks.AIR.getDefaultState());
         lighter.setBlockPos(pos);
         boolean empty = true;
-        List<BakedQuad> quads = bakedModel.getQuads(null, null, 0);
+        Random random = new Random();
+        random.setSeed(42);
+        List<BakedQuad> quads = bakedModel.getQuads(null, null, random);
         if(!quads.isEmpty())
         {
             lighter.updateBlockInfo();
@@ -103,9 +108,10 @@ public class AnimationModelBase<T extends Entity> extends ModelBase implements I
                 quad.pipe(lighter);
             }
         }
-        for(EnumFacing side : EnumFacing.values())
+        for(Direction side : Direction.values())
         {
-            quads = bakedModel.getQuads(null, side, 0);
+            random.setSeed(42);
+            quads = bakedModel.getQuads(null, side, random);
             if(!quads.isEmpty())
             {
                 if(empty) lighter.updateBlockInfo();
@@ -118,10 +124,10 @@ public class AnimationModelBase<T extends Entity> extends ModelBase implements I
         }
 
         // debug quad
-        /*VertexBuffer.pos(0, 1, 0).color(0xFF, 0xFF, 0xFF, 0xFF).tex(0, 0).lightmap(240, 0).endVertex();
-        VertexBuffer.pos(0, 1, 1).color(0xFF, 0xFF, 0xFF, 0xFF).tex(0, 1).lightmap(240, 0).endVertex();
-        VertexBuffer.pos(1, 1, 1).color(0xFF, 0xFF, 0xFF, 0xFF).tex(1, 1).lightmap(240, 0).endVertex();
-        VertexBuffer.pos(1, 1, 0).color(0xFF, 0xFF, 0xFF, 0xFF).tex(1, 0).lightmap(240, 0).endVertex();*/
+        //VertexBuffer.pos(0, 1, 0).color(0xFF, 0xFF, 0xFF, 0xFF).tex(0, 0).lightmap(240, 0).endVertex();
+        //VertexBuffer.pos(0, 1, 1).color(0xFF, 0xFF, 0xFF, 0xFF).tex(0, 1).lightmap(240, 0).endVertex();
+        //VertexBuffer.pos(1, 1, 1).color(0xFF, 0xFF, 0xFF, 0xFF).tex(1, 1).lightmap(240, 0).endVertex();
+        //VertexBuffer.pos(1, 1, 0).color(0xFF, 0xFF, 0xFF, 0xFF).tex(1, 0).lightmap(240, 0).endVertex();
 
         builder.setTranslation(0, 0, 0);
 
@@ -133,3 +139,4 @@ public class AnimationModelBase<T extends Entity> extends ModelBase implements I
     @Override
     public void handleEvents(T instance, float time, Iterable<Event> pastEvents) {}
 }
+*/

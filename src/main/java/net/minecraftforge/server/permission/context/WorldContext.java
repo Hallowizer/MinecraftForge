@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,7 @@
 package net.minecraftforge.server.permission.context;
 
 import com.google.common.base.Preconditions;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -42,7 +42,7 @@ public class WorldContext extends Context
 
     @Override
     @Nullable
-    public EntityPlayer getPlayer()
+    public PlayerEntity getPlayer()
     {
         return null;
     }

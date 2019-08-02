@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.event.entity.player;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 
 /**
  * This event is fired when the player is waking up.<br/>
@@ -34,7 +34,7 @@ public class PlayerWakeUpEvent extends PlayerEvent
 
     private final boolean setSpawn;
 
-    public PlayerWakeUpEvent(EntityPlayer player, boolean wakeImmediately, boolean updateWorld, boolean setSpawn)
+    public PlayerWakeUpEvent(PlayerEntity player, boolean wakeImmediately, boolean updateWorld, boolean setSpawn)
     {
         super(player);
         this.wakeImmediately = wakeImmediately;

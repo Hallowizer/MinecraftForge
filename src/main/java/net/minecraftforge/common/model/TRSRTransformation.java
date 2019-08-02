@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,13 +35,14 @@ import javax.vecmath.Tuple4f;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
-import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
-import net.minecraft.client.renderer.block.model.ModelRotation;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.client.renderer.model.ItemTransformVec3f;
+import net.minecraft.client.renderer.model.ModelRotation;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -71,6 +72,8 @@ public final class TRSRTransformation implements IModelState, ITransformation
     private Vector3f scale;
     private Quat4f rightRot;
 
+    private Matrix3f normalTransform;
+
     public TRSRTransformation(@Nullable Matrix4f matrix)
     {
         if(matrix == null)
@@ -93,57 +96,33 @@ public final class TRSRTransformation implements IModelState, ITransformation
         full = true;
     }
 
-    /** @deprecated use {@link #from(ItemTransformVec3f)} */
-    @Deprecated // TODO: remove / make private
-    @SideOnly(Side.CLIENT)
-    public TRSRTransformation(ItemTransformVec3f transform)
-    {
-        this(toVecmath(transform.translation), quatFromXYZDegrees(toVecmath(transform.rotation)), toVecmath(transform.scale), null);
-    }
-
-    /** @deprecated use {@link #from(ModelRotation)} */
-    @Deprecated // TODO: remove
-    @SideOnly(Side.CLIENT)
-    public TRSRTransformation(ModelRotation rotation)
-    {
-        this(rotation.getMatrix());
-    }
-
-    /** @deprecated use {@link #from(EnumFacing)} */
-    @Deprecated // TODO: remove
-    @SideOnly(Side.CLIENT)
-    public TRSRTransformation(EnumFacing facing)
-    {
-        this(getMatrix(facing));
-    }
-
     @Deprecated
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static TRSRTransformation from(ItemTransformVec3f transform)
     {
-        return transform.equals(ItemTransformVec3f.DEFAULT) ? identity : new TRSRTransformation(transform);
+        return transform.equals(ItemTransformVec3f.DEFAULT) ? identity : new TRSRTransformation(toVecmath(transform.translation), quatFromXYZDegrees(toVecmath(transform.rotation)), toVecmath(transform.scale), null);
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static TRSRTransformation from(ModelRotation rotation)
     {
         return Cache.get(rotation);
     }
 
-    @SideOnly(Side.CLIENT)
-    public static TRSRTransformation from(EnumFacing facing)
+    @OnlyIn(Dist.CLIENT)
+    public static TRSRTransformation from(Direction facing)
     {
         return Cache.get(getRotation(facing));
     }
 
-    @SideOnly(Side.CLIENT)
-    public static Matrix4f getMatrix(EnumFacing facing)
+    @OnlyIn(Dist.CLIENT)
+    public static Matrix4f getMatrix(Direction facing)
     {
-        return getRotation(facing).getMatrix();
+        return getRotation(facing).getMatrixVec();
     }
 
-    @SideOnly(Side.CLIENT)
-    public static ModelRotation getRotation(EnumFacing facing)
+    @OnlyIn(Dist.CLIENT)
+    public static ModelRotation getRotation(Direction facing)
     {
         switch (facing)
         {
@@ -176,15 +155,15 @@ public final class TRSRTransformation implements IModelState, ITransformation
     {
         if (this.isIdentity()) return b;
         if (b.isIdentity()) return this;
-        Matrix4f m = getMatrix();
-        m.mul(b.getMatrix());
+        Matrix4f m = getMatrixVec();
+        m.mul(b.getMatrixVec());
         return new TRSRTransformation(m);
     }
 
     public TRSRTransformation inverse()
     {
         if (this.isIdentity()) return this;
-        Matrix4f m = getMatrix();
+        Matrix4f m = getMatrixVec();
         m.invert();
         return new TRSRTransformation(m);
     }
@@ -558,10 +537,10 @@ public final class TRSRTransformation implements IModelState, ITransformation
      * Don't use this if you don't need to, conversion is lossy (second rotation component is lost).
      */
     @Deprecated
-    @SideOnly(Side.CLIENT)
-    public ItemTransformVec3f toItemTransform()
+    @OnlyIn(Dist.CLIENT)
+    public net.minecraft.client.renderer.model.ItemTransformVec3f toItemTransform()
     {
-        return new ItemTransformVec3f(toLwjgl(toXYZDegrees(getLeftRot())), toLwjgl(getTranslation()), toLwjgl(getScale()));
+        return new ItemTransformVec3f(toMojang(toXYZDegrees(getLeftRot())), toMojang(getTranslation()), toMojang(getScale()));
     }
 
     public boolean isIdentity()
@@ -570,7 +549,7 @@ public final class TRSRTransformation implements IModelState, ITransformation
     }
 
     @Override
-    public Matrix4f getMatrix()
+    public Matrix4f getMatrixVec()
     {
         return (Matrix4f)matrix.clone();
     }
@@ -610,17 +589,17 @@ public final class TRSRTransformation implements IModelState, ITransformation
     }
 
     @Override
-    public EnumFacing rotate(EnumFacing facing)
+    public Direction rotate(Direction facing)
     {
         return rotate(matrix, facing);
     }
 
-    public static EnumFacing rotate(Matrix4f matrix, EnumFacing facing)
+    public static Direction rotate(Matrix4f matrix, Direction facing)
     {
         Vec3i dir = facing.getDirectionVec();
         Vector4f vec = new Vector4f(dir.getX(), dir.getY(), dir.getZ(), 0);
         matrix.transform(vec);
-        return EnumFacing.getFacingFromVector(vec.x, vec.y, vec.z);
+        return Direction.getFacingFromVector(vec.x, vec.y, vec.z);
     }
 
     public static boolean isInteger(Matrix4f matrix)
@@ -642,10 +621,33 @@ public final class TRSRTransformation implements IModelState, ITransformation
     }
 
     @Override
-    public int rotate(EnumFacing facing, int vertexIndex)
+    public int rotate(Direction facing, int vertexIndex)
     {
         // FIXME check if this is good enough
         return vertexIndex;
+    }
+
+    public void transformPosition(Vector4f position)
+    {
+        matrix.transform(position);
+    }
+
+    public void transformNormal(Vector3f normal)
+    {
+        checkNormalTransform();
+        normalTransform.transform(normal);
+        normal.normalize();
+    }
+
+    private void checkNormalTransform()
+    {
+        if (normalTransform == null)
+        {
+            normalTransform = new Matrix3f();
+            matrix.getRotationScale(normalTransform);
+            normalTransform.invert();
+            normalTransform.transpose();
+        }
     }
 
     @Override
@@ -668,7 +670,7 @@ public final class TRSRTransformation implements IModelState, ITransformation
     {
         if (transform.isIdentity()) return transform;
 
-        Matrix4f ret = new Matrix4f(transform.getMatrix()), tmp = new Matrix4f();
+        Matrix4f ret = new Matrix4f(transform.getMatrixVec()), tmp = new Matrix4f();
         tmp.setIdentity();
         tmp.m03 = tmp.m13 = tmp.m23 = .5f;
         ret.mul(tmp, ret);
@@ -684,7 +686,7 @@ public final class TRSRTransformation implements IModelState, ITransformation
     {
         if (transform.isIdentity()) return transform;
 
-        Matrix4f ret = new Matrix4f(transform.getMatrix()), tmp = new Matrix4f();
+        Matrix4f ret = new Matrix4f(transform.getMatrixVec()), tmp = new Matrix4f();
         tmp.setIdentity();
         tmp.m03 = tmp.m13 = tmp.m23 = -.5f;
         ret.mul(tmp, ret);
@@ -712,60 +714,58 @@ public final class TRSRTransformation implements IModelState, ITransformation
         return Objects.equals(matrix, other.matrix);
     }
 
-    @SideOnly(Side.CLIENT)
-    public static Vector3f toVecmath(org.lwjgl.util.vector.Vector3f vec)
+    @OnlyIn(Dist.CLIENT)
+    public static Vector3f toVecmath(net.minecraft.client.renderer.Vector3f vec)
     {
-        return new Vector3f(vec.x, vec.y, vec.z);
+        return new Vector3f(vec.getX(), vec.getY(), vec.getZ());
     }
 
-    @SideOnly(Side.CLIENT)
-    public static Vector4f toVecmath(org.lwjgl.util.vector.Vector4f vec)
+    @OnlyIn(Dist.CLIENT)
+    public static Vector4f toVecmath(net.minecraft.client.renderer.Vector4f vec)
     {
-        return new Vector4f(vec.x, vec.y, vec.z, vec.w);
+        return new Vector4f(vec.getX(), vec.getY(), vec.getZ(), vec.getW());
     }
 
-    @SideOnly(Side.CLIENT)
-    public static Matrix4f toVecmath(org.lwjgl.util.vector.Matrix4f m)
+    @OnlyIn(Dist.CLIENT)
+    public static Matrix4f toVecmath(net.minecraft.client.renderer.Matrix4f m)
     {
         return new Matrix4f(
-            m.m00, m.m10, m.m20, m.m30,
-            m.m01, m.m11, m.m21, m.m31,
-            m.m02, m.m12, m.m22, m.m32,
-            m.m03, m.m13, m.m23, m.m33);
+            m.get(0, 0), m.get(1, 0), m.get(2, 0), m.get(3, 0),
+            m.get(0, 1), m.get(1, 1), m.get(2, 1), m.get(3, 1),
+            m.get(0, 2), m.get(1, 2), m.get(2, 2), m.get(3, 2),
+            m.get(0, 3), m.get(1, 3), m.get(2, 3), m.get(3, 3));
     }
 
-    @SideOnly(Side.CLIENT)
-    public static org.lwjgl.util.vector.Vector3f toLwjgl(Vector3f vec)
+    public static Quat4f toVecmath(net.minecraft.client.renderer.Quaternion q)
     {
-        return new org.lwjgl.util.vector.Vector3f(vec.x, vec.y, vec.z);
+        return new Quat4f(q.getX(), q.getY(), q.getZ(), q.getW());
     }
 
-    @SideOnly(Side.CLIENT)
-    public static org.lwjgl.util.vector.Vector4f toLwjgl(Vector4f vec)
+    @OnlyIn(Dist.CLIENT)
+    public static net.minecraft.client.renderer.Vector3f toMojang(Vector3f vec)
     {
-        return new org.lwjgl.util.vector.Vector4f(vec.x, vec.y, vec.z, vec.w);
+        return new net.minecraft.client.renderer.Vector3f(vec.x, vec.y, vec.z);
     }
 
-    @SideOnly(Side.CLIENT)
-    public static org.lwjgl.util.vector.Matrix4f toLwjgl(Matrix4f m)
+    @OnlyIn(Dist.CLIENT)
+    public static net.minecraft.client.renderer.Vector4f toMojang(Vector4f vec)
     {
-        org.lwjgl.util.vector.Matrix4f r = new org.lwjgl.util.vector.Matrix4f();
-        r.m00 = m.m00;
-        r.m01 = m.m10;
-        r.m02 = m.m20;
-        r.m03 = m.m30;
-        r.m10 = m.m01;
-        r.m11 = m.m11;
-        r.m12 = m.m21;
-        r.m13 = m.m31;
-        r.m20 = m.m02;
-        r.m21 = m.m12;
-        r.m22 = m.m22;
-        r.m23 = m.m32;
-        r.m30 = m.m03;
-        r.m31 = m.m13;
-        r.m32 = m.m23;
-        r.m33 = m.m33;
+        return new net.minecraft.client.renderer.Vector4f(vec.x, vec.y, vec.z, vec.w);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static net.minecraft.client.renderer.Matrix4f toMojang(Matrix4f m)
+    {
+        net.minecraft.client.renderer.Matrix4f r = new net.minecraft.client.renderer.Matrix4f();
+        float[] row = new float[4];
+        for (int x = 0; x < 4; x++)
+        {
+            m.getRow(x, row);
+            for (int y = 0; y < 4; y++)
+            {
+                r.set(x, y, row[y]);
+            }
+        }
         return r;
     }
 
@@ -800,43 +800,43 @@ public final class TRSRTransformation implements IModelState, ITransformation
         );
     }
 
-    private static final EnumMap<EnumFacing, TRSRTransformation> vanillaUvTransformLocalToGlobal = Maps.newEnumMap(EnumFacing.class);
-    private static final EnumMap<EnumFacing, TRSRTransformation> vanillaUvTransformGlobalToLocal = Maps.newEnumMap(EnumFacing.class);
+    private static final EnumMap<Direction, TRSRTransformation> vanillaUvTransformLocalToGlobal = Maps.newEnumMap(Direction.class);
+    private static final EnumMap<Direction, TRSRTransformation> vanillaUvTransformGlobalToLocal = Maps.newEnumMap(Direction.class);
 
     static
     {
-        vanillaUvTransformLocalToGlobal.put(EnumFacing.SOUTH, identity);
+        vanillaUvTransformLocalToGlobal.put(Direction.SOUTH, identity);
         Quat4f tmp = new Quat4f();
         tmp.set(new AxisAngle4f(0, 1, 0, (float)Math.toRadians(90)));
-        vanillaUvTransformLocalToGlobal.put(EnumFacing.EAST,  new TRSRTransformation(null, new Quat4f(tmp), null, null));
+        vanillaUvTransformLocalToGlobal.put(Direction.EAST,  new TRSRTransformation(null, new Quat4f(tmp), null, null));
         tmp.set(new AxisAngle4f(0, 1, 0, (float)Math.toRadians(-90)));
-        vanillaUvTransformLocalToGlobal.put(EnumFacing.WEST,  new TRSRTransformation(null, new Quat4f(tmp), null, null));
+        vanillaUvTransformLocalToGlobal.put(Direction.WEST,  new TRSRTransformation(null, new Quat4f(tmp), null, null));
         tmp.set(new AxisAngle4f(0, 1, 0, (float)Math.toRadians(180)));
-        vanillaUvTransformLocalToGlobal.put(EnumFacing.NORTH, new TRSRTransformation(null, new Quat4f(tmp), null, null));
+        vanillaUvTransformLocalToGlobal.put(Direction.NORTH, new TRSRTransformation(null, new Quat4f(tmp), null, null));
         tmp.set(new AxisAngle4f(1, 0, 0, (float)Math.toRadians(-90)));
-        vanillaUvTransformLocalToGlobal.put(EnumFacing.UP,    new TRSRTransformation(null, new Quat4f(tmp), null, null));
+        vanillaUvTransformLocalToGlobal.put(Direction.UP,    new TRSRTransformation(null, new Quat4f(tmp), null, null));
         tmp.set(new AxisAngle4f(1, 0, 0, (float)Math.toRadians(90)));
-        vanillaUvTransformLocalToGlobal.put(EnumFacing.DOWN,  new TRSRTransformation(null, new Quat4f(tmp), null, null));
+        vanillaUvTransformLocalToGlobal.put(Direction.DOWN,  new TRSRTransformation(null, new Quat4f(tmp), null, null));
 
-        for(EnumFacing side : EnumFacing.values())
+        for(Direction side : Direction.values())
         {
             vanillaUvTransformGlobalToLocal.put(side, vanillaUvTransformLocalToGlobal.get(side).inverse());
         }
     }
 
-    public static TRSRTransformation getVanillaUvTransformLocalToGlobal(EnumFacing side)
+    public static TRSRTransformation getVanillaUvTransformLocalToGlobal(Direction side)
     {
         return vanillaUvTransformLocalToGlobal.get(side);
     }
 
-    public static TRSRTransformation getVanillaUvTransformGlobalToLocal(EnumFacing side)
+    public static TRSRTransformation getVanillaUvTransformGlobalToLocal(Direction side)
     {
         return vanillaUvTransformGlobalToLocal.get(side);
     }
 
-    public TRSRTransformation getUVLockTransform(EnumFacing originalSide)
+    public TRSRTransformation getUVLockTransform(Direction originalSide)
     {
-        EnumFacing newSide = rotate(originalSide);
+        Direction newSide = rotate(originalSide);
         try
         {
             return blockCenterToCorner(vanillaUvTransformGlobalToLocal.get(originalSide).compose(blockCornerToCenter(this.inverse())).compose(vanillaUvTransformLocalToGlobal.get(newSide)));
@@ -847,7 +847,7 @@ public final class TRSRTransformation implements IModelState, ITransformation
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static final class Cache
     {
         private static final Map<ModelRotation, TRSRTransformation> rotations = new EnumMap<>(ModelRotation.class);

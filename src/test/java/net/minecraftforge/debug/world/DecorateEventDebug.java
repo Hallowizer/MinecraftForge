@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.world;
 
@@ -23,11 +24,11 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLInitializationEvent;
+import net.minecraftforge.eventbus.api.Event.Result;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@Mod(modid = DecorateEventDebug.MODID, name = DecorateEventDebug.NAME, version = DecorateEventDebug.VERSION, acceptableRemoteVersions = "*")
+//@Mod(modid = DecorateEventDebug.MODID, name = DecorateEventDebug.NAME, version = DecorateEventDebug.VERSION, acceptableRemoteVersions = "*")
 public class DecorateEventDebug
 {
 
@@ -45,9 +46,10 @@ public class DecorateEventDebug
         }
     }
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public void decorateEvent(DecorateBiomeEvent.Decorate event)
     {
         event.setResult(Result.DENY);
     }
 }
+*/

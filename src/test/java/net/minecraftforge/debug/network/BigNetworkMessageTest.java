@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,23 +15,24 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.network;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid = BigNetworkMessageTest.MOD_ID, name = "Big network message test mod", version = "1.0", acceptableRemoteVersions = "*")
-@Mod.EventBusSubscriber
+//@Mod(modid = BigNetworkMessageTest.MOD_ID, name = "Big network message test mod", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
 public class BigNetworkMessageTest
 {
     static final boolean ENABLED = false;
@@ -83,3 +84,4 @@ public class BigNetworkMessageTest
         }
     }
 }
+*/

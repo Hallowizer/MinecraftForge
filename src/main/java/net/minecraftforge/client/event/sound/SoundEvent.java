@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,19 +19,20 @@
 
 package net.minecraftforge.client.event.sound;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.SoundManager;
+import net.minecraft.client.audio.SoundEngine;
+import net.minecraft.client.audio.SoundSource;
 
-public class SoundEvent extends Event
+public class SoundEvent extends net.minecraftforge.eventbus.api.Event
 {
-    private final SoundManager manager;
-    public SoundEvent(SoundManager manager)
+    private final SoundEngine manager;
+    public SoundEvent(SoundEngine manager)
     {
         this.manager = manager;
     }
 
-    public SoundManager getManager()
+    public SoundEngine getManager()
     {
         return manager;
     }
@@ -39,15 +40,15 @@ public class SoundEvent extends Event
     public static class SoundSourceEvent extends SoundEvent
     {
         private final ISound sound;
-        private final String uuid;
+        private final SoundSource source;
         private final String name;
 
-        public SoundSourceEvent(SoundManager manager, ISound sound, String uuid)
+        public SoundSourceEvent(SoundEngine manager, ISound sound, SoundSource source)
         {
             super(manager);
-            this.name = sound.getSoundLocation().getResourcePath();
+            this.name = sound.getSoundLocation().getPath();
             this.sound = sound;
-            this.uuid = uuid;
+            this.source = source;
         }
 
         public ISound getSound()
@@ -55,9 +56,9 @@ public class SoundEvent extends Event
             return sound;
         }
 
-        public String getUuid()
+        public SoundSource getSource()
         {
-            return uuid;
+            return source;
         }
 
         public String getName()

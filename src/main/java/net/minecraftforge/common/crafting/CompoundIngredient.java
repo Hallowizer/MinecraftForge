@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,17 +22,22 @@ package net.minecraftforge.common.crafting;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntComparators;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.network.PacketBuffer;
 
 public class CompoundIngredient extends Ingredient
 {
@@ -43,13 +48,9 @@ public class CompoundIngredient extends Ingredient
 
     protected CompoundIngredient(Collection<Ingredient> children)
     {
-        super(0);
+        super(Stream.of());
         this.children = children;
-
-        boolean simple = true;
-        for (Ingredient child : children)
-            simple &= child.isSimple();
-        this.isSimple = simple;
+        this.isSimple = children.stream().allMatch(Ingredient::isSimple);
     }
 
     @Override
@@ -84,16 +85,12 @@ public class CompoundIngredient extends Ingredient
     }
 
     @Override
-    public boolean apply(@Nullable ItemStack target)
+    public boolean test(@Nullable ItemStack target)
     {
         if (target == null)
             return false;
 
-        for (Ingredient child : children)
-            if (child.apply(target))
-                return true;
-
-        return false;
+        return children.stream().anyMatch(c -> c.test(target));
     }
 
     @Override
@@ -108,5 +105,40 @@ public class CompoundIngredient extends Ingredient
     public boolean isSimple()
     {
         return isSimple;
+    }
+
+    @Override
+    public IIngredientSerializer<? extends Ingredient> getSerializer()
+    {
+        return CraftingHelper.INGREDIENT_COMPOUND;
+    }
+
+    @Nonnull
+    public Collection<Ingredient> getChildren()
+    {
+        return Collections.unmodifiableCollection(this.children);
+    }
+
+    public static class Serializer implements IIngredientSerializer<CompoundIngredient>
+    {
+        @Override
+        public CompoundIngredient parse(PacketBuffer buffer)
+        {
+            return new CompoundIngredient(Stream.generate(() -> Ingredient.read(buffer)).limit(buffer.readVarInt()).collect(Collectors.toList()));
+        }
+
+        @Override
+        public CompoundIngredient parse(JsonObject json)
+        {
+            throw new JsonSyntaxException("CompountIngredient should not be directly referenced in json, just use an array of ingredients.");
+        }
+
+        @Override
+        public void write(PacketBuffer buffer, CompoundIngredient ingredient)
+        {
+            buffer.writeVarInt(ingredient.children.size());
+            ingredient.children.forEach(c -> c.write(buffer));
+        }
+
     }
 }

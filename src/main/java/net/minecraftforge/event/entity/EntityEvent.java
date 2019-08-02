@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,16 +19,18 @@
 
 package net.minecraftforge.event.entity;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntitySize;
+import net.minecraft.entity.Pose;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraft.entity.Entity;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * EntityEvent is fired when an event involving any Entity occurs.<br>
- * If a method utilizes this {@link Event} as its parameter, the method will
+ * If a method utilizes this {@link net.minecraftforge.eventbus.api.Event} as its parameter, the method will
  * receive every child event of this class.<br>
  * <br>
  * {@link #entity} contains the entity that caused this event to occur.<br>
@@ -53,7 +55,7 @@ public class EntityEvent extends Event
      * EntityConstructing is fired when an Entity is being created. <br>
      * This event is fired within the constructor of the Entity.<br>
      * <br>
-     * This event is not {@link Cancelable}.<br>
+     * This event is not {@link net.minecraftforge.eventbus.api.Cancelable}.<br>
      * <br>
      * This event does not have a result. {@link HasResult}<br>
      * <br>
@@ -134,5 +136,38 @@ public class EntityEvent extends Event
         public void setOldChunkX(int oldChunkX) { this.oldChunkX = oldChunkX; }
         public int getOldChunkZ() { return oldChunkZ; }
         public void setOldChunkZ(int oldChunkZ) { this.oldChunkZ = oldChunkZ; }
+    }
+    
+    /**
+     * EyeHeight is fired when an Entity's eye height changes. <br>
+     * This event is fired whenever the {@link Pose} changes, and in a few other hardcoded scenarios.<br>
+     * <br>
+     * This event is not {@link Cancelable}.<br>
+     * <br>
+     * This event does not have a result. {@link HasResult}
+     * <br>
+     * This event is fired on the {@link MinecraftForge#EVENT_BUS}.<br>
+     **/
+    public static class EyeHeight extends EntityEvent
+    {
+        private final Pose pose;
+        private final EntitySize size;
+        private final float oldHeight;
+        private float newHeight;
+     
+        public EyeHeight(Entity entity, Pose pose, EntitySize size, float defaultHeight)
+        {
+            super(entity);
+            this.pose = pose;
+            this.size = size;
+            this.oldHeight = defaultHeight;
+            this.newHeight = defaultHeight;
+        }
+        
+        public Pose getPose() { return pose; }
+        public EntitySize getSize() { return size; }
+        public float getOldHeight() { return oldHeight; }
+        public float getNewHeight() { return newHeight; }
+        public void setNewHeight(float newSize) { this.newHeight = newSize; }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,14 +15,15 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.util;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -37,10 +38,10 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 
-@Mod(modid = RotatingWrench.modID, name = "Wrench Rotate Debug", version = "0.0.0", acceptableRemoteVersions = "*")
+//@Mod(modid = RotatingWrench.modID, name = "Wrench Rotate Debug", version = "0.0.0", acceptableRemoteVersions = "*")
 public class RotatingWrench
 {
     public static final String modID = "wrenchrotatedebug";
@@ -49,10 +50,10 @@ public class RotatingWrench
     public static final Item TEST_WRENCH = null;
 
 
-    @Mod.EventBusSubscriber(modid = modID)
+    //@Mod.EventBusSubscriber(modid = modID)
     public static class Registration
     {
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void registerItems(RegistryEvent.Register<Item> event)
         {
             event.getRegistry().register(new TestWrench().setRegistryName(testWrenchName));
@@ -101,3 +102,4 @@ public class RotatingWrench
         }
     }
 }
+*/

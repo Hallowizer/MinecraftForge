@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.client.rendering;
 
@@ -30,7 +31,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -55,12 +56,11 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.api.distmarker.Dist;
 
-@Mod(modid = FastTESRTransparentTest.MODID, name = "TransparentFastTESRTest", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = FastTESRTransparentTest.MODID, name = "TransparentFastTESRTest", version = "1.0", acceptableRemoteVersions = "*")
 public class FastTESRTransparentTest
 {
 
@@ -215,11 +215,11 @@ public class FastTESRTransparentTest
         }
     };
 
-    @EventBusSubscriber
+    //@EventBusSubscriber
     public static class BlockHolder
     {
 
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void onBlockRegister(RegistryEvent.Register<Block> evt)
         {
             evt.getRegistry().register(testBlock
@@ -227,7 +227,7 @@ public class FastTESRTransparentTest
                     .setRegistryName("fluid-tesr-block"));
         }
 
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void onItemRegister(RegistryEvent.Register<Item> evt)
         {
             evt.getRegistry().register(new ItemBlock(testBlock)
@@ -254,10 +254,10 @@ public class FastTESRTransparentTest
         GameRegistry.registerTileEntity(TransparentFastTE.class, MODID + ":fast-tesr-te");
     }
 
-    @EventBusSubscriber(value = Side.CLIENT, modid = MODID)
+    //@EventBusSubscriber(value = Side.CLIENT, modid = MODID)
     public static class ClientLoader
     {
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void registerModels(ModelRegistryEvent event)
         {
             ModelLoader.setCustomStateMapper(testBlock, block -> Collections.emptyMap());
@@ -266,3 +266,4 @@ public class FastTESRTransparentTest
         }
     }
 }
+*/

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,10 +19,10 @@
 
 package net.minecraftforge.common.brewing;
 
-import net.minecraft.init.Items;
+import net.minecraft.item.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.PotionHelper;
+import net.minecraft.potion.PotionBrewing;
 
 import javax.annotation.Nonnull;
 
@@ -37,19 +37,19 @@ public class VanillaBrewingRecipe implements IBrewingRecipe {
      * Code adapted from TileEntityBrewingStand.isItemValidForSlot(int index, ItemStack stack)
      */
     @Override
-    public boolean isInput(@Nonnull ItemStack stack)
+    public boolean isInput(ItemStack stack)
     {
         Item item = stack.getItem();
-        return item == Items.POTIONITEM || item == Items.SPLASH_POTION || item == Items.LINGERING_POTION || item == Items.GLASS_BOTTLE;
+        return item == Items.POTION || item == Items.SPLASH_POTION || item == Items.LINGERING_POTION || item == Items.GLASS_BOTTLE;
     }
 
     /**
      * Code adapted from TileEntityBrewingStand.isItemValidForSlot(int index, ItemStack stack)
      */
     @Override
-    public boolean isIngredient(@Nonnull ItemStack stack)
+    public boolean isIngredient(ItemStack stack)
     {
-        return PotionHelper.isReagent(stack);
+        return PotionBrewing.isReagent(stack);
     }
 
     /**
@@ -58,12 +58,11 @@ public class VanillaBrewingRecipe implements IBrewingRecipe {
      * or if the new potion is a splash potion when the old one wasn't.
      */
     @Override
-    @Nonnull
-    public ItemStack getOutput(@Nonnull ItemStack input, @Nonnull ItemStack ingredient)
+    public ItemStack getOutput(ItemStack input, ItemStack ingredient)
     {
         if (!input.isEmpty() && !ingredient.isEmpty() && isIngredient(ingredient))
         {
-            ItemStack result = PotionHelper.doReaction(ingredient, input);
+            ItemStack result = PotionBrewing.doReaction(ingredient, input);
             if (result != input)
             {
                 return result;

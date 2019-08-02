@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,73 +19,51 @@
 
 package net.minecraftforge.server.command;
 
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.WrongUsageException;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.BlockPosArgument;
+import net.minecraft.command.arguments.DimensionArgument;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.WorldWorkerManager;
 
-class CommandGenerate extends CommandBase
+class CommandGenerate
 {
-    @Override
-    public String getName()
+    static ArgumentBuilder<CommandSource, ?> register()
     {
-        return "generate";
+        return Commands.literal("generate")
+            .requires(cs->cs.hasPermissionLevel(4)) //permission
+            .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                .then(Commands.argument("count", IntegerArgumentType.integer(1))
+                    .then(Commands.argument("dim", DimensionArgument.getDimension())
+                        .then(Commands.argument("interval", IntegerArgumentType.integer())
+                            .executes(ctx -> execute(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "pos"), getInt(ctx, "count"), DimensionArgument.func_212592_a(ctx, "dim"), getInt(ctx, "interval")))
+                        )
+                        .executes(ctx -> execute(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "pos"), getInt(ctx, "count"), DimensionArgument.func_212592_a(ctx, "dim"), -1))
+                    )
+                    .executes(ctx -> execute(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "pos"), getInt(ctx, "count"), ctx.getSource().getWorld().dimension.getType(), -1))
+                )
+            );
     }
 
-    @Override
-    public List<String> getAliases()
+    private static int getInt(CommandContext<CommandSource> ctx, String name)
     {
-        return Collections.singletonList("gen");
+        return IntegerArgumentType.getInteger(ctx, name);
     }
 
-    @Override
-    public String getUsage(ICommandSender sender)
+    private static int execute(CommandSource source, BlockPos pos, int count, DimensionType dim, int interval) throws CommandException
     {
-        return "commands.forge.gen.usage";
-    }
+        BlockPos chunkpos = new BlockPos(pos.getX() >> 4, 0, pos.getZ() >> 4);
 
-    @Override
-    public int getRequiredPermissionLevel()
-    {
-        return 4;
-    }
-
-    @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-    {
-        // x y z chunkCount [dim] [interval]
-        if (args.length < 4)
-        {
-            throw new WrongUsageException("commands.forge.gen.usage");
-        }
-
-        BlockPos blockpos = parseBlockPos(sender, args, 0, false);
-        int count = parseInt(args[3], 10);
-        int dim = args.length >= 5 ? parseInt(args[4]) : sender.getEntityWorld().provider.getDimension();
-        int interval = args.length >= 6 ? parseInt(args[5]) : -1;
-        BlockPos chunkpos = new BlockPos(blockpos.getX() >> 4, 0, blockpos.getZ() >> 4);
-
-        ChunkGenWorker worker = new ChunkGenWorker(sender, chunkpos, count, dim, interval);
-        sender.sendMessage(worker.getStartMessage(sender));
+        ChunkGenWorker worker = new ChunkGenWorker(source, chunkpos, count, dim, interval);
+        source.sendFeedback(worker.getStartMessage(source), true);
         WorldWorkerManager.addWorker(worker);
-    }
 
-    @Override
-    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
-    {
-        if (args.length < 4)
-        {
-            return getTabCompletionCoordinate(args, 0, targetPos);
-        }
-        // Chunk Count? No completion
-        // Dimension, Add support for names? Get list of ids? Meh
-        return Collections.emptyList();
+        return 0;
     }
 }

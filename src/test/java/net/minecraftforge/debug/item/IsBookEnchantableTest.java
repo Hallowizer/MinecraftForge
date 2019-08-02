@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,23 +15,23 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.item;
 
-import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid = IsBookEnchantableTest.MOD_ID, name = "Test for isBookEnchantable", version = "1.0", acceptableRemoteVersions = "*")
-@Mod.EventBusSubscriber
+//@Mod(modid = IsBookEnchantableTest.MOD_ID, name = "Test for isBookEnchantable", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
 public class IsBookEnchantableTest
 {
     public static final boolean ENABLED = false;
@@ -39,7 +39,7 @@ public class IsBookEnchantableTest
 
     private static final Item TEST_ITEM = new TestItem();
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void registerItem(RegistryEvent.Register<Item> event)
     {
         if (ENABLED)
@@ -48,10 +48,10 @@ public class IsBookEnchantableTest
         }
     }
 
-    @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MOD_ID)
+    //@Mod.EventBusSubscriber(value = Side.CLIENT, modid = MOD_ID)
     public static class ClientEventHandler
     {
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void registerModels(ModelRegistryEvent event)
         {
             if (ENABLED)
@@ -98,3 +98,4 @@ public class IsBookEnchantableTest
         }
     }
 }
+*/

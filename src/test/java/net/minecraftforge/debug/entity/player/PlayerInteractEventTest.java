@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.entity.player;
 
@@ -33,12 +34,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = "playerinteracteventtest", name = "PlayerInteractEventTest", version = "0.0.0", acceptableRemoteVersions = "*")
+//@Mod(modid = "playerinteracteventtest", name = "PlayerInteractEventTest", version = "0.0.0", acceptableRemoteVersions = "*")
 public class PlayerInteractEventTest
 {
     // NOTE: Test with both this ON and OFF - ensure none of the test behaviours show when this is off!
@@ -53,7 +54,7 @@ public class PlayerInteractEventTest
         MinecraftForge.EVENT_BUS.register(PlayerInteractEventTest.class); // Test Static event listeners
     }
 
-    @SubscribeEvent(receiveCanceled = true) // this triggers after the subclasses below, and we'd like to log them all
+    @net.minecraftforge.eventbus.api.SubscribeEvent(receiveCanceled = true) // this triggers after the subclasses below, and we'd like to log them all
     public void global(PlayerInteractEvent evt)
     {
         if (!ENABLE)
@@ -65,7 +66,7 @@ public class PlayerInteractEventTest
         logger.info("{} | face: {}", evt.getPos(), evt.getFace());
     }
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public void leftClickBlock(PlayerInteractEvent.LeftClickBlock evt)
     {
         if (!ENABLE)
@@ -82,7 +83,7 @@ public class PlayerInteractEventTest
             }
             if (evt.getItemStack().getItem() == Items.DIAMOND_PICKAXE)
             {
-                evt.setUseBlock(Event.Result.DENY); // Redstone should not activate, pick should still dig
+                evt.setUseBlock(net.minecraftforge.eventbus.api.Event.Result.DENY); // Redstone should not activate, pick should still dig
             }
             if (evt.getItemStack().getItem() == Items.IRON_PICKAXE)
             {
@@ -109,15 +110,15 @@ public class PlayerInteractEventTest
         TileEntity te = evt.getWorld().getTileEntity(evt.getPos());
         if (te instanceof TileEntityDropper)
         {
-            evt.setUseBlock(Event.Result.ALLOW);
+            evt.setUseBlock(net.minecraftforge.eventbus.api.Event.Result.ALLOW);
             evt.setUseItem(Event.Result.ALLOW);
         }
 
         // Same as above, except the item should no longer be used
         if (te instanceof TileEntityChest)
         {
-            evt.setUseBlock(Event.Result.ALLOW);
-            evt.setUseItem(Event.Result.DENY); // could be left out as well
+            evt.setUseBlock(net.minecraftforge.eventbus.api.Event.Result.ALLOW);
+            evt.setUseItem(net.minecraftforge.eventbus.api.Event.Result.DENY); // could be left out as well
         }
 
         // Case: Flint and steel in main hand on top of a TE will light a fire, not open the TE.
@@ -125,14 +126,14 @@ public class PlayerInteractEventTest
         // If you dual wield flints and steels and right click a chest nothing should happen
         if (!evt.getItemStack().isEmpty() && evt.getItemStack().getItem() == Items.FLINT_AND_STEEL)
         {
-            evt.setUseBlock(Event.Result.DENY);
+            evt.setUseBlock(net.minecraftforge.eventbus.api.Event.Result.DENY);
         }
 
         // Case: Painting in main hand
         // Opening a TE will also place a painting on the TE if possible
         if (evt.getHand() == EnumHand.MAIN_HAND && !evt.getItemStack().isEmpty() && evt.getItemStack().getItem() == Items.PAINTING)
         {
-            evt.setUseItem(Event.Result.ALLOW);
+            evt.setUseItem(net.minecraftforge.eventbus.api.Event.Result.ALLOW);
         }
 
         // Spawn egg in main hand, block in offhand -> block should be placed
@@ -248,3 +249,4 @@ public class PlayerInteractEventTest
         }
     }
 }
+*/

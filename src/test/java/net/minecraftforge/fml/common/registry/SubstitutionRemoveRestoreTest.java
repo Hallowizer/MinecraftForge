@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,24 +15,17 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.fml.common.registry;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirt;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Bootstrap;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModMetadata;
-import net.minecraftforge.registries.ForgeRegistry;
-import net.minecraftforge.registries.GameData;
-import net.minecraftforge.registries.ObjectHolderRegistry;
-import net.minecraftforge.registries.RegistryManager;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,11 +34,11 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.util.Map;
-
+*/
 /**
  * Substitution test harness - tests that substitutions behave correctly
- */
+ *//*
+
 @RunWith(ForgeTestRunner.class)
 public class SubstitutionRemoveRestoreTest
 {
@@ -66,7 +59,8 @@ public class SubstitutionRemoveRestoreTest
     @Test
     public void testSubstitutionRemovalAndRestore() throws Exception
     {
-        /* TODO: Figure this one out, We dont prevent the client from loading subs when the server says not to..
+        */
+/* TODO: Figure this one out, We dont prevent the client from loading subs when the server says not to..
          * Why should we as long as the item is on both sides we should be fine. It's on the modder to make sure they are compatible.
          *
         final ForgeRegistry<Block> blockRegistry = (ForgeRegistry<Block>)RegistryManager.ACTIVE.getRegistry(Block.class);
@@ -113,6 +107,8 @@ public class SubstitutionRemoveRestoreTest
 
         dirtitem = (ItemBlock) itemRegistry.getValue(MC_DIRT);
         assertEquals("ItemBlock points at my block", toSub, dirtitem.block);
-        */
+        *//*
+
     }
 }
+*/

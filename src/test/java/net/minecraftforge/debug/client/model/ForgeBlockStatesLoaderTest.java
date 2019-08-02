@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.client.model;
 
@@ -23,25 +24,25 @@ import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockWall;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemMultiTexture;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.Map;
 import java.util.Map.Entry;
 
-@Mod(modid = ForgeBlockStatesLoaderTest.MODID, name = "ForgeBlockStatesLoader", version = "1.0", acceptableRemoteVersions = "*")
-@Mod.EventBusSubscriber
+//@Mod(modid = ForgeBlockStatesLoaderTest.MODID, name = "ForgeBlockStatesLoader", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
 public class ForgeBlockStatesLoaderTest
 {
     public static final String MODID = "forgeblockstatesloader";
@@ -69,7 +70,7 @@ public class ForgeBlockStatesLoaderTest
         );
     }
 
-    @SubscribeEvent
+    @net.minecraftforge.eventbus.api.SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event)
     {
         event.getRegistry().registerAll(
@@ -82,10 +83,10 @@ public class ForgeBlockStatesLoaderTest
 
     //public static final Block blockCustom = new CustomMappedBlock();
 
-    @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
+    //@Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
     public static class ClientEventHandler
     {
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void registerModels(ModelRegistryEvent event)
         {
             //ModelLoader.setCustomStateMapper(blockCustom, new StateMap.Builder().withName(CustomMappedBlock.VARIANT).build());
@@ -116,7 +117,8 @@ public class ForgeBlockStatesLoaderTest
 
     // this block is never actually used, it's only needed for the error message on load to see the variant it maps to
     // disabling until we can make it a proper test
-    /*public static class CustomMappedBlock extends Block
+    */
+/*public static class CustomMappedBlock extends Block
     {
         public static final PropertyEnum<CustomVariant> VARIANT = PropertyEnum.create("type", CustomVariant.class);
 
@@ -152,5 +154,7 @@ public class ForgeBlockStatesLoaderTest
 
             public String getName() { return this.toString(); };
         }
-    }*/
+    }*//*
+
 }
+*/

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,13 +19,11 @@
 
 package net.minecraftforge.event;
 
-import net.minecraft.network.NetHandlerPlayServer;
-import net.minecraft.network.play.client.CPacketChatMessage;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.Cancelable;
 
 /**
  * ServerChatEvent is fired whenever a C01PacketChatMessage is processed. <br>
@@ -45,12 +43,12 @@ import net.minecraft.util.text.ITextComponent;
  * This event is fired on the {@link MinecraftForge#EVENT_BUS}.
  **/
 @Cancelable
-public class ServerChatEvent extends Event
+public class ServerChatEvent extends net.minecraftforge.eventbus.api.Event
 {
     private final String message, username;
-    private final EntityPlayerMP player;
+    private final ServerPlayerEntity player;
     private ITextComponent component;
-    public ServerChatEvent(EntityPlayerMP player, String message, ITextComponent component)
+    public ServerChatEvent(ServerPlayerEntity player, String message, ITextComponent component)
     {
         super();
         this.message = message;
@@ -71,5 +69,5 @@ public class ServerChatEvent extends Event
 
     public String getMessage() { return this.message; }
     public String getUsername() { return this.username; }
-    public EntityPlayerMP getPlayer() { return this.player; }
+    public ServerPlayerEntity getPlayer() { return this.player; }
 }

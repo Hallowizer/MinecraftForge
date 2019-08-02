@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.fml.common.registry;
 
@@ -29,7 +30,6 @@ import net.minecraft.stats.StatList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.ObjectHolderRegistry;
@@ -46,9 +46,11 @@ import static org.junit.Assert.fail;
 
 import java.util.Map;
 
+*/
 /**
  * Substitution test harness - tests that substitutions behave correctly
- */
+ *//*
+
 @RunWith(ForgeTestRunner.class)
 public class SubstitutionInjectionTest
 {
@@ -162,3 +164,4 @@ public class SubstitutionInjectionTest
         assertEquals("ItemBlock points at vanilla block", toSub, dirtitem.getBlock());
     }
 }
+*/

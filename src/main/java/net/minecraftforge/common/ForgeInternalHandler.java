@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,17 +20,17 @@
 package net.minecraftforge.common;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.client.CloudRenderer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -41,16 +41,12 @@ public class ForgeInternalHandler
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onEntityJoinWorld(EntityJoinWorldEvent event)
     {
-        if (!event.getWorld().isRemote)
-        {
-            ForgeChunkManager.loadEntity(event.getEntity());
-        }
-
         Entity entity = event.getEntity();
-        if (entity.getClass().equals(EntityItem.class))
+        if (entity.getClass().equals(ItemEntity.class))
         {
-            ItemStack stack = ((EntityItem)entity).getItem();
+            ItemStack stack = ((ItemEntity)entity).getItem();
             Item item = stack.getItem();
+/*
             if (item.hasCustomEntity(stack))
             {
                 Entity newEntity = item.createEntity(event.getWorld(), entity, stack);
@@ -61,27 +57,16 @@ public class ForgeInternalHandler
                     event.getWorld().spawnEntity(newEntity);
                 }
             }
+*/
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onDimensionLoad(WorldEvent.Load event)
-    {
-        ForgeChunkManager.loadWorld(event.getWorld());
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onDimensionSave(WorldEvent.Save event)
-    {
-        ForgeChunkManager.saveWorld(event.getWorld());
-    }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onDimensionUnload(WorldEvent.Unload event)
     {
-        ForgeChunkManager.unloadWorld(event.getWorld());
-        if (event.getWorld() instanceof WorldServer)
-            FakePlayerFactory.unloadWorld((WorldServer) event.getWorld());
+        if (event.getWorld() instanceof ServerWorld)
+            FakePlayerFactory.unloadWorld((ServerWorld) event.getWorld());
     }
 
     @SubscribeEvent
@@ -94,7 +79,14 @@ public class ForgeInternalHandler
     public void checkSettings(ClientTickEvent event)
     {
         if (event.phase == Phase.END)
-            FMLClientHandler.instance().updateCloudSettings();
+            CloudRenderer.updateCloudSettings();
+    }
+
+    @SubscribeEvent
+    public void onChunkUnload(ChunkEvent.Unload event)
+    {
+        if (!event.getWorld().isRemote())
+            FarmlandWaterManager.removeTickets(event.getChunk());
     }
 }
 

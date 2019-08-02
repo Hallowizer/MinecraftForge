@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,11 @@
 
 package net.minecraftforge.client.event;
 
-import net.minecraft.client.renderer.entity.RenderItemFrame;
-import net.minecraft.entity.item.EntityItemFrame;
+import net.minecraft.client.renderer.entity.ItemFrameRenderer;
+import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 
 import javax.annotation.Nonnull;
 
@@ -33,13 +33,13 @@ import javax.annotation.Nonnull;
  * You can set canceled to do no further vanilla processing.
  */
 @Cancelable
-public class RenderItemInFrameEvent extends Event
+public class RenderItemInFrameEvent extends net.minecraftforge.eventbus.api.Event
 {
     private final ItemStack item;
-    private final EntityItemFrame entityItemFrame;
-    private final RenderItemFrame renderer;
+    private final ItemFrameEntity entityItemFrame;
+    private final ItemFrameRenderer renderer;
 
-    public RenderItemInFrameEvent(EntityItemFrame itemFrame, RenderItemFrame renderItemFrame)
+    public RenderItemInFrameEvent(ItemFrameEntity itemFrame, ItemFrameRenderer renderItemFrame)
     {
         item = itemFrame.getDisplayedItem();
         entityItemFrame = itemFrame;
@@ -52,12 +52,12 @@ public class RenderItemInFrameEvent extends Event
         return item;
     }
 
-    public EntityItemFrame getEntityItemFrame()
+    public ItemFrameEntity getEntityItemFrame()
     {
         return entityItemFrame;
     }
 
-    public RenderItemFrame getRenderer()
+    public ItemFrameRenderer getRenderer()
     {
         return renderer;
     }

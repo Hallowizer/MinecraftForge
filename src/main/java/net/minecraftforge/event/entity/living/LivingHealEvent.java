@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,8 +21,8 @@ package net.minecraftforge.event.entity.living;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraft.entity.LivingEntity;
 
 /**
  * LivingHealEvent is fired when an Entity is set to be healed. <br>
@@ -32,18 +32,18 @@ import net.minecraft.entity.EntityLivingBase;
  * <br>
  * {@link #amount} contains the amount of healing done to the Entity that was healed. <br>
  * <br>
- * This event is {@link Cancelable}.<br>
+ * This event is {@link net.minecraftforge.eventbus.api.Cancelable}.<br>
  * If this event is canceled, the Entity is not healed.<br>
  * <br>
  * This event does not have a result. {@link HasResult}<br>
  * <br>
  * This event is fired on the {@link MinecraftForge#EVENT_BUS}.
  **/
-@Cancelable
+@net.minecraftforge.eventbus.api.Cancelable
 public class LivingHealEvent extends LivingEvent
 {
     private float amount;
-    public LivingHealEvent(EntityLivingBase entity, float amount)
+    public LivingHealEvent(LivingEntity entity, float amount)
     {
         super(entity);
         this.setAmount(amount);

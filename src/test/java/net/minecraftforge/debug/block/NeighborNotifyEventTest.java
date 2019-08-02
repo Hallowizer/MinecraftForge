@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,35 +19,28 @@
 
 package net.minecraftforge.debug.block;
 
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.block.Blocks;
 import net.minecraftforge.event.world.BlockEvent.NeighborNotifyEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = "neighbornotifyeventtest", name = "NeighborNotifyEventTest", version = "0.0.0", acceptableRemoteVersions = "*")
+//Disables update notification from comparators.
+
+@Mod("neighbor_notify_event_test")
+@Mod.EventBusSubscriber
 public class NeighborNotifyEventTest
 {
-
-    public static final boolean ENABLE = false;
-    private static Logger logger;
-
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event)
-    {
-        if (ENABLE)
-        {
-            logger = event.getModLog();
-            MinecraftForge.EVENT_BUS.register(this);
-        }
-    }
+    private static Logger logger = LogManager.getLogger(NeighborNotifyEventTest.class);
 
     @SubscribeEvent
-    public void onNeighborNotify(NeighborNotifyEvent event)
+    public static void onNeighborNotify(NeighborNotifyEvent event)
     {
-        logger.info("{} with face information: {}", event.getPos().toString(), event.getNotifiedSides());
-        event.setCanceled(true);
+        if (event.getState().getBlock() == Blocks.COMPARATOR) {
+            logger.info("{} with face information: {}", event.getPos().toString(), event.getNotifiedSides());
+            event.setCanceled(true);
+        }
     }
 }

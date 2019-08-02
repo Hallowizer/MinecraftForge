@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,18 +30,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import net.minecraftforge.versions.mcp.MCPVersion;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-import net.minecraft.launchwrapper.Launch;
-import net.minecraftforge.common.ForgeVersion;
-import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.versions.forge.ForgeVersion;
 
 public class ModList
 {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private static final Gson GSON = new GsonBuilder().setLenient().create();
     static final Map<String, ModList> cache = new HashMap<>();
 
@@ -50,12 +54,11 @@ public class ModList
         try
         {
             String key = json.getCanonicalFile().getAbsolutePath();
-            if (cache.containsKey(key))
-                return cache.get(key);
+            return cache.computeIfAbsent(key, k -> new ModList(json, mcdir));
         }
         catch (IOException e)
         {
-            FMLLog.log.error(FMLLog.log.getMessageFactory().newMessage("Unable to load ModList json at {}.", json.getAbsoluteFile()), e);
+            LOGGER.error(LOGGER.getMessageFactory().newMessage("Unable to load ModList json at {}.", json.getAbsoluteFile()), e);
         }
 
         return new ModList(json, mcdir);
@@ -64,7 +67,7 @@ public class ModList
     @SuppressWarnings("unchecked")
     public static List<ModList> getKnownLists(File mcdir)
     {
-        for (String list : new String[] {"mods/mod_list.json", "mods/" + ForgeVersion.mcVersion + "/mod_list.json", ((Map<String, String>)Launch.blackboard.get("launchArgs")).get("--modListFile")})
+        for (String list : new String[] {"mods/mod_list.json", "mods/" + MCPVersion.getMCVersion() + "/mod_list.json"/* , TODO Launch args ((Map<String, String>)Launch.blackboard.get("launchArgs")).get("--modListFile")*/})
         {
             if (list != null)
             {
@@ -85,7 +88,7 @@ public class ModList
         if (memory != null)
             lst.add(memory);
 
-        for (String list : new String[] {"mods/mod_list.json", "mods/" + ForgeVersion.mcVersion + "/mod_list.json", ((Map<String, String>)Launch.blackboard.get("launchArgs")).get("--modListFile")})
+        for (String list : new String[] {"mods/mod_list.json", "mods/" + MCPVersion.getMCVersion() + "/mod_list.json"/* TODO Launch args, ((Map<String, String>)Launch.blackboard.get("launchArgs")).get("--modListFile")*/})
         {
             if (list != null)
             {
@@ -128,11 +131,11 @@ public class ModList
             }
             catch (JsonSyntaxException jse)
             {
-                FMLLog.log.info(FMLLog.log.getMessageFactory().newMessage("Failed to parse modList json file {}.", path), jse);
+                LOGGER.info(LOGGER.getMessageFactory().newMessage("Failed to parse modList json file {}.", path), jse);
             }
             catch (IOException ioe)
             {
-                FMLLog.log.info(FMLLog.log.getMessageFactory().newMessage("Failed to read modList json file {}.", path), ioe);
+                LOGGER.info(LOGGER.getMessageFactory().newMessage("Failed to read modList json file {}.", path), ioe);
             }
         }
         this.mod_list = temp_list == null ? new JsonModList() : temp_list;
@@ -149,7 +152,7 @@ public class ModList
             }
             catch (IOException e)
             {
-                FMLLog.log.info(FMLLog.log.getMessageFactory().newMessage("Failed to create repository for modlist at {}.", mod_list.repositoryRoot), e);
+                LOGGER.info(LOGGER.getMessageFactory().newMessage("Failed to create repository for modlist at {}.", mod_list.repositoryRoot), e);
             }
         }
         this.repo = temp;
@@ -210,7 +213,7 @@ public class ModList
         }
         catch (IOException ioe)
         {
-            FMLLog.log.info(FMLLog.log.getMessageFactory().newMessage("Unable to canonicalize path {} relative to {}", path, root.getAbsolutePath()));
+            LOGGER.info(LOGGER.getMessageFactory().newMessage("Unable to canonicalize path {} relative to {}", path, root.getAbsolutePath()));
         }
         return null;
     }

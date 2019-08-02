@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.event.brewing;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
@@ -32,7 +32,7 @@ public class PlayerBrewedPotionEvent extends PlayerEvent
 {
     private final ItemStack stack;
 
-    public PlayerBrewedPotionEvent(EntityPlayer player, @Nonnull ItemStack stack)
+    public PlayerBrewedPotionEvent(PlayerEntity player, @Nonnull ItemStack stack)
     {
         super(player);
         this.stack = stack;

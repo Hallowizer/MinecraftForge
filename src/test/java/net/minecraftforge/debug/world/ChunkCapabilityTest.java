@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.world;
 
@@ -37,17 +38,19 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+*/
 /**
  * Simple mod to test chunk capabilities.
  * Use flint and steel to increase pollution in a chunk and saplings to decrease pollution in a chunk.
- */
-@Mod(modid = ChunkCapabilityTest.MODID, name = "Chunk Capability Test", version = "0.0.0", acceptableRemoteVersions = "*")
+ *//*
+
+//@Mod(modid = ChunkCapabilityTest.MODID, name = "Chunk Capability Test", version = "0.0.0", acceptableRemoteVersions = "*")
 public class ChunkCapabilityTest
 {
     public static final String MODID = "chunkcapabilitypollutiontest";
@@ -93,10 +96,12 @@ public class ChunkCapabilityTest
         }
     }
 
-    /**
+    */
+/**
      * Marks the chunk as dirty when the value changes.
      * Cannot be the default implementation because it requires a chunk in the constructor
-     */
+     *//*
+
     public static class SafePollution extends DefaultPollution
     {
         private final Chunk chunk;
@@ -148,13 +153,13 @@ public class ChunkCapabilityTest
 
     public static class EventBusHandler
     {
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public void onAttachChunkCapabilities(AttachCapabilitiesEvent<Chunk> event)
         {
             event.addCapability(new ResourceLocation(MODID, "pollution"), new PollutionProvider(event.getObject()));
         }
 
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public void onUseItem(PlayerInteractEvent.RightClickBlock event)
         {
             if (!event.getWorld().isRemote) {
@@ -195,3 +200,4 @@ public class ChunkCapabilityTest
     }
 
 }
+*/

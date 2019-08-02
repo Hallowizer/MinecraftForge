@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -88,16 +88,10 @@ public class WorldWorkerManager
     {
         boolean hasWork();
 
-        default void work() {}; //TODO: Remove in 1.13.
-
         /**
          * Perform a task, returning true from this will have the manager call this function again this tick if there is time left.
          * Returning false will skip calling this worker until next tick.
          */
-        default boolean doWork()
-        {
-            work();
-            return true;
-        }
+        boolean doWork();
     }
 }

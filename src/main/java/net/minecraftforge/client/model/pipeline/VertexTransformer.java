@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,7 +21,7 @@ package net.minecraftforge.client.model.pipeline;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class VertexTransformer implements IVertexConsumer
 {
@@ -51,7 +51,7 @@ public class VertexTransformer implements IVertexConsumer
     }
 
     @Override
-    public void setQuadOrientation(EnumFacing orientation)
+    public void setQuadOrientation(Direction orientation)
     {
         parent.setQuadOrientation(orientation);
     }

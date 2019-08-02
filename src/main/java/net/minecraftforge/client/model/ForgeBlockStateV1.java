@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,15 +35,17 @@ import javax.vecmath.Matrix4f;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ModelRotation;
-import net.minecraft.util.JsonUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.model.ModelRotation;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.BlockStateLoader.Marker;
 import net.minecraftforge.client.model.BlockStateLoader.SubModel;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
-import net.minecraftforge.fml.common.FMLLog;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -62,6 +64,7 @@ import com.google.gson.JsonParseException;
 
 public class ForgeBlockStateV1 extends Marker
 {
+    private static final Logger LOGGER = LogManager.getLogger();
     ForgeBlockStateV1.Variant defaults;
     Multimap<String, ForgeBlockStateV1.Variant> variants = LinkedHashMultimap.create();
 
@@ -73,7 +76,7 @@ public class ForgeBlockStateV1 extends Marker
         {
             JsonObject json = element.getAsJsonObject();
             ForgeBlockStateV1 ret = new ForgeBlockStateV1();
-            ret.forge_marker = JsonUtils.getInt(json, "forge_marker");
+            ret.forge_marker = JSONUtils.getInt(json, "forge_marker");
 
             if (json.has("defaults"))   // Load defaults Variant.
             {
@@ -86,7 +89,7 @@ public class ForgeBlockStateV1 extends Marker
             Map<String, Map<String, ForgeBlockStateV1.Variant>> condensed = Maps.newLinkedHashMap();    // map(property name -> map(property value -> variant))
             Multimap<String, ForgeBlockStateV1.Variant> specified = LinkedHashMultimap.create();    // Multimap containing all the states specified with "property=value".
 
-            for (Entry<String, JsonElement> e : JsonUtils.getJsonObject(json, "variants").entrySet())
+            for (Entry<String, JsonElement> e : JSONUtils.getJsonObject(json, "variants").entrySet())
             {
                 if (e.getValue().isJsonArray())
                 {
@@ -181,9 +184,9 @@ public class ForgeBlockStateV1 extends Marker
                             String value = v.textures.get(tex.getValue().substring(1));
                             if (value == null)
                             {
-                                FMLLog.log.fatal("Could not resolve texture name \"{}\" for permutation \"{}\"", tex.getValue(), e.getKey());
+                                LOGGER.fatal("Could not resolve texture name \"{}\" for permutation \"{}\"", tex.getValue(), e.getKey());
                                 for (Entry<String, String> t: v.textures.entrySet())
-                                    FMLLog.log.fatal("{}={}", t.getKey(), t.getValue());
+                                    LOGGER.fatal("{}={}", t.getKey(), t.getValue());
                                 throw new JsonParseException("Could not resolve texture name \"" + tex.getValue() + "\" for permutation \"" + e.getKey() + "\"");
                             }
                             v.textures.put(tex.getKey(), value);
@@ -385,6 +388,11 @@ public class ForgeBlockStateV1 extends Marker
             return output;
         }
 
+        boolean isVanillaCompatible()
+        {
+            return model != null && submodels.isEmpty() && textures.isEmpty() && customData.isEmpty() && !smooth.isPresent() && !gui3d.isPresent() && state.orElse(ModelRotation.X0_Y0) instanceof ModelRotation;
+        }
+
         protected SubModel asGenericSubModel()
         {
             return new SubModel(state.orElse(TRSRTransformation.identity()), uvLock.orElse(false), smooth.orElse(true), gui3d.orElse(true), getTextures(), model, getCustomData());
@@ -440,8 +448,7 @@ public class ForgeBlockStateV1 extends Marker
 
             protected ResourceLocation getBlockLocation(String location)
             {
-                ResourceLocation tmp = new ResourceLocation(location);
-                return new ResourceLocation(tmp.getResourceDomain(), "block/" + tmp.getResourcePath());
+                return new ResourceLocation(location); //Vanilla 1.14 removed automatic block prefixes. See https://github.com/MinecraftForge/MinecraftForge/issues/5892
             }
 
             /** Throws an error if there are submodels in this submodel. */
@@ -449,77 +456,6 @@ public class ForgeBlockStateV1 extends Marker
             {
                 if (submodel.submodels.size() > 0)
                     throw new UnsupportedOperationException("Forge BlockStateLoader V1 does not support nested submodels.");
-            }
-
-            private static TRSRTransformation get(float tx, float ty, float tz, float ax, float ay, float az, float s)
-            {
-                return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(
-                    new Vector3f(tx / 16, ty / 16, tz / 16),
-                    TRSRTransformation.quatFromXYZDegrees(new Vector3f(ax, ay, az)),
-                    new Vector3f(s, s, s),
-                    null));
-            }
-
-            private static final TRSRTransformation flipX = new TRSRTransformation(null, null, new Vector3f(-1, 1, 1), null);
-
-            private static TRSRTransformation leftify(TRSRTransformation transform)
-            {
-                return TRSRTransformation.blockCenterToCorner(flipX.compose(TRSRTransformation.blockCornerToCenter(transform)).compose(flipX));
-            }
-
-            // Note: these strings might change to a full-blown resource locations in the future, and move from here to some json somewhere
-            // TODO: vanilla now includes from parent, deprecate?
-            private static final ImmutableMap<String, IModelState> transforms;
-
-            static
-            {
-                ImmutableMap.Builder<String, IModelState> builder = ImmutableMap.builder();
-
-                builder.put("identity", TRSRTransformation.identity());
-
-                // block/block
-                {
-                    EnumMap<TransformType, TRSRTransformation> map = new EnumMap<>(TransformType.class);
-                    TRSRTransformation thirdperson = get(0, 2.5f, 0, 75, 45, 0, 0.375f);
-                    map.put(TransformType.GUI,                     get(0, 0, 0, 30, 225, 0, 0.625f));
-                    map.put(TransformType.GROUND,                  get(0, 3, 0, 0, 0, 0, 0.25f));
-                    map.put(TransformType.FIXED,                   get(0, 0, 0, 0, 0, 0, 0.5f));
-                    map.put(TransformType.THIRD_PERSON_RIGHT_HAND, thirdperson);
-                    map.put(TransformType.THIRD_PERSON_LEFT_HAND,  leftify(thirdperson));
-                    map.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(0, 0, 0, 0, 45, 0, 0.4f));
-                    map.put(TransformType.FIRST_PERSON_LEFT_HAND,  get(0, 0, 0, 0, 225, 0, 0.4f));
-                    builder.put("forge:default-block", new SimpleModelState(ImmutableMap.copyOf(map)));
-                }
-
-                // item/generated
-                {
-                    EnumMap<TransformType, TRSRTransformation> map = new EnumMap<>(TransformType.class);
-                    TRSRTransformation thirdperson = get(0, 3, 1, 0, 0, 0, 0.55f);
-                    TRSRTransformation firstperson = get(1.13f, 3.2f, 1.13f, 0, -90, 25, 0.68f);
-                    map.put(TransformType.GROUND,                  get(0, 2, 0, 0, 0, 0, 0.5f));
-                    map.put(TransformType.HEAD,                    get(0, 13, 7, 0, 180, 0, 1));
-                    map.put(TransformType.THIRD_PERSON_RIGHT_HAND, thirdperson);
-                    map.put(TransformType.THIRD_PERSON_LEFT_HAND,  leftify(thirdperson));
-                    map.put(TransformType.FIRST_PERSON_RIGHT_HAND, firstperson);
-                    map.put(TransformType.FIRST_PERSON_LEFT_HAND,  leftify(firstperson));
-                    map.put(TransformType.FIXED,                   get(0, 0, 0, 0, 180, 0, 1));
-                    builder.put("forge:default-item", new SimpleModelState(ImmutableMap.copyOf(map)));
-                }
-
-                // item/handheld
-                {
-                    EnumMap<TransformType, TRSRTransformation> map = new EnumMap<>(TransformType.class);
-                    map.put(TransformType.GROUND,                  get(0, 2, 0, 0, 0, 0, 0.5f));
-                    map.put(TransformType.HEAD,                    get(0, 13, 7, 0, 180, 0, 1));
-                    map.put(TransformType.THIRD_PERSON_RIGHT_HAND, get(0, 4, 0.5f,         0, -90, 55, 0.85f));
-                    map.put(TransformType.THIRD_PERSON_LEFT_HAND,  get(0, 4, 0.5f,         0, 90, -55, 0.85f));
-                    map.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(1.13f, 3.2f, 1.13f, 0, -90, 25, 0.68f));
-                    map.put(TransformType.FIRST_PERSON_LEFT_HAND,  get(1.13f, 3.2f, 1.13f, 0, 90, -25, 0.68f));
-                    map.put(TransformType.FIXED,                   get(0, 0, 0, 0, 180, 0, 1));
-                    builder.put("forge:default-tool", new SimpleModelState(ImmutableMap.copyOf(map)));
-                }
-
-                transforms = builder.build();
             }
 
             @Override
@@ -533,7 +469,7 @@ public class ForgeBlockStateV1 extends Marker
                     if (json.get("model").isJsonNull())
                         ret.model = null;   // Allow overriding base model to remove it from a state.
                     else
-                        ret.model = getBlockLocation(JsonUtils.getString(json, "model"));
+                        ret.model = getBlockLocation(JSONUtils.getString(json, "model"));
                     ret.modelSet = true;
                 }
 
@@ -550,8 +486,8 @@ public class ForgeBlockStateV1 extends Marker
 
                 if (json.has("x") || json.has("y"))
                 {   // Load rotation values.
-                    int x = JsonUtils.getInt(json, "x", 0);
-                    int y = JsonUtils.getInt(json, "y", 0);
+                    int x = JSONUtils.getInt(json, "x", 0);
+                    int y = JSONUtils.getInt(json, "y", 0);
                     ret.state = Optional.ofNullable(ModelRotation.getModelRotation(x, y));
                     if (!ret.state.isPresent())
                         throw new JsonParseException("Invalid BlockModelRotation x: " + x + " y: " + y);
@@ -562,7 +498,7 @@ public class ForgeBlockStateV1 extends Marker
                     if (json.get("transform").isJsonPrimitive() && json.get("transform").getAsJsonPrimitive().isString())
                     {
                         String transform = json.get("transform").getAsString();
-                        ret.state = Optional.ofNullable(transforms.get(transform));
+                        ret.state = Transforms.get(transform);
                         if (!ret.state.isPresent())
                         {
                             throw new JsonParseException("transform: unknown default string: " + transform);
@@ -675,22 +611,22 @@ public class ForgeBlockStateV1 extends Marker
 
                 if (json.has("uvlock"))
                 {   // Load uvlock.
-                    ret.uvLock = Optional.of(JsonUtils.getBoolean(json, "uvlock"));
+                    ret.uvLock = Optional.of(JSONUtils.getBoolean(json, "uvlock"));
                 }
 
                 if (json.has("smooth_lighting"))
                 {
-                    ret.smooth = Optional.of(JsonUtils.getBoolean(json, "smooth_lighting"));
+                    ret.smooth = Optional.of(JSONUtils.getBoolean(json, "smooth_lighting"));
                 }
 
                 if (json.has("gui3d"))
                 {
-                    ret.gui3d = Optional.of(JsonUtils.getBoolean(json, "gui3d"));
+                    ret.gui3d = Optional.of(JSONUtils.getBoolean(json, "gui3d"));
                 }
 
                 if (json.has("weight"))
                 {   // Load weight.
-                    ret.weight = Optional.of(JsonUtils.getInt(json, "weight"));
+                    ret.weight = Optional.of(JSONUtils.getInt(json, "weight"));
                 }
 
                 if (json.has("submodel"))
@@ -960,6 +896,83 @@ public class ForgeBlockStateV1 extends Marker
                 return parseAxisRotation(e);
             }
             else throw new JsonParseException("Rotation: expected array or object, got: " + e);
+        }
+    }
+
+    public static class Transforms
+    {
+        public static TRSRTransformation convert(float tx, float ty, float tz, float ax, float ay, float az, float s)
+        {
+            return convert(tx, ty, tz, ax, ay, az, s, s, s);
+        }
+
+        public static TRSRTransformation convert(float tx, float ty, float tz, float ax, float ay, float az, float sx, float sy, float sz)
+        {
+            return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(
+                    new Vector3f(tx / 16, ty / 16, tz / 16),
+                    TRSRTransformation.quatFromXYZDegrees(new Vector3f(ax, ay, az)),
+                    new Vector3f(sx, sy, sz),
+                    null
+            ));
+        }
+
+        private static final TRSRTransformation flipX = new TRSRTransformation(null, null, new Vector3f(-1, 1, 1), null);
+
+        public static TRSRTransformation leftify(TRSRTransformation transform)
+        {
+            return TRSRTransformation.blockCenterToCorner(flipX.compose(TRSRTransformation.blockCornerToCenter(transform)).compose(flipX));
+        }
+
+        public static Optional<IModelState> get(String name)
+        {
+            return Optional.ofNullable(transforms.get(name));
+        }
+
+        // Note: these strings might change to a full-blown resource locations in the future, and move from here to some json somewhere
+        // TODO: vanilla now includes from parent, deprecate?
+        private static final ImmutableMap<String, IModelState> transforms;
+
+        static
+        {
+            ImmutableMap.Builder<String, IModelState> builder = ImmutableMap.builder();
+
+            builder.put("identity", TRSRTransformation.identity());
+
+            // block/block
+            EnumMap<TransformType, TRSRTransformation> block = new EnumMap<>(TransformType.class);
+            TRSRTransformation thirdPersonBlock = convert(0, 2.5f, 0, 75, 45, 0, 0.375f);
+            block.put(TransformType.GUI,                     convert(0, 0, 0, 30, 225, 0, 0.625f));
+            block.put(TransformType.GROUND,                  convert(0, 3, 0, 0, 0, 0, 0.25f));
+            block.put(TransformType.FIXED,                   convert(0, 0, 0, 0, 0, 0, 0.5f));
+            block.put(TransformType.THIRD_PERSON_RIGHT_HAND, thirdPersonBlock);
+            block.put(TransformType.THIRD_PERSON_LEFT_HAND,  leftify(thirdPersonBlock));
+            block.put(TransformType.FIRST_PERSON_RIGHT_HAND, convert(0, 0, 0, 0, 45, 0, 0.4f));
+            block.put(TransformType.FIRST_PERSON_LEFT_HAND,  convert(0, 0, 0, 0, 225, 0, 0.4f));
+            builder.put("forge:default-block", new SimpleModelState(ImmutableMap.copyOf(block)));
+
+            // item/generated
+            EnumMap<TransformType, TRSRTransformation> item = new EnumMap<>(TransformType.class);
+            TRSRTransformation thirdPersonItem = convert(0, 3, 1, 0, 0, 0, 0.55f);
+            TRSRTransformation firstPersonItem = convert(1.13f, 3.2f, 1.13f, 0, -90, 25, 0.68f);
+            item.put(TransformType.GROUND,                  convert(0, 2, 0, 0, 0, 0, 0.5f));
+            item.put(TransformType.HEAD,                    convert(0, 13, 7, 0, 180, 0, 1));
+            item.put(TransformType.THIRD_PERSON_RIGHT_HAND, thirdPersonItem);
+            item.put(TransformType.THIRD_PERSON_LEFT_HAND,  leftify(thirdPersonItem));
+            item.put(TransformType.FIRST_PERSON_RIGHT_HAND, firstPersonItem);
+            item.put(TransformType.FIRST_PERSON_LEFT_HAND,  leftify(firstPersonItem));
+            item.put(TransformType.FIXED,                   convert(0, 0, 0, 0, 180, 0, 1));
+            builder.put("forge:default-item", new SimpleModelState(ImmutableMap.copyOf(item)));
+
+            // item/handheld
+            EnumMap<TransformType, TRSRTransformation> tool = new EnumMap<>(TransformType.class);
+            tool.putAll(item);
+            tool.put(TransformType.THIRD_PERSON_RIGHT_HAND, convert(0, 4, 0.5f,         0, -90, 55, 0.85f));
+            tool.put(TransformType.THIRD_PERSON_LEFT_HAND,  convert(0, 4, 0.5f,         0, 90, -55, 0.85f));
+            tool.put(TransformType.FIRST_PERSON_RIGHT_HAND, convert(1.13f, 3.2f, 1.13f, 0, -90, 25, 0.68f));
+            tool.put(TransformType.FIRST_PERSON_LEFT_HAND,  convert(1.13f, 3.2f, 1.13f, 0, 90, -25, 0.68f));
+            builder.put("forge:default-tool", new SimpleModelState(ImmutableMap.copyOf(tool)));
+
+            transforms = builder.build();
         }
     }
 }

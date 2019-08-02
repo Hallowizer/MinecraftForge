@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,11 +15,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.fluid;
-
-import java.awt.Color;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -32,16 +31,16 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 
-@Mod(modid = ColoredFluidTest.MODID, name = "Test Mod", version = "1.0.0", acceptedMinecraftVersions = "*", acceptableRemoteVersions = "*")
-@EventBusSubscriber
+//@Mod(modid = ColoredFluidTest.MODID, name = "Test Mod", version = "1.0.0", acceptedMinecraftVersions = "*", acceptableRemoteVersions = "*")
+//@EventBusSubscriber
 public class ColoredFluidTest
 {
     static final boolean ENABLED = false;      // <-- enable mod
-    static final Color COLOR = Color.PINK; // <-- change this to try other colors
+    static final int COLOR = 0xFFAFAF; // <-- change this to try other colors
     
     static final String MODID = "fluidadditionalfields";
     static final ResourceLocation RES_LOC = new ResourceLocation(MODID, "slime");
@@ -52,7 +51,7 @@ public class ColoredFluidTest
             FluidRegistry.enableUniversalBucket();
         }
     }
-    public static final Fluid SLIME = new Fluid("slime", new ResourceLocation(MODID, "slime_still"), new ResourceLocation(MODID, "slime_flow")).setColor(COLOR);
+    public static final Fluid SLIME = new Fluid("slime", new ResourceLocation(MODID, "slime_still"), new ResourceLocation(MODID, "slime_flow"), new ResourceLocation(MODID, "slime_overlay")).setColor(COLOR);
     @ObjectHolder("slime")
     public static final BlockFluidBase SLIME_BLOCK = null;
 
@@ -75,3 +74,4 @@ public class ColoredFluidTest
         }
     }
 }
+*/

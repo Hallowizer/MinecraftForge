@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.client.event.sound;
 
-import net.minecraft.client.audio.SoundManager;
+import net.minecraft.client.audio.SoundEngine;
 
 /**
  * Raised by the SoundManager.loadSoundSettings, this would be a good place for
@@ -27,7 +27,7 @@ import net.minecraft.client.audio.SoundManager;
  */
 public class SoundLoadEvent extends SoundEvent
 {
-    public SoundLoadEvent(SoundManager manager)
+    public SoundLoadEvent(SoundEngine manager)
     {
         super(manager);
     }

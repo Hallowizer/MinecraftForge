@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,37 +22,29 @@ package net.minecraftforge.common.capabilities;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
+import net.minecraftforge.common.util.LazyOptional;
 
 public interface ICapabilityProvider
 {
     /**
-     * Determines if this object has support for the capability in question on the specific side.
-     * The return value of this MIGHT change during runtime if this object gains or looses support
-     * for a capability.
-     *
-     * Example:
-     *   A Pipe getting a cover placed on one side causing it loose the Inventory attachment function for that side.
-     *
-     * This is a light weight version of getCapability, intended for metadata uses.
+     * Retrieves the Optional handler for the capability requested on the specific side.
+     * The return value <strong>CAN</strong> be the same for multiple faces.
+     * Modders are encouraged to cache this value, using the listener capabilities of the Optional to
+     * be notified if the requested capability get lost.
      *
      * @param capability The capability to check
-     * @param facing The Side to check from:
-     *   CAN BE NULL. Null is defined to represent 'internal' or 'self'
-     * @return True if this object supports the capability.
+     * @param facing The Side to check from,
+     *   <strong>CAN BE NULL</strong>. Null is defined to represent 'internal' or 'self'
+     * @return The requested an optional holding the requested capability.
      */
-    boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing);
+    @Nonnull <T> LazyOptional<T> getCapability(@Nonnull final Capability<T> cap, final @Nullable Direction side);
 
-    /**
-     * Retrieves the handler for the capability requested on the specific side.
-     * The return value CAN be null if the object does not support the capability.
-     * The return value CAN be the same for multiple faces.
-     *
-     * @param capability The capability to check
-     * @param facing The Side to check from:
-     *   CAN BE NULL. Null is defined to represent 'internal' or 'self'
-     * @return The requested capability. Returns null when {@link #hasCapability(Capability, EnumFacing)} would return false.
+    /*
+     * Purely added as a bouncer to sided version, to make modders stop complaining about calling with a null value.
+     * This should never be OVERRIDDEN, modders should only ever implement the sided version.
      */
-    @Nullable
-    <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing);
+    @Nonnull default <T> LazyOptional<T> getCapability(@Nonnull final Capability<T> cap) {
+        return getCapability(cap, null);
+    }
 }

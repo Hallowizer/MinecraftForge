@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,7 @@
 
 package net.minecraftforge.client.model;
 
+import net.minecraft.client.renderer.texture.ISprite;
 import net.minecraftforge.common.model.IModelPart;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
@@ -29,7 +30,7 @@ import com.google.common.collect.ImmutableMap;
 /*
  * Simple implementation of IModelState via a map and a default value.
  */
-public final class SimpleModelState implements IModelState
+public final class SimpleModelState implements IModelState, ISprite
 {
     private final ImmutableMap<? extends IModelPart, TRSRTransformation> map;
     private final Optional<TRSRTransformation> def;
@@ -43,6 +44,12 @@ public final class SimpleModelState implements IModelState
     {
         this.map = map;
         this.def = def;
+    }
+
+    @Override
+    public IModelState getState()
+    {
+        return this;
     }
 
     @Override

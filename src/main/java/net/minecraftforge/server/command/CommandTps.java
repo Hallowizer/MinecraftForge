@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,93 +20,62 @@
 package net.minecraftforge.server.command;
 
 import java.text.DecimalFormat;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.DimensionType;
-import net.minecraftforge.common.DimensionManager;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.DimensionArgument;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.dimension.DimensionType;
 
-class CommandTps extends CommandBase
+class CommandTps
 {
+    private static final DynamicCommandExceptionType INVALID_DIMENSION = new DynamicCommandExceptionType(dim -> new TranslationTextComponent("commands.forge.tps.invalid", dim, StreamSupport.stream(DimensionType.getAll().spliterator(), false).map(d -> DimensionType.getKey(d).toString()).sorted().collect(Collectors.joining(", "))));
     private static final DecimalFormat TIME_FORMATTER = new DecimalFormat("########0.000");
 
-    @Override
-    public String getName()
+    static ArgumentBuilder<CommandSource, ?> register()
     {
-        return "tps";
-    }
+        return Commands.literal("tps")
+            .requires(cs->cs.hasPermissionLevel(0)) //permission
+            .then(Commands.argument("dim", DimensionArgument.getDimension())
+                .executes(ctx -> sendTime(ctx.getSource(), DimensionArgument.func_212592_a(ctx, "dim")))
+            )
+            .executes(ctx -> {
+                for (DimensionType dim : DimensionType.getAll())
+                    sendTime(ctx.getSource(), dim);
 
-    @Override
-    public String getUsage(ICommandSender sender)
-    {
-        return "commands.forge.tps.usage";
-    }
+                double meanTickTime = mean(ctx.getSource().getServer().tickTimeArray) * 1.0E-6D;
+                double meanTPS = Math.min(1000.0/meanTickTime, 20);
+                ctx.getSource().sendFeedback(new TranslationTextComponent("commands.forge.tps.summary.all", TIME_FORMATTER.format(meanTickTime), TIME_FORMATTER.format(meanTPS)), true);
 
-    @Override
-    public int getRequiredPermissionLevel()
-    {
-        return 0;
-    }
-
-    @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-    {
-        return true;
-    }
-
-    @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-    {
-        int dim = 0;
-        boolean summary = true;
-        if (args.length > 0)
-        {
-            dim = parseInt(args[0]);
-            summary = false;
-        }
-
-        if (summary)
-        {
-            for (Integer dimId : DimensionManager.getIDs())
-            {
-                double worldTickTime = mean(server.worldTickTimes.get(dimId)) * 1.0E-6D;
-                double worldTPS = Math.min(1000.0/worldTickTime, 20);
-                sender.sendMessage(TextComponentHelper.createComponentTranslation(sender, "commands.forge.tps.summary", getDimensionPrefix(dimId), TIME_FORMATTER.format(worldTickTime), TIME_FORMATTER.format(worldTPS)));
+                return 0;
             }
-            double meanTickTime = mean(server.tickTimeArray) * 1.0E-6D;
-            double meanTPS = Math.min(1000.0/meanTickTime, 20);
-            sender.sendMessage(TextComponentHelper.createComponentTranslation(sender, "commands.forge.tps.summary","Overall", TIME_FORMATTER.format(meanTickTime), TIME_FORMATTER.format(meanTPS)));
-        }
-        else
-        {
-            double worldTickTime = mean(server.worldTickTimes.get(dim)) * 1.0E-6D;
-            double worldTPS = Math.min(1000.0/worldTickTime, 20);
-            sender.sendMessage(TextComponentHelper.createComponentTranslation(sender, "commands.forge.tps.summary", getDimensionPrefix(dim), TIME_FORMATTER.format(worldTickTime), TIME_FORMATTER.format(worldTPS)));
-        }
+        );
     }
 
-    private static String getDimensionPrefix(int dimId)
+    private static int sendTime(CommandSource cs, DimensionType dim) throws CommandSyntaxException
     {
-        DimensionType providerType = DimensionManager.getProviderType(dimId);
-        if (providerType == null)
-        {
-            return String.format("Dim %2d", dimId);
-        }
-        else
-        {
-            return String.format("Dim %2d (%s)", dimId, providerType.getName());
-        }
+        long[] times = cs.getServer().getTickTime(dim);
+
+        if (times == null)
+            throw INVALID_DIMENSION.create(DimensionType.getKey(dim));
+
+        double worldTickTime = mean(times) * 1.0E-6D;
+        double worldTPS = Math.min(1000.0 / worldTickTime, 20);
+        cs.sendFeedback(new TranslationTextComponent("commands.forge.tps.summary.named", dim.getId(), DimensionType.getKey(dim), TIME_FORMATTER.format(worldTickTime), TIME_FORMATTER.format(worldTPS)), true);
+
+        return 1;
     }
 
     private static long mean(long[] values)
     {
         long sum = 0L;
         for (long v : values)
-        {
             sum += v;
-        }
         return sum / values.length;
     }
 }

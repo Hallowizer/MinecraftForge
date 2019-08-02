@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,20 +15,22 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.client.model;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.ForgeVersion;
@@ -37,11 +39,10 @@ import net.minecraftforge.fluids.BlockFluidClassic;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid = ModelFluidTest.MODID, name = "ForgeDebugModelFluid", version = ModelFluidTest.VERSION, acceptableRemoteVersions = "*")
+//@Mod(modid = ModelFluidTest.MODID, name = "ForgeDebugModelFluid", version = ModelFluidTest.VERSION, acceptableRemoteVersions = "*")
 public class ModelFluidTest
 {
     public static final String MODID = "forgedebugmodelfluid";
@@ -70,7 +71,7 @@ public class ModelFluidTest
     public static final Fluid GAS = new TestGas();
 
 
-    @Mod.EventBusSubscriber(modid = MODID)
+    //@Mod.EventBusSubscriber(modid = MODID)
     public static class Registration
     {
         @SubscribeEvent
@@ -105,7 +106,7 @@ public class ModelFluidTest
         }
     }
 
-    @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
+    //@Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
     public static class ClientEventHandler
     {
         @SubscribeEvent
@@ -150,7 +151,7 @@ public class ModelFluidTest
 
         private TestFluid()
         {
-            super(name, new ResourceLocation("blocks/water_still"), new ResourceLocation("blocks/water_flow"));
+            super(name, new ResourceLocation("blocks/water_still"), new ResourceLocation("blocks/water_flow"), new ResourceLocation("blocks/water_overlay"));
         }
 
         @Override
@@ -217,3 +218,4 @@ public class ModelFluidTest
         }
     }
 }
+*/

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,12 +19,14 @@
 
 package net.minecraftforge.client.event;
 
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelManager;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.util.registry.IRegistry;
+import java.util.Map;
+
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelManager;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Fired when the ModelManager is notified of the resource manager reloading.
@@ -34,10 +36,10 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 public class ModelBakeEvent extends Event
 {
     private final ModelManager modelManager;
-    private final IRegistry<ModelResourceLocation, IBakedModel> modelRegistry;
+    private final Map<ResourceLocation, IBakedModel> modelRegistry;
     private final ModelLoader modelLoader;
 
-    public ModelBakeEvent(ModelManager modelManager, IRegistry<ModelResourceLocation, IBakedModel> modelRegistry, ModelLoader modelLoader)
+    public ModelBakeEvent(ModelManager modelManager, Map<ResourceLocation, IBakedModel> modelRegistry, ModelLoader modelLoader)
     {
         this.modelManager = modelManager;
         this.modelRegistry = modelRegistry;
@@ -49,7 +51,7 @@ public class ModelBakeEvent extends Event
         return modelManager;
     }
 
-    public IRegistry<ModelResourceLocation, IBakedModel> getModelRegistry()
+    public Map<ResourceLocation, IBakedModel> getModelRegistry()
     {
         return modelRegistry;
     }

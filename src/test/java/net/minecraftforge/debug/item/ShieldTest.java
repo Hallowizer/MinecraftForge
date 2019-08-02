@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,12 +15,13 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.item;
 
 import com.google.common.collect.Multimap;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -30,19 +31,19 @@ import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
 
 @ObjectHolder("shield_test")
-@EventBusSubscriber
-@Mod(modid = "shield_test", name = "Shield Test", version = "0.0.0", acceptableRemoteVersions = "*")
+//@EventBusSubscriber
+//@Mod(modid = "shield_test", name = "Shield Test", version = "0.0.0", acceptableRemoteVersions = "*")
 public class ShieldTest
 {
     public static final ItemShield DIAMOND_SHIELD = null;
@@ -95,11 +96,11 @@ public class ShieldTest
         event.getRegistry().register(new ItemHeavyDiamondSword().setUnlocalizedName("heavy_diamond_sword").setRegistryName("heavy_diamond_sword"));
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void registerModels(ModelRegistryEvent event)
     {
         ModelLoader.setCustomModelResourceLocation(DIAMOND_SHIELD, 0, new ModelResourceLocation("shield_test:diamond_shield", "inventory"));
         ModelLoader.setCustomModelResourceLocation(HEAVY_DIAMOND_SWORD, 0, new ModelResourceLocation("minecraft:diamond_sword", "inventory"));
     }
-}
+}*/

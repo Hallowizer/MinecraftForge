@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.client.event;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.MovementInput;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
@@ -31,7 +31,7 @@ public class InputUpdateEvent extends PlayerEvent
 {
     private final MovementInput movementInput;
 
-    public InputUpdateEvent(EntityPlayer player, MovementInput movementInput)
+    public InputUpdateEvent(PlayerEntity player, MovementInput movementInput)
     {
         super(player);
         this.movementInput = movementInput;

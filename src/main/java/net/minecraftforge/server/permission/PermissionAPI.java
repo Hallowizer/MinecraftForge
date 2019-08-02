@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,18 +21,19 @@ package net.minecraftforge.server.permission;
 
 import com.google.common.base.Preconditions;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.LoaderState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.server.permission.context.IContext;
 import net.minecraftforge.server.permission.context.PlayerContext;
-import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class PermissionAPI
 {
+    private static final Logger LOGGER = LogManager.getLogger();
+    
     private static IPermissionHandler permissionHandler = DefaultPermissionHandler.INSTANCE;
 
     /**
@@ -41,8 +42,8 @@ public class PermissionAPI
     public static void setPermissionHandler(IPermissionHandler handler)
     {
         Preconditions.checkNotNull(handler, "Permission handler can't be null!");
-        Preconditions.checkState(Loader.instance().getLoaderState().ordinal() <= LoaderState.PREINITIALIZATION.ordinal(), "Can't register after IPermissionHandler PreInit!");
-        FMLLog.log.warn("Replacing {} with {}", permissionHandler.getClass().getName(), handler.getClass().getName());
+        // TODO Loader states Preconditions.checkState(Loader.instance().getLoaderState().ordinal() <= LoaderState.PREINITIALIZATION.ordinal(), "Can't register after IPermissionHandler PreInit!");
+        LOGGER.warn("Replacing {} with {}", permissionHandler.getClass().getName(), handler.getClass().getName());
         permissionHandler = handler;
     }
 
@@ -64,7 +65,7 @@ public class PermissionAPI
         Preconditions.checkNotNull(level, "Permission level can't be null!");
         Preconditions.checkNotNull(desc, "Permission description can't be null!");
         Preconditions.checkArgument(!node.isEmpty(), "Permission node can't be empty!");
-        Preconditions.checkState(Loader.instance().getLoaderState().ordinal() > LoaderState.PREINITIALIZATION.ordinal(), "Can't register permission nodes before Init!");
+        // TODO Loader states Preconditions.checkState(Loader.instance().getLoaderState().ordinal() > LoaderState.PREINITIALIZATION.ordinal(), "Can't register permission nodes before Init!");
         permissionHandler.registerNode(node, level, desc);
         return node;
     }
@@ -89,7 +90,7 @@ public class PermissionAPI
      *
      * @see PermissionAPI#hasPermission(GameProfile, String, IContext)
      */
-    public static boolean hasPermission(EntityPlayer player, String node)
+    public static boolean hasPermission(PlayerEntity player, String node)
     {
         Preconditions.checkNotNull(player, "Player can't be null!");
         return hasPermission(player.getGameProfile(), node, new PlayerContext(player));

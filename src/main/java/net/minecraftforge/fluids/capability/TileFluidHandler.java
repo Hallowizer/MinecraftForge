@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,10 +19,12 @@
 
 package net.minecraftforge.fluids.capability;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidTank;
 
@@ -32,35 +34,35 @@ import javax.annotation.Nullable;
 public class TileFluidHandler extends TileEntity
 {
     protected FluidTank tank = new FluidTank(Fluid.BUCKET_VOLUME);
+    
+    private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> tank);
+
+    public TileFluidHandler(@Nonnull TileEntityType<?> tileEntityTypeIn)
+    {
+        super(tileEntityTypeIn);
+    }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag)
+    public void read(CompoundNBT tag)
     {
-        super.readFromNBT(tag);
+        super.read(tag);
         tank.readFromNBT(tag);
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tag)
+    public CompoundNBT write(CompoundNBT tag)
     {
-        tag = super.writeToNBT(tag);
+        tag = super.write(tag);
         tank.writeToNBT(tag);
         return tag;
     }
 
     @Override
-    public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing)
-    {
-        return capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY || super.hasCapability(capability, facing);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    @Nullable
-    public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
+    @Nonnull
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction facing)
     {
         if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-            return (T) tank;
+            return holder.cast();
         return super.getCapability(capability, facing);
     }
 }

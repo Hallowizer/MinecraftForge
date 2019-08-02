@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,32 +23,31 @@ import java.io.File;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * PlayerEvent is fired whenever an event involving Living entities occurs. <br>
- * If a method utilizes this {@link Event} as its parameter, the method will
+ * If a method utilizes this {@link net.minecraftforge.eventbus.api.Event} as its parameter, the method will
  * receive every child event of this class.<br>
  * <br>
  * All children of this event are fired on the {@link MinecraftForge#EVENT_BUS}.
  **/
 public class PlayerEvent extends LivingEvent
 {
-    private final EntityPlayer entityPlayer;
-    public PlayerEvent(EntityPlayer player)
+    private final PlayerEntity entityPlayer;
+    public PlayerEvent(PlayerEntity player)
     {
         super(player);
         entityPlayer = player;
     }
 
-    public EntityPlayer getEntityPlayer()
+    public PlayerEntity getEntityPlayer()
     {
         return entityPlayer;
     }
@@ -63,7 +62,7 @@ public class PlayerEvent extends LivingEvent
      * {@link #state} contains the {@link IBlockState} that is being checked for harvesting. <br>
      * {@link #success} contains the boolean value for whether the Block will be successfully harvested. <br>
      * <br>
-     * This event is not {@link Cancelable}.<br>
+     * This event is not {@link net.minecraftforge.eventbus.api.Cancelable}.<br>
      * <br>
      * This event does not have a result. {@link HasResult}<br>
      * <br>
@@ -71,17 +70,17 @@ public class PlayerEvent extends LivingEvent
      **/
     public static class HarvestCheck extends PlayerEvent
     {
-        private final IBlockState state;
+        private final BlockState state;
         private boolean success;
 
-        public HarvestCheck(EntityPlayer player, IBlockState state, boolean success)
+        public HarvestCheck(PlayerEntity player, BlockState state, boolean success)
         {
             super(player);
             this.state = state;
             this.success = success;
         }
 
-        public IBlockState getTargetBlock() { return this.state; }
+        public BlockState getTargetBlock() { return this.state; }
         public boolean canHarvest() { return this.success; }
         public void setCanHarvest(boolean success){ this.success = success; }
     }
@@ -98,7 +97,7 @@ public class PlayerEvent extends LivingEvent
      * {@link #newSpeed} contains the newSpeed at which the player will break the block. <br>
      * {@link #pos} contains the coordinates at which this event is occurring. Y value -1 means location is unknown.<br>
      * <br>
-     * This event is {@link Cancelable}.<br>
+     * This event is {@link net.minecraftforge.eventbus.api.Cancelable}.<br>
      * If it is canceled, the player is unable to break the block.<br>
      * <br>
      * This event does not have a result. {@link HasResult}<br>
@@ -108,12 +107,12 @@ public class PlayerEvent extends LivingEvent
     @Cancelable
     public static class BreakSpeed extends PlayerEvent
     {
-        private final IBlockState state;
+        private final BlockState state;
         private final float originalSpeed;
         private float newSpeed = 0.0f;
         private final BlockPos pos; // Y position of -1 notes unknown location
 
-        public BreakSpeed(EntityPlayer player, IBlockState state, float original, BlockPos pos)
+        public BreakSpeed(PlayerEntity player, BlockState state, float original, BlockPos pos)
         {
             super(player);
             this.state = state;
@@ -122,7 +121,7 @@ public class PlayerEvent extends LivingEvent
             this.pos = pos;
         }
 
-        public IBlockState getState() { return state; }
+        public BlockState getState() { return state; }
         public float getOriginalSpeed() { return originalSpeed; }
         public float getNewSpeed() { return newSpeed; }
         public void setNewSpeed(float newSpeed) { this.newSpeed = newSpeed; }
@@ -139,7 +138,7 @@ public class PlayerEvent extends LivingEvent
      * {@link #username} contains the username of the player.
      * {@link #displayname} contains the display name of the player.
      * <br>
-     * This event is not {@link Cancelable}.
+     * This event is not {@link net.minecraftforge.eventbus.api.Cancelable}.
      * <br>
      * This event does not have a result. {@link HasResult}
      * <br>
@@ -150,7 +149,7 @@ public class PlayerEvent extends LivingEvent
         private final String username;
         private String displayname;
 
-        public NameFormat(EntityPlayer player, String username) {
+        public NameFormat(PlayerEntity player, String username) {
             super(player);
             this.username = username;
             this.setDisplayname(username);
@@ -178,10 +177,10 @@ public class PlayerEvent extends LivingEvent
      */
     public static class Clone extends PlayerEvent
     {
-        private final EntityPlayer original;
+        private final PlayerEntity original;
         private final boolean wasDeath;
 
-        public Clone(EntityPlayer _new, EntityPlayer oldPlayer, boolean wasDeath)
+        public Clone(PlayerEntity _new, PlayerEntity oldPlayer, boolean wasDeath)
         {
             super(_new);
             this.original = oldPlayer;
@@ -191,7 +190,7 @@ public class PlayerEvent extends LivingEvent
         /**
          * The old EntityPlayer that this new entity is a clone of.
          */
-        public EntityPlayer getOriginal()
+        public PlayerEntity getOriginal()
         {
             return original;
         }
@@ -214,7 +213,7 @@ public class PlayerEvent extends LivingEvent
 
         private final Entity target;
 
-        public StartTracking(EntityPlayer player, Entity target)
+        public StartTracking(PlayerEntity player, Entity target)
         {
             super(player);
             this.target = target;
@@ -237,7 +236,7 @@ public class PlayerEvent extends LivingEvent
 
         private final Entity target;
 
-        public StopTracking(EntityPlayer player, Entity target)
+        public StopTracking(PlayerEntity player, Entity target)
         {
             super(player);
             this.target = target;
@@ -262,7 +261,7 @@ public class PlayerEvent extends LivingEvent
         private final File playerDirectory;
         private final String playerUUID;
 
-        public LoadFromFile(EntityPlayer player, File originDirectory, String playerUUID)
+        public LoadFromFile(PlayerEntity player, File originDirectory, String playerUUID)
         {
             super(player);
             this.playerDirectory = originDirectory;
@@ -315,7 +314,7 @@ public class PlayerEvent extends LivingEvent
         private final File playerDirectory;
         private final String playerUUID;
 
-        public SaveToFile(EntityPlayer player, File originDirectory, String playerUUID)
+        public SaveToFile(PlayerEntity player, File originDirectory, String playerUUID)
         {
             super(player);
             this.playerDirectory = originDirectory;
@@ -362,7 +361,7 @@ public class PlayerEvent extends LivingEvent
 
         private double visibilityModifier = 1D;
 
-        public Visibility(EntityPlayer player)
+        public Visibility(PlayerEntity player)
         {
             super(player);
         }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.item;
 
@@ -27,15 +28,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-@Mod(modid = CanDestroyBlocksInCreativeTest.MODID, name = "Item.canDestroyBlockInCreative() Test", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = CanDestroyBlocksInCreativeTest.MODID, name = "Item.canDestroyBlockInCreative() Test", version = "1.0", acceptableRemoteVersions = "*")
 public class CanDestroyBlocksInCreativeTest
 {
     public static final boolean ENABLE = true;
     public static final String MODID = "item_can_destroy_blocks_in_creative_test";
 
-    @Mod.EventBusSubscriber(modid = MODID)
+    //@Mod.EventBusSubscriber(modid = MODID)
     public static class Registration
     {
         @SubscribeEvent
@@ -59,3 +60,4 @@ public class CanDestroyBlocksInCreativeTest
         }
     }
 }
+*/

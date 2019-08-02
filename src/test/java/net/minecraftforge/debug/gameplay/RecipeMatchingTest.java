@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,13 +15,14 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.gameplay;
 
 import java.util.Random;
 
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -29,24 +30,21 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
-@Mod(modid = RecipeMatchingTest.MODID, name = "Recipe test mod", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = RecipeMatchingTest.MODID, name = "Recipe test mod", version = "1.0", acceptableRemoteVersions = "*")
 public class RecipeMatchingTest
 {
     public static final String MODID = "recipetest";
     private static final boolean ENABLED = true;
-    @SidedProxy
     public static CommonProxy proxy = null;
 
 
@@ -121,3 +119,4 @@ public class RecipeMatchingTest
         }
     }
 }
+*/

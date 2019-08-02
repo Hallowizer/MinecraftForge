@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.event.entity.player;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -41,7 +41,7 @@ public class AnvilRepairEvent extends PlayerEvent
     private final ItemStack output; // Set this to set the output stack
     private float breakChance; // Anvil's chance to break (reduced by 1 durability) when this is complete. Default is 12% (0.12f)
 
-    public AnvilRepairEvent(EntityPlayer player, @Nonnull ItemStack left, @Nonnull ItemStack right, @Nonnull ItemStack output)
+    public AnvilRepairEvent(PlayerEntity player, @Nonnull ItemStack left, @Nonnull ItemStack right, @Nonnull ItemStack output)
     {
         super(player);
         this.output = output;
@@ -49,28 +49,6 @@ public class AnvilRepairEvent extends PlayerEvent
         this.right = right;
         this.setBreakChance(0.12f);
     }
-
-    /**
-     * Deprecated in favour of {@link #getItemInput()} - this is actually the output slot of the anvil
-     * @return the output slot
-     */
-    @Deprecated
-    @Nonnull
-    public ItemStack getLeft() { return output; }
-    /**
-     * Deprecated in favour of {@link #getIngredientInput()}} - this is actually the first input slot of the anvil
-     * @return the first input slot
-     */
-    @Deprecated
-    @Nonnull
-    public ItemStack getRight() { return left; }
-    /**
-     * Deprecated in favour of {@link #getItemResult()} - this is actually the second input slot of the anvil
-     * @return the second input slot
-     */
-    @Deprecated
-    @Nonnull
-    public ItemStack getOutput() { return right; }
 
     /**
      * Get the output result from the anvil

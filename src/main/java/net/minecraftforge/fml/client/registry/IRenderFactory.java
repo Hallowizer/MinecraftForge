@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,11 @@
 
 package net.minecraftforge.fml.client.registry;
 
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.entity.Entity;
 
 public interface IRenderFactory<T extends Entity>
 {
-    Render<? super T> createRenderFor(RenderManager manager);
+    EntityRenderer<? super T> createRenderFor(EntityRendererManager manager);
 }

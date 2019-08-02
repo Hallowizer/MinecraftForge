@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,11 @@
 
 package net.minecraftforge.items.wrapper;
 
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.PlayerInventory;
 
 public class PlayerOffhandInvWrapper extends RangedWrapper
 {
-    public PlayerOffhandInvWrapper(InventoryPlayer inv)
+    public PlayerOffhandInvWrapper(PlayerInventory inv)
     {
         super(new InvWrapper(inv), inv.mainInventory.size() + inv.armorInventory.size(),
                 inv.mainInventory.size() + inv.armorInventory.size() + inv.offHandInventory.size());

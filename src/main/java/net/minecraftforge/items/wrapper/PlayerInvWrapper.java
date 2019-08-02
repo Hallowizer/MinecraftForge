@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,11 @@
 
 package net.minecraftforge.items.wrapper;
 
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.PlayerInventory;
 
 public class PlayerInvWrapper extends CombinedInvWrapper
 {
-    public PlayerInvWrapper(InventoryPlayer inv)
+    public PlayerInvWrapper(PlayerInventory inv)
     {
         super(new PlayerMainInvWrapper(inv), new PlayerArmorInvWrapper(inv), new PlayerOffhandInvWrapper(inv));
     }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.item;
 
@@ -23,8 +24,8 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.MapItemRenderer;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -40,26 +41,26 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapData;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Arrays;
 
-@Mod(modid = "mapdatatest", name = "mapdatatest", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = "mapdatatest", name = "mapdatatest", version = "1.0", acceptableRemoteVersions = "*")
 public class MapDataTest
 {
     @GameRegistry.ObjectHolder("mapdatatest:custom_map")
@@ -141,7 +142,7 @@ public class MapDataTest
 
         // copy of super with own map prefix and type
         @Nullable
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public static CustomMapData loadMapData(int mapId, World worldIn)
         {
             String s = PREFIX + "_" + mapId;
@@ -237,7 +238,7 @@ public class MapDataTest
     {
         @Nullable
         @Override
-        public IMessage onMessage(CustomMapPacket message, MessageContext ctx)
+        public IMessage onMessage(CustomMapPacket message, NetworkEvent.Context ctx)
         {
             // Like NetHandlerPlayClient.handleMaps but using our custom type
             Minecraft.getMinecraft().addScheduledTask(new Runnable() {
@@ -272,3 +273,4 @@ public class MapDataTest
     }
 
 }
+*/

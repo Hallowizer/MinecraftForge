@@ -1,15 +1,29 @@
---- ../src-base/minecraft/net/minecraft/entity/EntitySpawnPlacementRegistry.java
-+++ ../src-work/minecraft/net/minecraft/entity/EntitySpawnPlacementRegistry.java
-@@ -53,6 +53,12 @@
-         return field_180110_a.get(p_180109_0_);
-     }
+--- a/net/minecraft/entity/EntitySpawnPlacementRegistry.java
++++ b/net/minecraft/entity/EntitySpawnPlacementRegistry.java
+@@ -141,9 +141,25 @@
+       boolean test(EntityType<T> p_test_1_, IWorld p_test_2_, SpawnReason p_test_3_, BlockPos p_test_4_, Random p_test_5_);
+    }
  
-+    public static void setPlacementType(Class<? extends Entity> entityClass, EntityLiving.SpawnPlacementType placementType)
-+    {
-+        if(!field_180110_a.containsKey(entityClass))
-+            field_180110_a.put(entityClass, placementType);
-+    }
+-   public static enum PlacementType {
++   public static enum PlacementType implements net.minecraftforge.common.IExtensibleEnum {
+       ON_GROUND,
+       IN_WATER,
+       NO_RESTRICTIONS;
 +
-     static
-     {
-         field_180110_a.put(EntityBat.class, EntityLiving.SpawnPlacementType.ON_GROUND);
++      public static PlacementType create(String name, net.minecraftforge.common.util.TriPredicate<net.minecraft.world.IWorldReader, BlockPos, EntityType<? extends MobEntity>> predicate) {
++         throw new IllegalStateException("Enum not extended");
++      }
++
++      private net.minecraftforge.common.util.TriPredicate<net.minecraft.world.IWorldReader, BlockPos, EntityType<?>> predicate;
++      private PlacementType() { this(null); }
++      private PlacementType(net.minecraftforge.common.util.TriPredicate<net.minecraft.world.IWorldReader, BlockPos, EntityType<?>> predicate) {
++         this.predicate = predicate;
++      }
++
++      public boolean canSpawnAt(net.minecraft.world.IWorldReader world, BlockPos pos, EntityType<?> type) {
++         if (this == NO_RESTRICTIONS) return true;
++         if (predicate == null) return net.minecraft.world.spawner.WorldEntitySpawner.canSpawnAtBody(this, world, pos, type);
++         return predicate.test(world, pos, type);
++      }
+    }
+ }

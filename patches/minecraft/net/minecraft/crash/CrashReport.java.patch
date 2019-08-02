@@ -1,19 +1,36 @@
---- ../src-base/minecraft/net/minecraft/crash/CrashReport.java
-+++ ../src-work/minecraft/net/minecraft/crash/CrashReport.java
-@@ -116,6 +116,7 @@
-                 return IntCache.func_85144_b();
-             }
-         });
-+        net.minecraftforge.fml.common.FMLCommonHandler.instance().enhanceCrashReport(this, this.field_85061_c);
-     }
+--- a/net/minecraft/crash/CrashReport.java
++++ b/net/minecraft/crash/CrashReport.java
+@@ -69,6 +69,7 @@
+          List<String> list = Util.func_211565_f().collect(Collectors.toList());
+          return String.format("%d total; %s", list.size(), list.stream().collect(Collectors.joining(" ")));
+       });
++      net.minecraftforge.fml.CrashReportExtender.enhanceCrashReport(this, this.field_85061_c);
+    }
  
-     public String func_71501_a()
-@@ -205,6 +206,8 @@
-     {
-         StringBuilder stringbuilder = new StringBuilder();
-         stringbuilder.append("---- Minecraft Crash Report ----\n");
-+        net.minecraftforge.fml.common.asm.transformers.BlamingTransformer.onCrash(stringbuilder);
-+        net.minecraftforge.fml.relauncher.CoreModManager.onCrash(stringbuilder);
-         stringbuilder.append("// ");
-         stringbuilder.append(func_71503_h());
-         stringbuilder.append("\n\n");
+    public String func_71501_a() {
+@@ -121,23 +122,13 @@
+          throwable.setStackTrace(this.field_71511_b.getStackTrace());
+       }
+ 
+-      String s;
+-      try {
+-         stringwriter = new StringWriter();
+-         printwriter = new PrintWriter(stringwriter);
+-         throwable.printStackTrace(printwriter);
+-         s = stringwriter.toString();
+-      } finally {
+-         IOUtils.closeQuietly((Writer)stringwriter);
+-         IOUtils.closeQuietly((Writer)printwriter);
+-      }
+-
+-      return s;
++      return net.minecraftforge.fml.CrashReportExtender.generateEnhancedStackTrace(throwable);
+    }
+ 
+    public String func_71502_e() {
+       StringBuilder stringbuilder = new StringBuilder();
+       stringbuilder.append("---- Minecraft Crash Report ----\n");
++      net.minecraftforge.fml.CrashReportExtender.addCrashReportHeader(stringbuilder, this);
+       stringbuilder.append("// ");
+       stringbuilder.append(func_71503_h());
+       stringbuilder.append("\n\n");

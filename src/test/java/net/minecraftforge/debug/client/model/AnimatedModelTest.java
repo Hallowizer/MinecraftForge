@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.client.model;
 
@@ -26,7 +27,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -45,6 +46,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -69,20 +71,18 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 
-import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@Mod(modid = AnimatedModelTest.MODID, name = "ForgeDebugModelAnimation", version = AnimatedModelTest.VERSION, acceptableRemoteVersions = "*")
+//@Mod(modid = AnimatedModelTest.MODID, name = "ForgeDebugModelAnimation", version = AnimatedModelTest.VERSION, acceptableRemoteVersions = "*")
 public class AnimatedModelTest
 {
     public static final String MODID = "forgedebugmodelanimation";
@@ -104,15 +104,14 @@ public class AnimatedModelTest
     @Instance(MODID)
     public static AnimatedModelTest instance;
 
-    @SidedProxy
     public static CommonProxy proxy;
     private static Logger logger;
 
 
-    @Mod.EventBusSubscriber(modid = MODID)
+    //@Mod.EventBusSubscriber(modid = MODID)
     public static class Registration
     {
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void registerBlocks(RegistryEvent.Register<Block> event)
         {
             GameRegistry.registerTileEntity(Chest.class, MODID + ":" + "tile_" + blockName);
@@ -180,7 +179,8 @@ public class AnimatedModelTest
                     return state.withProperty(Properties.StaticProperty, true);
                 }
 
-                /*@Override
+                */
+/*@Override
                 public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
                     TileEntity te = world.getTileEntity(pos);
                     if(te instanceof Chest && state instanceof IExtendedBlockState)
@@ -188,7 +188,8 @@ public class AnimatedModelTest
                         return ((Chest)te).getState((IExtendedBlockState)state);
                     }
                     return super.getExtendedState(state, world, pos);
-                }*/
+                }*//*
+
 
                 @Override
                 public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
@@ -256,7 +257,7 @@ public class AnimatedModelTest
             });
         }
 
-        @SubscribeEvent
+        @net.minecraftforge.eventbus.api.SubscribeEvent
         public static void registerItems(RegistryEvent.Register<Item> event)
         {
             event.getRegistry().register(
@@ -285,7 +286,7 @@ public class AnimatedModelTest
 
     public static class ServerProxy extends CommonProxy {}
 
-    @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
+    //@Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
     public static class ClientProxy extends CommonProxy
     {
 
@@ -317,7 +318,8 @@ public class AnimatedModelTest
                 @SuppressWarnings("deprecation")
                 public Render<EntityChest> createRenderFor(RenderManager manager)
                 {
-                /*model = ModelLoaderRegistry.getModel(new ResourceLocation(ModelLoaderRegistryTest.MODID, "block/chest.b3d"));
+                */
+/*model = ModelLoaderRegistry.getModel(new ResourceLocation(ModelLoaderRegistryTest.MODID, "block/chest.b3d"));
                 if(model instanceof IRetexturableModel)
                 {
                     model = ((IRetexturableModel)model).retexture(ImmutableMap.of("#chest", "entity/chest/normal"));
@@ -325,7 +327,8 @@ public class AnimatedModelTest
                 if(model instanceof IModelCustomData)
                 {
                     model = ((IModelCustomData)model).process(ImmutableMap.of("mesh", "[\"Base\", \"Lid\"]"));
-                }*/
+                }*//*
+
                     ResourceLocation location = new ModelResourceLocation(new ResourceLocation(MODID, blockName), "entity");
                     return new RenderLiving<EntityChest>(manager, new net.minecraftforge.client.model.animation.AnimationModelBase<EntityChest>(location, new VertexLighterSmoothAo(Minecraft.getMinecraft().getBlockColors()))
                     {
@@ -422,9 +425,11 @@ public class AnimatedModelTest
 
         public Chest()
         {
-            /*asm = proxy.load(new ResourceLocation(MODID.toLowerCase(), "asms/block/chest.json"), ImmutableMap.<String, ITimeValue>of(
+            */
+/*asm = proxy.load(new ResourceLocation(MODID.toLowerCase(), "asms/block/chest.json"), ImmutableMap.<String, ITimeValue>of(
                 "click_time", clickTime
-            ));*/
+            ));*//*
+
             asm = proxy.load(new ResourceLocation(MODID.toLowerCase(), "asms/block/engine.json"), ImmutableMap.<String, ITimeValue>of(
                     "cycle_length", cycleLength,
                     "click_time", clickTime
@@ -446,9 +451,11 @@ public class AnimatedModelTest
             return true;
         }
 
-        /*public IExtendedBlockState getState(IExtendedBlockState state) {
+        */
+/*public IExtendedBlockState getState(IExtendedBlockState state) {
             return state.withProperty(B3DFrameProperty.instance, curState);
-        }*/
+        }*//*
+
 
         public void click(boolean sneaking)
         {
@@ -458,7 +465,8 @@ public class AnimatedModelTest
                 {
                     cycleLength.setValue(6 - cycleLength.apply(0));
                 }
-                /*else if(asm.currentState().equals("closed"))
+                */
+/*else if(asm.currentState().equals("closed"))
                 {
                     clickTime.setValue(Animation.getWorldTime(getWorld()));
                     asm.transition("opening");
@@ -467,7 +475,8 @@ public class AnimatedModelTest
                 {
                     clickTime.setValue(Animation.getWorldTime(getWorld()));
                     asm.transition("closing");
-                }*/
+                }*//*
+
                 else if (asm.currentState().equals("default"))
                 {
                     float time = Animation.getWorldTime(getWorld(), Animation.getPartialTickTime());
@@ -565,3 +574,4 @@ public class AnimatedModelTest
     }
 }
 
+*/

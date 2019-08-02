@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,14 +21,16 @@ package net.minecraftforge.client.model;
 
 import java.util.EnumMap;
 import java.util.Optional;
+import java.util.Random;
+
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.commons.lang3.tuple.Pair;
@@ -86,7 +88,7 @@ public class PerspectiveMapWrapper implements IBakedModel
         TRSRTransformation tr = transforms.getOrDefault(cameraTransformType, TRSRTransformation.identity());
         if (!tr.isIdentity())
         {
-            return Pair.of(model, TRSRTransformation.blockCornerToCenter(tr).getMatrix());
+            return Pair.of(model, TRSRTransformation.blockCornerToCenter(tr).getMatrixVec());
         }
         return Pair.of(model, null);
     }
@@ -96,19 +98,19 @@ public class PerspectiveMapWrapper implements IBakedModel
         TRSRTransformation tr = state.apply(Optional.of(cameraTransformType)).orElse(TRSRTransformation.identity());
         if (!tr.isIdentity())
         {
-            return Pair.of(model, TRSRTransformation.blockCornerToCenter(tr).getMatrix());
+            return Pair.of(model, TRSRTransformation.blockCornerToCenter(tr).getMatrixVec());
         }
         return Pair.of(model, null);
     }
 
     @Override public boolean isAmbientOcclusion() { return parent.isAmbientOcclusion(); }
-    @Override public boolean isAmbientOcclusion(IBlockState state) { return parent.isAmbientOcclusion(state); }
+    @Override public boolean isAmbientOcclusion(BlockState state) { return parent.isAmbientOcclusion(state); }
     @Override public boolean isGui3d() { return parent.isGui3d(); }
     @Override public boolean isBuiltInRenderer() { return parent.isBuiltInRenderer(); }
     @Override public TextureAtlasSprite getParticleTexture() { return parent.getParticleTexture(); }
     @SuppressWarnings("deprecation")
     @Override public ItemCameraTransforms getItemCameraTransforms() { return parent.getItemCameraTransforms(); }
-    @Override public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) { return parent.getQuads(state, side, rand); }
+    @Override public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand) { return parent.getQuads(state, side, rand); }
     @Override public ItemOverrideList getOverrides() { return parent.getOverrides(); }
 
     @Override

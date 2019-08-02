@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,11 +19,11 @@
 
 package net.minecraftforge.client.model.pipeline;
 
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 // advantages: non-fixed-length vertex format, no overhead of packing and unpacking attributes to transform the model
 // disadvantages: (possibly) larger memory footprint, overhead on packing the attributes at the final rendering stage
@@ -33,9 +33,9 @@ public class UnpackedBakedQuad extends BakedQuad
     protected final VertexFormat format;
     protected boolean packed = false;
 
-    public UnpackedBakedQuad(float[][][] unpackedData, int tint, EnumFacing orientation, TextureAtlasSprite texture, boolean applyDiffuseLighting, VertexFormat format)
+    public UnpackedBakedQuad(float[][][] unpackedData, int tint, Direction orientation, TextureAtlasSprite texture, boolean applyDiffuseLighting, VertexFormat format)
     {
-        super(new int[format.getNextOffset() /* / 4 * 4 */], tint, orientation, texture, applyDiffuseLighting, format);
+        super(new int[format.getSize() /* / 4 * 4 */], tint, orientation, texture, applyDiffuseLighting, format);
         this.unpackedData = unpackedData;
         this.format = format;
     }
@@ -90,7 +90,7 @@ public class UnpackedBakedQuad extends BakedQuad
         private final VertexFormat format;
         private final float[][][] unpackedData;
         private int tint = -1;
-        private EnumFacing orientation;
+        private Direction orientation;
         private TextureAtlasSprite texture;
         private boolean applyDiffuseLighting = true;
 
@@ -122,7 +122,7 @@ public class UnpackedBakedQuad extends BakedQuad
         }
 
         @Override
-        public void setQuadOrientation(EnumFacing orientation)
+        public void setQuadOrientation(Direction orientation)
         {
             this.orientation = orientation;
         }
@@ -180,15 +180,15 @@ public class UnpackedBakedQuad extends BakedQuad
             }
             if(contractUVs)
             {
-                float tX = texture.getIconWidth() / (texture.getMaxU() - texture.getMinU());
-                float tY = texture.getIconHeight() / (texture.getMaxV() - texture.getMinV());
+                float tX = texture.getWidth() / (texture.getMaxU() - texture.getMinU());
+                float tY = texture.getHeight() / (texture.getMaxV() - texture.getMinV());
                 float tS = tX > tY ? tX : tY;
                 float ep = 1f / (tS * 0x100);
                 int uve = 0;
                 while(uve < format.getElementCount())
                 {
                     VertexFormatElement e = format.getElement(uve);
-                    if(e.getUsage() == VertexFormatElement.EnumUsage.UV && e.getIndex() == 0)
+                    if(e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 0)
                     {
                         break;
                     }

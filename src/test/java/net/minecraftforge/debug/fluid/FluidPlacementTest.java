@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,15 +15,16 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.fluid;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -37,12 +38,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.debug.client.model.ModelFluidTest;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fluids.BlockFluidFinite;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -51,9 +54,8 @@ import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.api.distmarker.Dist;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,7 +63,7 @@ import java.util.List;
 
 import static net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack.FLUID_NBT_KEY;
 
-@Mod(modid = FluidPlacementTest.MODID, name = "ForgeDebugFluidPlacement", version = FluidPlacementTest.VERSION, acceptableRemoteVersions = "*")
+//@Mod(modid = FluidPlacementTest.MODID, name = "ForgeDebugFluidPlacement", version = FluidPlacementTest.VERSION, acceptableRemoteVersions = "*")
 public class FluidPlacementTest
 {
     public static final String MODID = "forgedebugfluidplacement";
@@ -69,7 +71,7 @@ public class FluidPlacementTest
 
     public static final boolean ENABLE = true;
 
-    @Mod.EventBusSubscriber(modid = MODID)
+    //@Mod.EventBusSubscriber(modid = MODID)
     public static class Registration
     {
         @SubscribeEvent
@@ -92,13 +94,13 @@ public class FluidPlacementTest
             event.getRegistry().registerAll(
                 EmptyFluidContainer.instance,
                 FluidContainer.instance,
-                new ItemBlock(FiniteFluidBlock.instance).setRegistryName(FiniteFluidBlock.instance.getRegistryName())
+                new FluidItemBlock(FiniteFluidBlock.instance).setRegistryName(FiniteFluidBlock.instance.getRegistryName())
             );
             MinecraftForge.EVENT_BUS.register(FluidContainer.instance);
         }
     }
 
-    @Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
+    //@Mod.EventBusSubscriber(value = Side.CLIENT, modid = MODID)
     public static class ClientEventHandler
     {
         @SubscribeEvent
@@ -132,7 +134,7 @@ public class FluidPlacementTest
 
         private FiniteFluid()
         {
-            super(name, new ResourceLocation("blocks/water_still"), new ResourceLocation("blocks/water_flow"));
+            super(name, new ResourceLocation("blocks/water_still"), new ResourceLocation("blocks/water_flow"), new ResourceLocation("blocks/water_overlay"));
         }
 
         @Override
@@ -159,6 +161,26 @@ public class FluidPlacementTest
             setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
             setUnlocalizedName(MODID + ":" + name);
             setRegistryName(MODID, name);
+        }
+    }
+
+    public static final class FluidItemBlock extends ItemBlock
+    {
+        FluidItemBlock(BlockFluidBase block)
+        {
+            super(block);
+        }
+
+        @Override
+        public BlockFluidBase getBlock()
+        {
+            return (BlockFluidBase) super.getBlock();
+        }
+
+        @Override
+        public int getMetadata(int damage)
+        {
+            return getBlock().getMaxRenderHeightMeta();
         }
     }
 
@@ -250,7 +272,7 @@ public class FluidPlacementTest
         }
 
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public void addInformation(ItemStack stack, @Nullable World playerIn, List<String> tooltip, ITooltipFlag advanced)
         {
             FluidStack fluid = getFluid(stack);
@@ -297,3 +319,4 @@ public class FluidPlacementTest
         }
     }
 }
+*/

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,12 +19,9 @@
 
 package net.minecraftforge.event.entity.player;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraft.item.ItemUseContext;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event.HasResult;
 
 import javax.annotation.Nonnull;
 
@@ -38,35 +35,20 @@ import javax.annotation.Nonnull;
  * setResult(ALLOW) is the same as the old setHandled();
  */
 @Cancelable
-@Event.HasResult
+@HasResult
 public class UseHoeEvent extends PlayerEvent
 {
+    private final ItemUseContext context;;
 
-    private final ItemStack current;
-    private final World world;
-    private final BlockPos pos;
-
-    public UseHoeEvent(EntityPlayer player, @Nonnull ItemStack current, World world, BlockPos pos)
+    public UseHoeEvent(ItemUseContext context)
     {
-        super(player);
-        this.current = current;
-        this.world = world;
-        this.pos = pos;
+        super(context.getPlayer());
+        this.context = context;
     }
 
     @Nonnull
-    public ItemStack getCurrent()
+    public ItemUseContext getContext()
     {
-        return current;
-    }
-
-    public World getWorld()
-    {
-        return world;
-    }
-
-    public BlockPos getPos()
-    {
-        return pos;
+        return context;
     }
 }

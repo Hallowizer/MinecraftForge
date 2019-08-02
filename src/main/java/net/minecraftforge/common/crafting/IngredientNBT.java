@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,32 +19,61 @@
 
 package net.minecraftforge.common.crafting;
 
+import java.util.stream.Stream;
+
 import javax.annotation.Nullable;
+
+import com.google.gson.JsonObject;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.network.PacketBuffer;
 
 public class IngredientNBT extends Ingredient
 {
     private final ItemStack stack;
     protected IngredientNBT(ItemStack stack)
     {
-        super(stack);
+        super(Stream.of(new Ingredient.SingleItemList(stack)));
         this.stack = stack;
     }
 
     @Override
-    public boolean apply(@Nullable ItemStack input)
+    public boolean test(@Nullable ItemStack input)
     {
         if (input == null)
             return false;
         //Can't use areItemStacksEqualUsingNBTShareTag because it compares stack size as well
-        return this.stack.getItem() == input.getItem() && this.stack.getItemDamage() == input.getItemDamage() && ItemStack.areItemStackShareTagsEqual(this.stack, input);
+        return this.stack.getItem() == input.getItem() && this.stack.getDamage() == input.getDamage() && this.stack.areShareTagsEqual(input);
     }
 
     @Override
     public boolean isSimple()
     {
         return false;
+    }
+
+    @Override
+    public IIngredientSerializer<? extends Ingredient> getSerializer()
+    {
+        return CraftingHelper.INGREDIENT_NBT;
+    }
+
+    public static class Serializer implements IIngredientSerializer<IngredientNBT>
+    {
+        @Override
+        public IngredientNBT parse(PacketBuffer buffer) {
+            return new IngredientNBT(buffer.readItemStack());
+        }
+
+        @Override
+        public IngredientNBT parse(JsonObject json) {
+            return new IngredientNBT(CraftingHelper.getItemStack(json, true));
+        }
+
+        @Override
+        public void write(PacketBuffer buffer, IngredientNBT ingredient) {
+            buffer.writeItemStack(ingredient.stack);
+        }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,112 +19,90 @@
 
 package net.minecraftforge.client.settings;
 
+import java.util.function.Supplier;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.settings.GameSettings;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.util.InputMappings;
+
+import org.lwjgl.glfw.GLFW;
 
 public enum KeyModifier {
     CONTROL {
         @Override
-        public boolean matches(int keyCode)
+        public boolean matches(InputMappings.Input key)
         {
+            int keyCode = key.getKeyCode();
             if (Minecraft.IS_RUNNING_ON_MAC)
             {
-                return keyCode == Keyboard.KEY_LMETA || keyCode == Keyboard.KEY_RMETA;
+                return keyCode == GLFW.GLFW_KEY_LEFT_ALT || keyCode == GLFW.GLFW_KEY_RIGHT_ALT;
             }
             else
             {
-                return keyCode == Keyboard.KEY_LCONTROL || keyCode == Keyboard.KEY_RCONTROL;
+                return keyCode == GLFW.GLFW_KEY_LEFT_CONTROL || keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL;
             }
-        }
-
-        @Override
-        public boolean isActive()
-        {
-            return GuiScreen.isCtrlKeyDown();
         }
 
         @Override
         public boolean isActive(@Nullable IKeyConflictContext conflictContext)
         {
-            return GuiScreen.isCtrlKeyDown();
+            return Screen.hasControlDown();
         }
 
         @Override
-        public String getLocalizedComboName(int keyCode)
+        public String getLocalizedComboName(InputMappings.Input key, Supplier<String> defaultLogic)
         {
-            String keyName = GameSettings.getKeyDisplayString(keyCode);
+            String keyName = defaultLogic.get();
             String localizationFormatKey = Minecraft.IS_RUNNING_ON_MAC ? "forge.controlsgui.control.mac" : "forge.controlsgui.control";
             return I18n.format(localizationFormatKey, keyName);
         }
     },
     SHIFT {
         @Override
-        public boolean matches(int keyCode)
+        public boolean matches(InputMappings.Input key)
         {
-            return keyCode == Keyboard.KEY_LSHIFT || keyCode == Keyboard.KEY_RSHIFT;
-        }
-
-        @Override
-        public boolean isActive()
-        {
-            return GuiScreen.isShiftKeyDown();
+            return key.getKeyCode() == GLFW.GLFW_KEY_LEFT_SHIFT || key.getKeyCode() == GLFW.GLFW_KEY_RIGHT_SHIFT;
         }
 
         @Override
         public boolean isActive(@Nullable IKeyConflictContext conflictContext)
         {
-            return GuiScreen.isShiftKeyDown();
+            return Screen.hasShiftDown();
         }
 
         @Override
-        public String getLocalizedComboName(int keyCode)
+        public String getLocalizedComboName(InputMappings.Input key, Supplier<String> defaultLogic)
         {
-            String keyName = GameSettings.getKeyDisplayString(keyCode);
-            return I18n.format("forge.controlsgui.shift", keyName);
+            return I18n.format("forge.controlsgui.shift", defaultLogic.get());
         }
     },
     ALT {
         @Override
-        public boolean matches(int keyCode)
+        public boolean matches(InputMappings.Input key)
         {
-            return keyCode == Keyboard.KEY_LMENU || keyCode == Keyboard.KEY_RMENU;
-        }
-
-        @Override
-        public boolean isActive()
-        {
-            return GuiScreen.isAltKeyDown();
+            return key.getKeyCode() == GLFW.GLFW_KEY_LEFT_ALT || key.getKeyCode() == GLFW.GLFW_KEY_RIGHT_ALT;
         }
 
         @Override
         public boolean isActive(@Nullable IKeyConflictContext conflictContext)
         {
-            return GuiScreen.isAltKeyDown();
+            return Screen.hasAltDown();
         }
 
         @Override
-        public String getLocalizedComboName(int keyCode)
+        public String getLocalizedComboName(InputMappings.Input keyCode, Supplier<String> defaultLogic)
         {
-            String keyName = GameSettings.getKeyDisplayString(keyCode);
-            return I18n.format("forge.controlsgui.alt", keyName);
+            return I18n.format("forge.controlsgui.alt", defaultLogic.get());
         }
     },
     NONE {
         @Override
-        public boolean matches(int keyCode)
+        public boolean matches(InputMappings.Input key)
         {
             return false;
-        }
-
-        @Override
-        public boolean isActive()
-        {
-            return true;
         }
 
         @Override
@@ -144,9 +122,9 @@ public enum KeyModifier {
         }
 
         @Override
-        public String getLocalizedComboName(int keyCode)
+        public String getLocalizedComboName(InputMappings.Input key, Supplier<String> defaultLogic)
         {
-            return GameSettings.getKeyDisplayString(keyCode);
+            return defaultLogic.get();
         }
     };
 
@@ -164,11 +142,11 @@ public enum KeyModifier {
         return NONE;
     }
 
-    public static boolean isKeyCodeModifier(int keyCode)
+    public static boolean isKeyCodeModifier(InputMappings.Input key)
     {
         for (KeyModifier keyModifier : MODIFIER_VALUES)
         {
-            if (keyModifier.matches(keyCode))
+            if (keyModifier.matches(key))
             {
                 return true;
             }
@@ -188,15 +166,9 @@ public enum KeyModifier {
         }
     }
 
-    public abstract boolean matches(int keyCode);
-
-    /**
-     * @deprecated use {@link #isActive(IKeyConflictContext)}
-     */
-    @Deprecated
-    public abstract boolean isActive();
+    public abstract boolean matches(InputMappings.Input key);
 
     public abstract boolean isActive(@Nullable IKeyConflictContext conflictContext);
 
-    public abstract String getLocalizedComboName(int keyCode);
+    public abstract String getLocalizedComboName(InputMappings.Input key, Supplier<String> defaultLogic);
 }

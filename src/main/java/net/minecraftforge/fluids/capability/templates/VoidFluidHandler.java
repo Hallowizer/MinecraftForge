@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,8 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
+import javax.annotation.Nullable;
+
 
 import javax.annotation.Nullable;
 
@@ -36,7 +38,7 @@ import static net.minecraftforge.fluids.capability.templates.EmptyFluidHandler.E
  */
 public class VoidFluidHandler implements IFluidHandler, IFluidTank
 {
-    public static final EmptyFluidHandler INSTANCE = new EmptyFluidHandler();
+    public static final VoidFluidHandler INSTANCE = new VoidFluidHandler();
 
     public VoidFluidHandler() {}
 

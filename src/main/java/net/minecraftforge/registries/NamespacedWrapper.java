@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,34 +19,31 @@
 
 package net.minecraftforge.registries;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-
 import javax.annotation.Nullable;
-
-import org.apache.commons.lang3.Validate;
-
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.RegistryNamespaced;
-import net.minecraftforge.fml.common.FMLLog;
+import net.minecraft.util.registry.SimpleRegistry;
+import org.apache.commons.lang3.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-class NamespacedWrapper<V extends IForgeRegistryEntry<V>> extends RegistryNamespaced<ResourceLocation, V> implements ILockableRegistry
+class NamespacedWrapper<T extends IForgeRegistryEntry<T>> extends SimpleRegistry<T> implements ILockableRegistry
 {
+    private static final Logger LOGGER = LogManager.getLogger();
     private boolean locked = false;
-    private ForgeRegistry<V> delegate;
+    private ForgeRegistry<T> delegate;
 
-    public NamespacedWrapper(ForgeRegistry<V> owner)
+    public NamespacedWrapper(ForgeRegistry<T> owner)
     {
         this.delegate = owner;
     }
 
     @Override
-    public void register(int id, ResourceLocation key, V value)
+    public <V extends T> V register(int id, ResourceLocation key, V value)
     {
         if (locked)
             throw new IllegalStateException("Can not register to a locked registry. Modder should use Forge Register methods.");
@@ -58,27 +55,33 @@ class NamespacedWrapper<V extends IForgeRegistryEntry<V>> extends RegistryNamesp
 
         int realId = this.delegate.add(id, value);
         if (realId != id && id != -1)
-            FMLLog.log.warn("Registered object did not get ID it asked for. Name: {} Type: {} Expected: {} Got: {}", key, value.getRegistryType().getName(), id, realId);
+            LOGGER.warn("Registered object did not get ID it asked for. Name: {} Type: {} Expected: {} Got: {}", key, value.getRegistryType().getName(), id, realId);
+        return value;
     }
 
     @Override
-    public void putObject(ResourceLocation key, V value)
+    public <R extends T> R register(ResourceLocation key, R value)
     {
-        register(-1, key, value);
+        return register(-1, key, value);
     }
-
 
     // Reading Functions
     @Override
     @Nullable
-    public V getObject(@Nullable ResourceLocation name)
+    public T getOrDefault(@Nullable ResourceLocation name)
     {
-        return this.delegate.getValue(name);
+        return this.delegate.getRaw(name); //get without default
+    }
+
+    @Override
+    public Optional<T> getValue(@Nullable ResourceLocation name)
+    {
+        return Optional.ofNullable( this.delegate.getRaw(name)); //get without default
     }
 
     @Override
     @Nullable
-    public ResourceLocation getNameForObject(V value)
+    public ResourceLocation getKey(T value)
     {
         return this.delegate.getKey(value);
     }
@@ -90,36 +93,42 @@ class NamespacedWrapper<V extends IForgeRegistryEntry<V>> extends RegistryNamesp
     }
 
     @Override
-    public int getIDForObject(@Nullable V value)
+    public int getId(@Nullable T value)
     {
         return this.delegate.getID(value);
     }
 
     @Override
     @Nullable
-    public V getObjectById(int id)
+    public T getByValue(int id)
     {
         return this.delegate.getValue(id);
     }
 
     @Override
-    public Iterator<V> iterator()
+    public Iterator<T> iterator()
     {
         return this.delegate.iterator();
     }
 
     @Override
-    public Set<ResourceLocation> getKeys()
+    public Set<ResourceLocation> keySet()
     {
         return this.delegate.getKeys();
     }
 
     @Override
     @Nullable
-    public V getRandomObject(Random random)
+    public T getRandom(Random random)
     {
-        Collection<V> values = this.delegate.getValuesCollection();
+        Collection<T> values = this.delegate.getValues();
         return values.stream().skip(random.nextInt(values.size())).findFirst().orElse(null);
+    }
+
+    @Override
+    public boolean isEmpty()
+    {
+        return this.delegate.isEmpty();
     }
 
     //internal

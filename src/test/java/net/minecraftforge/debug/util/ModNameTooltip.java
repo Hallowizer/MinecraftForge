@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.util;
 
@@ -25,19 +26,17 @@ import java.util.List;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.ModContainer;
 
-@Mod(modid = "forgemodnametooltip", name = "ForgeModNameTooltip", version = "1.0", clientSideOnly = true)
-@Mod.EventBusSubscriber(Side.CLIENT)
+//@Mod(modid = "forgemodnametooltip", name = "ForgeModNameTooltip", version = "1.0", clientSideOnly = true)
+//@Mod.EventBusSubscriber(Side.CLIENT)
 public class ModNameTooltip
 {
-    @SubscribeEvent(priority = EventPriority.LOW)
+    @net.minecraftforge.eventbus.api.SubscribeEvent(priority = net.minecraftforge.eventbus.api.EventPriority.LOW)
     public static void onToolTip(ItemTooltipEvent event)
     {
         ItemStack itemStack = event.getItemStack();
@@ -65,3 +64,4 @@ public class ModNameTooltip
         return null;
     }
 }
+*/

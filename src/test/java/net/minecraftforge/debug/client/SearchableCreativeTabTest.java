@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.client;
 
@@ -24,11 +25,11 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
 
-@Mod(modid = SearchableCreativeTabTest.MODID, name = "Debug Search Tab", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod(modid = SearchableCreativeTabTest.MODID, name = "Debug Search Tab", version = "1.0", acceptableRemoteVersions = "*")
 public class SearchableCreativeTabTest
 {
     public static final String MODID = "debugsearchtab";
@@ -36,7 +37,7 @@ public class SearchableCreativeTabTest
 
     public static final CreativeTabs SEARCH_TAB = !ENABLED ? null : new CreativeTabs(1, "searchtab")
     {
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public ItemStack getTabIconItem()
         {
             return new ItemStack(Items.TOTEM_OF_UNDYING);
@@ -49,7 +50,7 @@ public class SearchableCreativeTabTest
         }
         
         @Override
-        @SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
         public void displayAllRelevantItems(NonNullList<ItemStack> items)
         {
         	super.displayAllRelevantItems(items);
@@ -60,3 +61,4 @@ public class SearchableCreativeTabTest
         }
     };
 }
+*/

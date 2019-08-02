@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.fml.common.registry;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirt;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Bootstrap;
@@ -30,7 +30,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.ObjectHolderRegistry;
@@ -45,11 +44,11 @@ import javax.annotation.Nonnull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.util.Map;
-
+*/
 /**
  * Substitution test harness - tests that substitutions behave correctly
- */
+ *//*
+
 @RunWith(ForgeTestRunner.class)
 public class ItemBlockSubstitutionRemoveRestoreTest
 {
@@ -100,7 +99,8 @@ public class ItemBlockSubstitutionRemoveRestoreTest
         assertEquals("ItemBlock points at my block", myDirtInstance, dirtitem);
 
         // TEST 2: Does the substitute get removed when told by remote operation? The substitute should NOT be found in the registry
-        /* Why should it not be found? Substitutions are no longer special cases
+        */
+/* Why should it not be found? Substitutions are no longer special cases
         Map<ResourceLocation, ForgeRegistry.Snapshot> snapshot = RegistryManager.ACTIVE.takeSnapshot(false);
         snapshot.get(GameData.ITEMS).substitutions.clear();
         GameData.injectSnapshot(snapshot, false, false);
@@ -109,7 +109,8 @@ public class ItemBlockSubstitutionRemoveRestoreTest
         dirtitem = (ItemBlock) itemRegistry.getValue(myDirt);
         assertEquals("ItemBlock points at vanilla block", originalDirt, dirtitem);
         assertNotEquals("ItemBlock points at my block", myDirtInstance, dirtitem);
-        */
+        *//*
+
 
         // TEST 3: Does the substitute get restored when reverting to frozen state? The substitute should be found in the registry again
         GameData.revertToFrozen();
@@ -118,3 +119,4 @@ public class ItemBlockSubstitutionRemoveRestoreTest
         assertEquals("ItemBlock points at my block", myDirtInstance, dirtitem);
     }
 }
+*/

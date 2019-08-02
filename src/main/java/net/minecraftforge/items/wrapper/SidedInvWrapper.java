@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,24 +21,37 @@ package net.minecraftforge.items.wrapper;
 
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SidedInvWrapper implements IItemHandlerModifiable
 {
     protected final ISidedInventory inv;
-    protected final EnumFacing side;
+    @Nullable
+    protected final Direction side;
 
-    public SidedInvWrapper(ISidedInventory inv, EnumFacing side)
+    @SuppressWarnings("unchecked")
+    public static LazyOptional<IItemHandlerModifiable>[] create(ISidedInventory inv, Direction... sides) {
+        LazyOptional<IItemHandlerModifiable>[] ret = new LazyOptional[sides.length];
+        for (int x = 0; x < sides.length; x++) {
+            final Direction side = sides[x];
+            ret[x] = LazyOptional.of(() -> new SidedInvWrapper(inv, side));
+        }
+        return ret;
+    }
+
+    public SidedInvWrapper(ISidedInventory inv, @Nullable Direction side)
     {
         this.inv = inv;
         this.side = side;
     }
 
-    public static int getSlot(ISidedInventory inv, int slot, EnumFacing side)
+    public static int getSlot(ISidedInventory inv, int slot, @Nullable Direction side)
     {
         int[] slots = inv.getSlotsForFace(side);
         if (slot < slots.length)
@@ -63,7 +76,7 @@ public class SidedInvWrapper implements IItemHandlerModifiable
     public int hashCode()
     {
         int result = inv.hashCode();
-        result = 31 * result + side.hashCode();
+        result = 31 * result + (side == null ? 0 : side.hashCode());
         return result;
     }
 
@@ -126,7 +139,7 @@ public class SidedInvWrapper implements IItemHandlerModifiable
                 stack = stack.copy();
                 if (!simulate)
                 {
-                    ItemStack copy = stack.splitStack(m);
+                    ItemStack copy = stack.split(m);
                     copy.grow(stackInSlot.getCount());
                     setInventorySlotContents(slot1, copy);
                     return stack;
@@ -150,7 +163,7 @@ public class SidedInvWrapper implements IItemHandlerModifiable
                 stack = stack.copy();
                 if (!simulate)
                 {
-                    setInventorySlotContents(slot1, stack.splitStack(m));
+                    setInventorySlotContents(slot1, stack.split(m));
                     return stack;
                 }
                 else
@@ -229,5 +242,12 @@ public class SidedInvWrapper implements IItemHandlerModifiable
     public int getSlotLimit(int slot)
     {
         return inv.getInventoryStackLimit();
+    }
+
+    @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack)
+    {
+        int slot1 = getSlot(inv, slot, side);
+        return slot1 == -1 ? false : inv.isItemValidForSlot(slot1, stack);
     }
 }

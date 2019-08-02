@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,11 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import net.minecraft.client.resources.I18n;
-import net.minecraftforge.fml.client.config.GuiConfigEntries.IConfigEntry;
-import net.minecraftforge.fml.client.config.GuiEditArrayEntries.IArrayEntry;
-
 import javax.annotation.Nullable;
+
+import net.minecraft.client.resources.I18n;
 
 
 /**

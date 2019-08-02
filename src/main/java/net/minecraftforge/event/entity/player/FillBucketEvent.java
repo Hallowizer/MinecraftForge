@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,9 +19,9 @@
 
 package net.minecraftforge.event.entity.player;
 
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
  * ItemStack to your inventory and reducing the stack size to process.
  * setResult(ALLOW) is the same as the old setHandled();
  */
-@Cancelable
+@net.minecraftforge.eventbus.api.Cancelable
 @Event.HasResult
 public class FillBucketEvent extends PlayerEvent
 {
@@ -50,7 +50,7 @@ public class FillBucketEvent extends PlayerEvent
 
     private ItemStack result;
 
-    public FillBucketEvent(EntityPlayer player, @Nonnull ItemStack current, World world, @Nullable RayTraceResult target)
+    public FillBucketEvent(PlayerEntity player, @Nonnull ItemStack current, World world, @Nullable RayTraceResult target)
     {
         super(player);
         this.current = current;

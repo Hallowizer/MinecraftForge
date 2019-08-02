@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,13 +15,14 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.client.model;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -33,8 +34,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod.EventBusSubscriber
-@Mod(modid = ItemModelConflictTest.MODID, name = "Test mod for model conflicts", version = "1.0", acceptableRemoteVersions = "*")
+//@Mod.EventBusSubscriber
+//@Mod(modid = ItemModelConflictTest.MODID, name = "Test mod for model conflicts", version = "1.0", acceptableRemoteVersions = "*")
 public class ItemModelConflictTest
 {
     public static final String MODID = "item_model_conflict_test";
@@ -69,7 +70,7 @@ public class ItemModelConflictTest
         );
     }
 
-    @Mod.EventBusSubscriber(modid = MODID, value = Side.CLIENT)
+    //@Mod.EventBusSubscriber(modid = MODID, value = Side.CLIENT)
     public static class ClientEventHandler
     {
         @SubscribeEvent
@@ -80,3 +81,4 @@ public class ItemModelConflictTest
         }
     }
 }
+*/

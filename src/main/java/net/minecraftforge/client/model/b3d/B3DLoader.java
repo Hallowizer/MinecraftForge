@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,31 +22,50 @@ package net.minecraftforge.client.model.b3d;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.texture.ISprite;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.common.base.Objects;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.ModelStateComposition;
@@ -58,6 +77,8 @@ import net.minecraftforge.client.model.b3d.B3DModel.Mesh;
 import net.minecraftforge.client.model.b3d.B3DModel.Node;
 import net.minecraftforge.client.model.b3d.B3DModel.Texture;
 import net.minecraftforge.client.model.b3d.B3DModel.Vertex;
+import net.minecraftforge.client.model.data.IDynamicBakedModel;
+import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.IModelPart;
 import net.minecraftforge.common.model.IModelState;
@@ -65,28 +86,7 @@ import net.minecraftforge.common.model.Models;
 import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.common.model.animation.IClip;
 import net.minecraftforge.common.model.animation.IJoint;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.common.property.Properties;
-import net.minecraftforge.fml.common.FMLLog;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
-
-import java.util.function.Function;
-import com.google.common.base.Objects;
-import java.util.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 
 /*
  * Loader for Blitz3D models.
@@ -96,6 +96,8 @@ import com.google.gson.JsonParser;
 public enum B3DLoader implements ICustomModelLoader
 {
     INSTANCE;
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private IResourceManager manager;
 
@@ -117,14 +119,14 @@ public enum B3DLoader implements ICustomModelLoader
     @Override
     public boolean accepts(ResourceLocation modelLocation)
     {
-        return enabledDomains.contains(modelLocation.getResourceDomain()) && modelLocation.getResourcePath().endsWith(".b3d");
+        return enabledDomains.contains(modelLocation.getNamespace()) && modelLocation.getPath().endsWith(".b3d");
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public IModel loadModel(ResourceLocation modelLocation) throws Exception
+    public IUnbakedModel loadModel(ResourceLocation modelLocation) throws Exception
     {
-        ResourceLocation file = new ResourceLocation(modelLocation.getResourceDomain(), modelLocation.getResourcePath());
+        ResourceLocation file = new ResourceLocation(modelLocation.getNamespace(), modelLocation.getPath());
         if(!cache.containsKey(file))
         {
             IResource resource = null;
@@ -136,10 +138,10 @@ public enum B3DLoader implements ICustomModelLoader
                 }
                 catch(FileNotFoundException e)
                 {
-                    if(modelLocation.getResourcePath().startsWith("models/block/"))
-                        resource = manager.getResource(new ResourceLocation(file.getResourceDomain(), "models/item/" + file.getResourcePath().substring("models/block/".length())));
-                    else if(modelLocation.getResourcePath().startsWith("models/item/"))
-                        resource = manager.getResource(new ResourceLocation(file.getResourceDomain(), "models/block/" + file.getResourcePath().substring("models/item/".length())));
+                    if(modelLocation.getPath().startsWith("models/block/"))
+                        resource = manager.getResource(new ResourceLocation(file.getNamespace(), "models/item/" + file.getPath().substring("models/block/".length())));
+                    else if(modelLocation.getPath().startsWith("models/item/"))
+                        resource = manager.getResource(new ResourceLocation(file.getNamespace(), "models/block/" + file.getPath().substring("models/item/".length())));
                     else throw e;
                 }
                 B3DModel.Parser parser = new B3DModel.Parser(resource.getInputStream());
@@ -361,7 +363,7 @@ public enum B3DLoader implements ICustomModelLoader
         @Override
         public TRSRTransformation getInvBindPose()
         {
-            Matrix4f m = new TRSRTransformation(node.getPos(), node.getRot(), node.getScale(), null).getMatrix();
+            Matrix4f m = new TRSRTransformation(node.getPos(), node.getRot(), node.getScale(), null).getMatrixVec();
             m.invert();
             TRSRTransformation pose = new TRSRTransformation(m);
 
@@ -403,7 +405,7 @@ public enum B3DLoader implements ICustomModelLoader
         }
     }
 
-    private static final class ModelWrapper implements IModel
+    private static final class ModelWrapper implements IUnbakedModel
     {
         private final ResourceLocation modelLocation;
         private final B3DModel model;
@@ -450,30 +452,37 @@ public enum B3DLoader implements ICustomModelLoader
         }
 
         @Override
-        public Collection<ResourceLocation> getTextures()
+        public Collection<ResourceLocation> getTextures(Function<ResourceLocation, IUnbakedModel> modelGetter, Set<String> missingTextureErrors)
         {
-            return Collections2.filter(textures.values(), loc -> !loc.getResourcePath().startsWith("#"));
+            return Collections2.filter(textures.values(), loc -> !loc.getPath().startsWith("#"));
         }
 
         @Override
-        public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+        public Collection<ResourceLocation> getDependencies()
+        {
+            return Collections.emptyList();
+        }
+
+        @Nullable
+        @Override
+        public IBakedModel bake(ModelBakery bakery, Function<ResourceLocation, TextureAtlasSprite> spriteGetter, ISprite sprite, VertexFormat format)
         {
             ImmutableMap.Builder<String, TextureAtlasSprite> builder = ImmutableMap.builder();
-            TextureAtlasSprite missing = bakedTextureGetter.apply(new ResourceLocation("missingno"));
+            TextureAtlasSprite missing = spriteGetter.apply(new ResourceLocation("missingno"));
             for(Map.Entry<String, ResourceLocation> e : textures.entrySet())
             {
-                if(e.getValue().getResourcePath().startsWith("#"))
+                if(e.getValue().getPath().startsWith("#"))
                 {
-                    FMLLog.log.fatal("unresolved texture '{}' for b3d model '{}'", e.getValue().getResourcePath(), modelLocation);
+                    LOGGER.fatal("unresolved texture '{}' for b3d model '{}'", e.getValue().getPath(), modelLocation);
                     builder.put(e.getKey(), missing);
                 }
                 else
                 {
-                    builder.put(e.getKey(), bakedTextureGetter.apply(e.getValue()));
+                    builder.put(e.getKey(), spriteGetter.apply(e.getValue()));
                 }
             }
             builder.put("missingno", missing);
-            return new BakedWrapper(model.getRoot(), state, smooth, gui3d, format, meshes, builder.build());
+            return new BakedWrapper(model.getRoot(), sprite.getState(), smooth, gui3d, format, meshes, builder.build());
         }
 
         @Override
@@ -522,7 +531,7 @@ public enum B3DLoader implements ICustomModelLoader
                         }
                         else
                         {
-                            FMLLog.log.fatal("unknown mesh definition '{}' in array for b3d model '{}'", s.toString(), modelLocation);
+                            LOGGER.fatal("unknown mesh definition '{}' in array for b3d model '{}'", s.toString(), modelLocation);
                             return this;
                         }
                     }
@@ -531,7 +540,7 @@ public enum B3DLoader implements ICustomModelLoader
                 }
                 else
                 {
-                    FMLLog.log.fatal("unknown mesh definition '{}' for b3d model '{}'", e.toString(), modelLocation);
+                    LOGGER.fatal("unknown mesh definition '{}' for b3d model '{}'", e.toString(), modelLocation);
                     return this;
                 }
             }
@@ -545,7 +554,7 @@ public enum B3DLoader implements ICustomModelLoader
                 }
                 else
                 {
-                    FMLLog.log.fatal("unknown keyframe definition '{}' for b3d model '{}'", e.toString(), modelLocation);
+                    LOGGER.fatal("unknown keyframe definition '{}' for b3d model '{}'", e.toString(), modelLocation);
                     return this;
                 }
             }
@@ -589,7 +598,7 @@ public enum B3DLoader implements ICustomModelLoader
         }
     }
 
-    private static final class BakedWrapper implements IBakedModel
+    private static final class BakedWrapper implements IDynamicBakedModel
     {
         private final Node<?> node;
         private final IModelState state;
@@ -637,34 +646,27 @@ public enum B3DLoader implements ICustomModelLoader
         }
 
         @Override
-        public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
+        public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand, IModelData data)
         {
             if(side != null) return ImmutableList.of();
             IModelState modelState = this.state;
-            if(state instanceof IExtendedBlockState)
+            IModelState newState = data.getData(Properties.AnimationProperty);
+            if(newState != null)
             {
-                IExtendedBlockState exState = (IExtendedBlockState)state;
-                if(exState.getUnlistedNames().contains(Properties.AnimationProperty))
+                // FIXME: should animation state handle the parent state, or should it remain here?
+                IModelState parent = this.state;
+                if(parent instanceof B3DState)
                 {
-                    // FIXME: should animation state handle the parent state, or should it remain here?
-                    IModelState parent = this.state;
-                    if(parent instanceof B3DState)
-                    {
-                        B3DState ps = (B3DState)parent;
-                        parent = ps.getParent();
-                    }
-                    IModelState newState = exState.getValue(Properties.AnimationProperty);
-                    if(newState != null)
-                    {
-                        if (parent == null)
-                        {
-                            modelState = newState;
-                        }
-                        else
-                        {
-                            modelState = new ModelStateComposition(parent, newState);
-                        }
-                    }
+                    B3DState ps = (B3DState)parent;
+                    parent = ps.getParent();
+                }
+                if (parent == null)
+                {
+                    modelState = newState;
+                }
+                else
+                {
+                    modelState = new ModelStateComposition(parent, newState);
                 }
             }
             if(quads == null)
@@ -713,14 +715,14 @@ public enum B3DLoader implements ICustomModelLoader
                     @Override
                     public Matrix4f apply(Node<?> node)
                     {
-                        return global.compose(localCache.getUnchecked(node)).getMatrix();
+                        return global.compose(localCache.getUnchecked(node)).getMatrixVec();
                     }
                 });
                 for(Face f : faces)
                 {
                     UnpackedBakedQuad.Builder quadBuilder = new UnpackedBakedQuad.Builder(format);
                     quadBuilder.setContractUVs(true);
-                    quadBuilder.setQuadOrientation(EnumFacing.getFacingFromVector(f.getNormal().x, f.getNormal().y, f.getNormal().z));
+                    quadBuilder.setQuadOrientation(Direction.getFacingFromVector(f.getNormal().x, f.getNormal().y, f.getNormal().z));
                     List<Texture> textures = null;
                     if(f.getBrush() != null) textures = f.getBrush().getTextures();
                     TextureAtlasSprite sprite;
@@ -824,7 +826,7 @@ public enum B3DLoader implements ICustomModelLoader
         public ItemOverrideList getOverrides()
         {
             // TODO handle items
-            return ItemOverrideList.NONE;
+            return ItemOverrideList.EMPTY;
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,13 +19,13 @@
 
 package net.minecraftforge.items;
 
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
@@ -54,10 +54,10 @@ public class ItemHandlerHelper
 
     public static boolean canItemStacksStack(@Nonnull ItemStack a, @Nonnull ItemStack b)
     {
-        if (a.isEmpty() || !a.isItemEqual(b) || a.hasTagCompound() != b.hasTagCompound())
+        if (a.isEmpty() || !a.isItemEqual(b) || a.hasTag() != b.hasTag())
             return false;
 
-        return (!a.hasTagCompound() || a.getTagCompound().equals(b.getTagCompound())) && a.areCapsCompatible(b);
+        return (!a.hasTag() || a.getTag().equals(b.getTag())) && a.areCapsCompatible(b);
     }
 
     /**
@@ -74,14 +74,15 @@ public class ItemHandlerHelper
 
         // Metadata value only matters when the item has subtypes
         // Vanilla stacks non-subtype items with different metadata together
-        // e.g. a stick with metadata 0 and a stick with metadata 1 stack
+        // TODO Item subtypes, is this still necessary?
+        /* e.g. a stick with metadata 0 and a stick with metadata 1 stack
         if (a.getHasSubtypes() && a.getMetadata() != b.getMetadata())
             return false;
-
-        if (a.hasTagCompound() != b.hasTagCompound())
+*/
+        if (a.hasTag() != b.hasTag())
             return false;
 
-        return (!a.hasTagCompound() || a.getTagCompound().equals(b.getTagCompound())) && a.areCapsCompatible(b);
+        return (!a.hasTag() || a.getTag().equals(b.getTag())) && a.areCapsCompatible(b);
     }
 
     @Nonnull
@@ -149,7 +150,7 @@ public class ItemHandlerHelper
     }
 
     /** giveItemToPlayer without preferred slot */
-    public static void giveItemToPlayer(EntityPlayer player, @Nonnull ItemStack stack) {
+    public static void giveItemToPlayer(PlayerEntity player, @Nonnull ItemStack stack) {
         giveItemToPlayer(player, stack, -1);
     }
 
@@ -160,7 +161,7 @@ public class ItemHandlerHelper
      * @param player The player to give the item to
      * @param stack  The itemstack to insert
      */
-    public static void giveItemToPlayer(EntityPlayer player, @Nonnull ItemStack stack, int preferredSlot)
+    public static void giveItemToPlayer(PlayerEntity player, @Nonnull ItemStack stack, int preferredSlot)
     {
         if (stack.isEmpty()) return;
 
@@ -190,12 +191,11 @@ public class ItemHandlerHelper
         // drop remaining itemstack into the world
         if (!remainder.isEmpty() && !world.isRemote)
         {
-            EntityItem entityitem = new EntityItem(world, player.posX, player.posY + 0.5, player.posZ, remainder);
+            ItemEntity entityitem = new ItemEntity(world, player.posX, player.posY + 0.5, player.posZ, remainder);
             entityitem.setPickupDelay(40);
-            entityitem.motionX = 0;
-            entityitem.motionZ = 0;
+            entityitem.setMotion(entityitem.getMotion().mul(0, 1, 0));
 
-            world.spawnEntity(entityitem);
+            world.addEntity(entityitem);
         }
     }
 

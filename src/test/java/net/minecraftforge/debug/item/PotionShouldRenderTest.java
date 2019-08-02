@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.item;
 
@@ -23,10 +24,10 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-@Mod(modid = PotionShouldRenderTest.modID, name = "No Potion Effect Render Test", version = "0.0.0", acceptableRemoteVersions = "*")
+//@Mod(modid = PotionShouldRenderTest.modID, name = "No Potion Effect Render Test", version = "0.0.0", acceptableRemoteVersions = "*")
 public class PotionShouldRenderTest
 {
     public static final String modID = "nopotioneffect";
@@ -53,3 +54,4 @@ public class PotionShouldRenderTest
         }
     }
 }
+*/

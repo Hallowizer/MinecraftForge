@@ -1,30 +1,10 @@
---- ../src-base/minecraft/net/minecraft/client/renderer/texture/TextureManager.java
-+++ ../src-work/minecraft/net/minecraft/client/renderer/texture/TextureManager.java
-@@ -137,17 +137,20 @@
+--- a/net/minecraft/client/renderer/texture/TextureManager.java
++++ b/net/minecraft/client/renderer/texture/TextureManager.java
+@@ -125,6 +125,7 @@
+    public void func_147645_c(ResourceLocation p_147645_1_) {
+       ITextureObject itextureobject = this.func_110581_b(p_147645_1_);
+       if (itextureobject != null) {
++         this.field_110585_a.remove(p_147645_1_); // Forge: fix MC-98707
+          TextureUtil.releaseTextureId(itextureobject.func_110552_b());
+       }
  
-         if (itextureobject != null)
-         {
-+            this.field_110585_a.remove(p_147645_1_); // Forge: fix MC-98707
-             TextureUtil.func_147942_a(itextureobject.func_110552_b());
-         }
-     }
- 
-     public void func_110549_a(IResourceManager p_110549_1_)
-     {
-+        net.minecraftforge.fml.common.ProgressManager.ProgressBar bar = net.minecraftforge.fml.common.ProgressManager.push("Reloading Texture Manager", this.field_110585_a.keySet().size(), true);
-         Iterator<Entry<ResourceLocation, ITextureObject>> iterator = this.field_110585_a.entrySet().iterator();
- 
-         while (iterator.hasNext())
-         {
-             Entry<ResourceLocation, ITextureObject> entry = (Entry)iterator.next();
-+            bar.step(entry.getKey().toString());
-             ITextureObject itextureobject = entry.getValue();
- 
-             if (itextureobject == TextureUtil.field_111001_a)
-@@ -159,5 +162,6 @@
-                 this.func_110579_a(entry.getKey(), itextureobject);
-             }
-         }
-+        net.minecraftforge.fml.common.ProgressManager.pop(bar);
-     }
- }

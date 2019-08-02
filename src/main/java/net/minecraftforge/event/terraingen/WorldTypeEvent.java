@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,12 +19,13 @@
 
 package net.minecraftforge.event.terraingen;
 
-import net.minecraft.world.biome.BiomeProvider;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.WorldType;
+import net.minecraft.world.biome.provider.BiomeProvider;
+import net.minecraft.world.gen.layer.Layer;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.Event.HasResult;
 
 /**
  * WorldTypeEvent is fired when an event involving the world occurs.<br>
@@ -111,10 +112,10 @@ public class WorldTypeEvent extends Event
     public static class InitBiomeGens extends WorldTypeEvent
     {
         private final long seed;
-        private final GenLayer[] originalBiomeGens;
-        private GenLayer[] newBiomeGens;
+        private final Layer[] originalBiomeGens;
+        private Layer[] newBiomeGens;
 
-        public InitBiomeGens(WorldType worldType, long seed, GenLayer[] original)
+        public InitBiomeGens(WorldType worldType, long seed, Layer[] original)
         {
             super(worldType);
             this.seed = seed;
@@ -127,17 +128,17 @@ public class WorldTypeEvent extends Event
             return seed;
         }
 
-        public GenLayer[] getOriginalBiomeGens()
+        public Layer[] getOriginalBiomeGens()
         {
             return originalBiomeGens;
         }
 
-        public GenLayer[] getNewBiomeGens()
+        public Layer[] getNewBiomeGens()
         {
             return newBiomeGens;
         }
 
-        public void setNewBiomeGens(GenLayer[] newBiomeGens)
+        public void setNewBiomeGens(Layer[] newBiomeGens)
         {
             this.newBiomeGens = newBiomeGens;
         }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,8 +19,8 @@
 
 package net.minecraftforge.client.event;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Author: MachineMuse (Claire Semple)
@@ -28,18 +28,18 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  */
 public class FOVUpdateEvent extends Event
 {
-    private final EntityPlayer entity;
+    private final PlayerEntity entity;
     private final float fov;
     private float newfov;
 
-    public FOVUpdateEvent(EntityPlayer entity, float fov)
+    public FOVUpdateEvent(PlayerEntity entity, float fov)
     {
         this.entity = entity;
         this.fov = fov;
         this.setNewfov(fov);
     }
 
-    public EntityPlayer getEntity()
+    public PlayerEntity getEntity()
     {
         return entity;
     }

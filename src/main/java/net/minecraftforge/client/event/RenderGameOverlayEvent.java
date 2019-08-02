@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,10 +21,10 @@ package net.minecraftforge.client.event;
 
 import java.util.ArrayList;
 
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraft.client.gui.BossInfoClient;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraft.client.MainWindow;
+import net.minecraft.client.gui.ClientBossInfo;
 
 @Cancelable
 public class RenderGameOverlayEvent extends Event
@@ -33,10 +33,10 @@ public class RenderGameOverlayEvent extends Event
     {
         return partialTicks;
     }
-
-    public ScaledResolution getResolution()
+    
+    public MainWindow getWindow()
     {
-        return resolution;
+        return window;
     }
 
     public ElementType getType()
@@ -71,20 +71,20 @@ public class RenderGameOverlayEvent extends Event
     }
 
     private final float partialTicks;
-    private final ScaledResolution resolution;
+    private final MainWindow window;
     private final ElementType type;
 
-    public RenderGameOverlayEvent(float partialTicks, ScaledResolution resolution)
+    public RenderGameOverlayEvent(float partialTicks, MainWindow window)
     {
         this.partialTicks = partialTicks;
-        this.resolution = resolution;
+        this.window = window;
         this.type = null;
     }
 
     private RenderGameOverlayEvent(RenderGameOverlayEvent parent, ElementType type)
     {
         this.partialTicks = parent.getPartialTicks();
-        this.resolution = parent.getResolution();
+        this.window = parent.getWindow();
         this.type = type;
     }
 
@@ -107,11 +107,11 @@ public class RenderGameOverlayEvent extends Event
 
     public static class BossInfo extends Pre
     {
-        private final BossInfoClient bossInfo;
+        private final ClientBossInfo bossInfo;
         private final int x;
         private final int y;
         private int increment;
-        public BossInfo(RenderGameOverlayEvent parent, ElementType type, BossInfoClient bossInfo, int x, int y, int increment)
+        public BossInfo(RenderGameOverlayEvent parent, ElementType type, ClientBossInfo bossInfo, int x, int y, int increment)
         {
             super(parent, type);
             this.bossInfo = bossInfo;
@@ -123,7 +123,7 @@ public class RenderGameOverlayEvent extends Event
         /**
          * @return The {@link BossInfoClient} currently being rendered
          */
-        public BossInfoClient getBossInfo()
+        public ClientBossInfo getBossInfo()
         {
             return bossInfo;
         }

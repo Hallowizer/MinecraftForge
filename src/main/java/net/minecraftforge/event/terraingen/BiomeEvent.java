@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,12 +19,12 @@
 
 package net.minecraftforge.event.terraingen;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.world.biome.BiomeDecorator;
+import net.minecraft.block.BlockState;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.Event;
+
+import net.minecraftforge.eventbus.api.Event.HasResult;
 
 /**
  * BiomeEvent is fired whenever an event involving biomes occurs.<br>
@@ -46,48 +46,6 @@ public class BiomeEvent extends Event
     public Biome getBiome()
     {
         return biome;
-    }
-
-    /**
-     * CreateDecorator is fired when a BiomeDecorator is created.<br>
-     * This event is fired whenever a BiomeDecorator is created in
-     * {@link DeferredBiomeDecorator#fireCreateEventAndReplace(Biome)}.<br>
-     * <br>
-     * {@link #originalBiomeDecorator} contains the original BiomeDecorator that would be used in vanilla.
-     * {@link #newBiomeDecorator} contains the new BiomeDecoration to be used by Minecraft.
-     * <br>
-     * This event is not {@link Cancelable}.
-     * <br>
-     * This event does not have a result. {@link HasResult}
-     * <br>
-     * This event is fired on the {@link MinecraftForge#TERRAIN_GEN_BUS}.
-     **/
-    public static class CreateDecorator extends BiomeEvent
-    {
-        private final BiomeDecorator originalBiomeDecorator;
-        private BiomeDecorator newBiomeDecorator;
-
-        public CreateDecorator(Biome biome, BiomeDecorator original)
-        {
-            super(biome);
-            originalBiomeDecorator = original;
-            setNewBiomeDecorator(original);
-        }
-
-        public BiomeDecorator getOriginalBiomeDecorator()
-        {
-            return originalBiomeDecorator;
-        }
-
-        public BiomeDecorator getNewBiomeDecorator()
-        {
-            return newBiomeDecorator;
-        }
-
-        public void setNewBiomeDecorator(BiomeDecorator newBiomeDecorator)
-        {
-            this.newBiomeDecorator = newBiomeDecorator;
-        }
     }
 
     /**
@@ -134,26 +92,26 @@ public class BiomeEvent extends Event
     @HasResult
     public static class GetVillageBlockID extends BiomeEvent
     {
-        private final IBlockState original;
-        private IBlockState replacement;
+        private final BlockState original;
+        private BlockState replacement;
 
-        public GetVillageBlockID(Biome biome, IBlockState original)
+        public GetVillageBlockID(Biome biome, BlockState original)
         {
             super(biome);
             this.original = original;
         }
 
-        public IBlockState getOriginal()
+        public BlockState getOriginal()
         {
             return original;
         }
 
-        public IBlockState getReplacement()
+        public BlockState getReplacement()
         {
             return replacement;
         }
 
-        public void setReplacement(IBlockState replacement)
+        public void setReplacement(BlockState replacement)
         {
             this.replacement = replacement;
         }

@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,13 +19,14 @@
 
 package net.minecraftforge.fml.common.gameevent;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.LogicalSide;
 
-public class TickEvent extends Event {
+public class TickEvent extends net.minecraftforge.eventbus.api.Event
+{
     public enum Type {
         WORLD, PLAYER, CLIENT, SERVER, RENDER;
     }
@@ -34,9 +35,9 @@ public class TickEvent extends Event {
         START, END;
     }
     public final Type type;
-    public final Side side;
+    public final LogicalSide side;
     public final Phase phase;
-    public TickEvent(Type type, Side side, Phase phase)
+    public TickEvent(Type type, LogicalSide side, Phase phase)
     {
         this.type = type;
         this.side = side;
@@ -46,31 +47,31 @@ public class TickEvent extends Event {
     public static class ServerTickEvent extends TickEvent {
         public ServerTickEvent(Phase phase)
         {
-            super(Type.SERVER, Side.SERVER, phase);
+            super(Type.SERVER, LogicalSide.SERVER, phase);
         }
     }
 
     public static class ClientTickEvent extends TickEvent {
         public ClientTickEvent(Phase phase)
         {
-            super(Type.CLIENT, Side.CLIENT, phase);
+            super(Type.CLIENT, LogicalSide.CLIENT, phase);
         }
     }
 
     public static class WorldTickEvent extends TickEvent {
         public final World world;
-        public WorldTickEvent(Side side, Phase phase, World world)
+        public WorldTickEvent(LogicalSide side, Phase phase, World world)
         {
             super(Type.WORLD, side, phase);
             this.world = world;
         }
     }
     public static class PlayerTickEvent extends TickEvent {
-        public final EntityPlayer player;
+        public final PlayerEntity player;
 
-        public PlayerTickEvent(Phase phase, EntityPlayer player)
+        public PlayerTickEvent(Phase phase, PlayerEntity player)
         {
-            super(Type.PLAYER, player instanceof EntityPlayerMP ? Side.SERVER : Side.CLIENT, phase);
+            super(Type.PLAYER, player instanceof ServerPlayerEntity ? LogicalSide.SERVER : LogicalSide.CLIENT, phase);
             this.player = player;
         }
     }
@@ -79,7 +80,7 @@ public class TickEvent extends Event {
         public final float renderTickTime;
         public RenderTickEvent(Phase phase, float renderTickTime)
         {
-            super(Type.RENDER, Side.CLIENT, phase);
+            super(Type.RENDER, LogicalSide.CLIENT, phase);
             this.renderTickTime = renderTickTime;
         }
     }

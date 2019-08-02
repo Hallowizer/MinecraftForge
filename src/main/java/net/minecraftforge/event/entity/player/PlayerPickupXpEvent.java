@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,9 +19,9 @@
 
 package net.minecraftforge.event.entity.player;
 
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraft.entity.item.ExperienceOrbEntity;
+import net.minecraft.entity.player.PlayerEntity;
 
 /**
  * This event is called when a player collides with a EntityXPOrb on the ground.
@@ -30,15 +30,15 @@ import net.minecraft.entity.player.EntityPlayer;
 @Cancelable
 public class PlayerPickupXpEvent extends PlayerEvent
 {
-    private final EntityXPOrb orb;
+    private final ExperienceOrbEntity orb;
 
-    public PlayerPickupXpEvent(EntityPlayer player, EntityXPOrb orb)
+    public PlayerPickupXpEvent(PlayerEntity player, ExperienceOrbEntity orb)
     {
         super(player);
         this.orb = orb;
     }
 
-    public EntityXPOrb getOrb()
+    public ExperienceOrbEntity getOrb()
     {
         return orb;
     }

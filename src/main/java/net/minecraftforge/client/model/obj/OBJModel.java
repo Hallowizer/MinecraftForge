@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -41,33 +41,35 @@ import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.texture.ISprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.*;
+import net.minecraftforge.client.model.data.IDynamicBakedModel;
+import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.IModelPart;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.Models;
 import net.minecraftforge.common.model.TRSRTransformation;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.common.property.Properties;
-import net.minecraftforge.fml.common.FMLLog;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.function.Function;
 import com.google.common.base.Objects;
 import java.util.Optional;
+import java.util.Random;
+
 import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -77,8 +79,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class OBJModel implements IModel
+public class OBJModel implements IUnbakedModel
 {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     //private Gson GSON = new GsonBuilder().create();
     private MaterialLibrary matLib;
     private final ResourceLocation modelLocation;
@@ -97,7 +101,7 @@ public class OBJModel implements IModel
     }
 
     @Override
-    public Collection<ResourceLocation> getTextures()
+    public Collection<ResourceLocation> getTextures(Function<ResourceLocation, IUnbakedModel> modelGetter, Set<String> missingTextureErrors)
     {
         Iterator<Material> materialIterator = this.matLib.materials.values().iterator();
         List<ResourceLocation> textures = Lists.newArrayList();
@@ -112,25 +116,32 @@ public class OBJModel implements IModel
     }
 
     @Override
-    public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
+    public Collection<ResourceLocation> getDependencies()
+    {
+        return Collections.emptyList();
+    }
+
+    @Nullable
+    @Override
+    public IBakedModel bake(ModelBakery bakery, Function<ResourceLocation, TextureAtlasSprite> spriteGetter, ISprite sprite, VertexFormat format)
     {
         ImmutableMap.Builder<String, TextureAtlasSprite> builder = ImmutableMap.builder();
         builder.put(ModelLoader.White.LOCATION.toString(), ModelLoader.White.INSTANCE);
-        TextureAtlasSprite missing = bakedTextureGetter.apply(new ResourceLocation("missingno"));
+        TextureAtlasSprite missing = spriteGetter.apply(new ResourceLocation("missingno"));
         for (Map.Entry<String, Material> e : matLib.materials.entrySet())
         {
-            if (e.getValue().getTexture().getTextureLocation().getResourcePath().startsWith("#"))
+            if (e.getValue().getTexture().getTextureLocation().getPath().startsWith("#"))
             {
-                FMLLog.log.fatal("OBJLoader: Unresolved texture '{}' for obj model '{}'", e.getValue().getTexture().getTextureLocation().getResourcePath(), modelLocation);
+                LOGGER.fatal("OBJLoader: Unresolved texture '{}' for obj model '{}'", e.getValue().getTexture().getTextureLocation().getPath(), modelLocation);
                 builder.put(e.getKey(), missing);
             }
             else
             {
-                builder.put(e.getKey(), bakedTextureGetter.apply(e.getValue().getTexture().getTextureLocation()));
+                builder.put(e.getKey(), spriteGetter.apply(e.getValue().getTexture().getTextureLocation()));
             }
         }
         builder.put("missingno", missing);
-        return new OBJBakedModel(this, state, format, builder.build());
+        return new OBJBakedModel(this, sprite.getState(), format, builder.build());
     }
 
     public MaterialLibrary getMatLib()
@@ -139,14 +150,14 @@ public class OBJModel implements IModel
     }
 
     @Override
-    public IModel process(ImmutableMap<String, String> customData)
+    public IUnbakedModel process(ImmutableMap<String, String> customData)
     {
         OBJModel ret = new OBJModel(this.matLib, this.modelLocation, new CustomData(this.customData, customData));
         return ret;
     }
 
     @Override
-    public IModel retexture(ImmutableMap<String, String> textures)
+    public IUnbakedModel retexture(ImmutableMap<String, String> textures)
     {
         OBJModel ret = new OBJModel(this.matLib.makeLibWithReplacements(textures), this.modelLocation, this.customData);
         return ret;
@@ -204,7 +215,7 @@ public class OBJModel implements IModel
         public Parser(IResource from, IResourceManager manager) throws IOException
         {
             this.manager = manager;
-            this.objFrom = from.getResourceLocation();
+            this.objFrom = from.getLocation();
             this.objStream = new InputStreamReader(from.getInputStream(), StandardCharsets.UTF_8);
             this.objReader = new BufferedReader(objStream);
         }
@@ -258,7 +269,7 @@ public class OBJModel implements IModel
                         }
                         else
                         {
-                            FMLLog.log.error("OBJModel.Parser: (Model: '{}', Line: {}) material '{}' referenced but was not found", objFrom, lineNum, data);
+                            LOGGER.error("OBJModel.Parser: (Model: '{}', Line: {}) material '{}' referenced but was not found", objFrom, lineNum, data);
                         }
                         usemtlCounter++;
                     }
@@ -285,7 +296,7 @@ public class OBJModel implements IModel
                     else if (key.equalsIgnoreCase("f")) // Face Elements: f v1[/vt1][/vn1] ...
                     {
                         if (splitData.length > 4)
-                            FMLLog.log.warn("OBJModel.Parser: found a face ('f') with more than 4 vertices, only the first 4 of these vertices will be rendered!");
+                            LOGGER.warn("OBJModel.Parser: found a face ('f') with more than 4 vertices, only the first 4 of these vertices will be rendered!");
 
                         List<Vertex> v = Lists.newArrayListWithCapacity(splitData.length);
 
@@ -368,7 +379,7 @@ public class OBJModel implements IModel
                         if (!unknownObjectCommands.contains(key))
                         {
                             unknownObjectCommands.add(key);
-                            FMLLog.log.info("OBJLoader.Parser: command '{}' (model: '{}') is not currently supported, skipping. Line: {} '{}'", key, objFrom, lineNum, currentLine);
+                            LOGGER.info("OBJLoader.Parser: command '{}' (model: '{}') is not currently supported, skipping. Line: {} '{}'", key, objFrom, lineNum, currentLine);
                         }
                     }
                 }
@@ -502,9 +513,9 @@ public class OBJModel implements IModel
             this.materials.clear();
             boolean hasSetTexture = false;
             boolean hasSetColor = false;
-            String domain = from.getResourceDomain();
+            String domain = from.getNamespace();
             if (!path.contains("/"))
-                path = from.getResourcePath().substring(0, from.getResourcePath().lastIndexOf("/") + 1) + path;
+                path = from.getPath().substring(0, from.getPath().lastIndexOf("/") + 1) + path;
             mtlStream = new InputStreamReader(manager.getResource(new ResourceLocation(domain, path)).getInputStream(), StandardCharsets.UTF_8);
             mtlReader = new BufferedReader(mtlStream);
 
@@ -545,7 +556,7 @@ public class OBJModel implements IModel
                     }
                     else
                     {
-                        FMLLog.log.info("OBJModel: A color has already been defined for material '{}' in '{}'. The color defined by key '{}' will not be applied!", material.getName(), new ResourceLocation(domain, path).toString(), key);
+                        LOGGER.info("OBJModel: A color has already been defined for material '{}' in '{}'. The color defined by key '{}' will not be applied!", material.getName(), new ResourceLocation(domain, path).toString(), key);
                     }
                 }
                 else if (key.equalsIgnoreCase("map_Ka") || key.equalsIgnoreCase("map_Kd") || key.equalsIgnoreCase("map_Ks"))
@@ -569,7 +580,7 @@ public class OBJModel implements IModel
                     }
                     else
                     {
-                        FMLLog.log.info("OBJModel: A texture has already been defined for material '{}' in '{}'. The texture defined by key '{}' will not be applied!", material.getName(), new ResourceLocation(domain, path).toString(), key);
+                        LOGGER.info("OBJModel: A texture has already been defined for material '{}' in '{}'. The texture defined by key '{}' will not be applied!", material.getName(), new ResourceLocation(domain, path).toString(), key);
                     }
                 }
                 else if (key.equalsIgnoreCase("d") || key.equalsIgnoreCase("Tr"))
@@ -585,7 +596,7 @@ public class OBJModel implements IModel
                     if (!unknownMaterialCommands.contains(key))
                     {
                         unknownMaterialCommands.add(key);
-                        FMLLog.log.info("OBJLoader.MaterialLibrary: key '{}' (model: '{}') is not currently supported, skipping", key, new ResourceLocation(domain, path));
+                        LOGGER.info("OBJLoader.MaterialLibrary: key '{}' (model: '{}') is not currently supported, skipping", key, new ResourceLocation(domain, path));
                     }
                 }
             }
@@ -845,8 +856,6 @@ public class OBJModel implements IModel
 
         public Face bake(TRSRTransformation transform)
         {
-            Matrix4f m = transform.getMatrix();
-            Matrix3f mn = null;
             Vertex[] vertices = new Vertex[verts.length];
 //            Normal[] normals = norms != null ? new Normal[norms.length] : null;
 //            TextureCoordinate[] textureCoords = texCoords != null ? new TextureCoordinate[texCoords.length] : null;
@@ -857,24 +866,16 @@ public class OBJModel implements IModel
 //                Normal n = norms != null ? norms[i] : null;
 //                TextureCoordinate t = texCoords != null ? texCoords[i] : null;
 
-                Vector4f pos = new Vector4f(v.getPos()), newPos = new Vector4f();
+                Vector4f pos = new Vector4f(v.getPos());
                 pos.w = 1;
-                m.transform(pos, newPos);
-                vertices[i] = new Vertex(newPos, v.getMaterial());
+                transform.transformPosition(pos);
+                vertices[i] = new Vertex(pos, v.getMaterial());
 
                 if (v.hasNormal())
                 {
-                    if(mn == null)
-                    {
-                        mn = new Matrix3f();
-                        m.getRotationScale(mn);
-                        mn.invert();
-                        mn.transpose();
-                    }
-                    Vector3f normal = new Vector3f(v.getNormal().getData()), newNormal = new Vector3f();
-                    mn.transform(normal, newNormal);
-                    newNormal.normalize();
-                    vertices[i].setNormal(new Normal(newNormal));
+                    Vector3f normal = new Vector3f(v.getNormal().getData());
+                    transform.transformNormal(normal);
+                    vertices[i].setNormal(new Normal(normal));
                 }
 
                 if (v.hasTextureCoordinate()) vertices[i].setTextureCoordinate(v.getTextureCoordinate());
@@ -1253,36 +1254,7 @@ public class OBJModel implements IModel
         }
     }
 
-    @Deprecated
-    public enum OBJProperty implements IUnlistedProperty<OBJState>
-    {
-        INSTANCE;
-        @Override
-        public String getName()
-        {
-            return "OBJProperty";
-        }
-
-        @Override
-        public boolean isValid(OBJState value)
-        {
-            return value instanceof OBJState;
-        }
-
-        @Override
-        public Class<OBJState> getType()
-        {
-            return OBJState.class;
-        }
-
-        @Override
-        public String valueToString(OBJState value)
-        {
-            return value.toString();
-        }
-    }
-
-    public class OBJBakedModel implements IBakedModel
+    public class OBJBakedModel implements IDynamicBakedModel
     {
         private final OBJModel model;
         private IModelState state;
@@ -1306,26 +1278,18 @@ public class OBJModel implements IModel
 
         // FIXME: merge with getQuads
         @Override
-        public List<BakedQuad> getQuads(IBlockState blockState, EnumFacing side, long rand)
+        public List<BakedQuad> getQuads(BlockState blockState, Direction side, Random rand, IModelData modelData)
         {
             if (side != null) return ImmutableList.of();
             if (quads == null)
             {
                 quads = buildQuads(this.state);
             }
-            if (blockState instanceof IExtendedBlockState)
+            IModelState newState = modelData.getData(Properties.AnimationProperty);
+            if (newState != null)
             {
-                IExtendedBlockState exState = (IExtendedBlockState) blockState;
-                if (exState.getUnlistedNames().contains(Properties.AnimationProperty))
-                {
-
-                    IModelState newState = exState.getValue(Properties.AnimationProperty);
-                    if (newState != null)
-                    {
-                        newState = new ModelStateComposition(this.state, newState);
-                        return buildQuads(newState);
-                    }
-                }
+                newState = new ModelStateComposition(this.state, newState);
+                return buildQuads(newState);
             }
             return quads;
         }
@@ -1408,7 +1372,7 @@ public class OBJModel implements IModel
                 else sprite = this.textures.get(f.getMaterialName());
                 UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
                 builder.setContractUVs(true);
-                builder.setQuadOrientation(EnumFacing.getFacingFromVector(f.getNormal().x, f.getNormal().y, f.getNormal().z));
+                builder.setQuadOrientation(Direction.getFacingFromVector(f.getNormal().x, f.getNormal().y, f.getNormal().z));
                 builder.setTexture(sprite);
                 Normal faceNormal = f.getNormal();
                 putVertexData(builder, f.verts[0], faceNormal, TextureCoordinate.getDefaultUVs()[0], sprite);
@@ -1586,7 +1550,7 @@ public class OBJModel implements IModel
         @Override
         public ItemOverrideList getOverrides()
         {
-            return ItemOverrideList.NONE;
+            return ItemOverrideList.EMPTY;
         }
     }
 

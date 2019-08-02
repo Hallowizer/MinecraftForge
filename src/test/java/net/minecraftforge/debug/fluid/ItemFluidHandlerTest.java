@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+ *//*
+
 
 package net.minecraftforge.debug.fluid;
 
@@ -29,8 +30,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.logging.log4j.Logger;
 
@@ -38,7 +39,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-@Mod(modid = "fluidhandlertest", name = "FluidHandlerTest", version = "0.0.0", clientSideOnly = true)
+//@Mod(modid = "fluidhandlertest", name = "FluidHandlerTest", version = "0.0.0", clientSideOnly = true)
 public class ItemFluidHandlerTest
 {
     public static final boolean ENABLE = false;
@@ -159,3 +160,4 @@ public class ItemFluidHandlerTest
         return list;
     }
 }
+*/

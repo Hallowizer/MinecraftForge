@@ -1,6 +1,6 @@
 /*
  * Minecraft Forge
- * Copyright (c) 2016-2018.
+ * Copyright (c) 2016-2019.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,7 +19,7 @@
 
 package net.minecraftforge.fml.common.network;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -38,7 +38,7 @@ public interface IGuiHandler
      * @return A GuiScreen/Container to be displayed to the user, null if none.
      */
     @Nullable
-    Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z);
+    Object getServerGuiElement(int ID, PlayerEntity player, World world, int x, int y, int z);
 
     /**
      * Returns a Container to be displayed to the user. On the client side, this
@@ -54,5 +54,5 @@ public interface IGuiHandler
      * @return A GuiScreen/Container to be displayed to the user, null if none.
      */
     @Nullable
-    Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z);
+    Object getClientGuiElement(int ID, PlayerEntity player, World world, int x, int y, int z);
 }
